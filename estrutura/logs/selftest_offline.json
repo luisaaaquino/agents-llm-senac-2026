@@ -1,0 +1,50 @@
+{
+  "selftest": [
+    [
+      "preco_ok",
+      {
+        "categoria": "geladeira",
+        "bairro": "Santo Amaro",
+        "n": 4,
+        "faixa_min": 300.0,
+        "faixa_max": 380.0
+      }
+    ],
+    [
+      "preco_sem_registro",
+      {
+        "erro": "sem_comparaveis",
+        "categoria": "bicicleta",
+        "bairro": "Santo Amaro",
+        "dica": "não há base de preço para essa categoria/bairro"
+      }
+    ],
+    [
+      "publicar_1",
+      {
+        "ok": true,
+        "ja_existia": false,
+        "anuncio_id": 1,
+        "estado": "ativo"
+      }
+    ],
+    [
+      "publicar_2_idempotente",
+      {
+        "ok": true,
+        "ja_existia": true,
+        "anuncio_id": 1,
+        "estado": "ativo"
+      }
+    ],
+    [
+      "indicio",
+      {
+        "ok": true,
+        "indicio_id": 1,
+        "status": "pendente",
+        "decisao": "humana"
+      }
+    ]
+  ]
+}
