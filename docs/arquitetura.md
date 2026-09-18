@@ -37,11 +37,11 @@ marketplace C2C:
   sugestão de itens *ativos*, próximos e dentro do orçamento provável — e quando o
   sinal é fraco, pergunta ou admite que não sabe, em vez de chutar."
 - **Ferramentas:**
-  | Ferramenta | O que faz | Leitura/Escrita | Reversível? |
-  |------------|-----------|-----------------|-------------|
-  | `consultar_catalogo_ativo` | Lista itens com estado = ativo (RF12), por categoria/faixa de preço | Leitura | — |
-  | `calcular_distancia` | Distância entre CEP do usuário e do item (RF08) | Leitura | — |
-  | `montar_sugestao` | Produz o bloco final exibido ao usuário | Escrita (só exibe) | Sim (nada persistido) |
+  | Ferramenta | O que faz | Leitura/Escrita | Reversível? | Contra o que ela conversa |
+  |------------|-----------|-----------------|-------------|----------------------------|
+  | `consultar_catalogo_ativo` | Lista itens com estado = ativo (RF12), por categoria/faixa de preço | Leitura | — | Banco de dados do catálogo (mesma base do Agente B, tabela `anuncios`) |
+  | `calcular_distancia` | Distância entre CEP do usuário e do item (RF08) | Leitura | — | Serviço/tabela de geolocalização por CEP (mock na Parte 1) |
+  | `montar_sugestao` | Produz o bloco final exibido ao usuário | Escrita (só exibe) | Sim (nada persistido) | Nada externo — monta a resposta a partir do que já foi lido |
 - **Estado (sobrevive entre passos):** a intenção inferida (hipótese atual), as
   restrições deduzidas (faixa de preço, distância tolerada), os itens já
   considerados e os já descartados, e o motivo do descarte.
@@ -128,12 +128,12 @@ Como o evento de navegação vira a sugestão exibida — com o padrão de cada 
   nunca bloqueia: se ele recusa declarar uma avaria, registra o indício para a
   moderação."
 - **Ferramentas:**
-  | Ferramenta | O que faz | Leitura/Escrita | Reversível? |
-  |------------|-----------|-----------------|-------------|
-  | `consultar_preco_comparaveis` | Faixa de preço de itens semelhantes ativos/vendidos no bairro | Leitura | — |
-  | `preencher_campos_anuncio` | Monta título, categoria, descrição, preço sugerido | Escrita (rascunho) | Sim (rascunho editável) |
-  | `publicar_anuncio` | Publica o anúncio (estado ativo, RF12) | Escrita | Sim (pode editar/pausar depois) |
-  | `registrar_indicio_avaria` | Sinaliza à moderação (RF20) quando o vendedor recusa declarar | Escrita | Sim (registro; decisão é humana) |
+  | Ferramenta | O que faz | Leitura/Escrita | Reversível? | Contra o que ela conversa |
+  |------------|-----------|-----------------|-------------|----------------------------|
+  | `consultar_preco_comparaveis` | Faixa de preço de itens semelhantes ativos/vendidos no bairro | Leitura | — | SQLite, tabela `precos_comparaveis` (`src/db.py`) |
+  | `preencher_campos_anuncio` | Monta título, categoria, descrição, preço sugerido | Escrita (rascunho) | Sim (rascunho editável) | Nada externo — monta o rascunho em memória (`Estado.rascunho`) |
+  | `publicar_anuncio` | Publica o anúncio (estado ativo, RF12) | Escrita | Sim (pode editar/pausar depois) | SQLite, tabela `anuncios` (`src/db.py`) |
+  | `registrar_indicio_avaria` | Sinaliza à moderação (RF20) quando o vendedor recusa declarar | Escrita | Sim (registro; decisão é humana) | SQLite, tabela `indicios_moderacao` (`src/db.py`) |
 - **Estado (sobrevive entre passos):** os campos do anúncio já preenchidos, o que
   ainda falta, os indícios de avaria levantados na conversa, o preço-desejo do
   vendedor vs. a faixa de mercado, e se o vendedor aceitou ou recusou declarar.
@@ -228,6 +228,7 @@ Todos os valores abaixo já estão definidos.
 | B | `MAX_RODADAS_AVALIADOR` | 3 | segue o exemplo do avaliador |
 | B | `MAX_TOKENS` | 60_000 | padrão da aula 05 |
 | B | `MAX_TEMPO` (s) | 120 | padrão da aula 05 |
+| B | `MAX_CUSTO_USD` | 0,01 | só entra em jogo se rodar numa API paga (Ollama local = US$ 0); ~7x o custo medido de uma execução normal, calculado pelo preço de saída da Mistral Small (o mais caro dos dois — ver `docs/modelos.md` §3.2) |
 
 > Todos os tetos partem do orçamento de referência da aula 05
 > (`Orcamento(max_passos=12, max_tokens=60_000, max_segundos=120)` em

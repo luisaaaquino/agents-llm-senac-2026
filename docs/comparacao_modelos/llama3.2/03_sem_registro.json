@@ -1,0 +1,44 @@
+{
+  "termino": "orcamento",
+  "passos": 2,
+  "tokens": 1261,
+  "rascunho": {},
+  "conversa": [
+    {
+      "quem": "vendedor",
+      "texto": "quero anunciar uma bicicleta, uns 500 reais, Santo Amaro"
+    },
+    {
+      "quem": "agente",
+      "texto": "qual marca e modelo da bicicleta?"
+    },
+    {
+      "quem": "vendedor",
+      "texto": "aro 29, seminova, sem defeito"
+    },
+    {
+      "quem": "agente",
+      "texto": "qual marca e modelo da bicicleta?"
+    }
+  ],
+  "trajetoria": [
+    {
+      "passo": 1,
+      "acao": "perguntar",
+      "tokens": 602,
+      "resultado": "vendedor respondeu"
+    },
+    {
+      "passo": 2,
+      "acao": "perguntar",
+      "tokens": 659,
+      "resultado": "sem resposta do vendedor"
+    }
+  ],
+  "carimbo": {
+    "agente": "agente-anuncio-v1.md",
+    "avaliador": "avaliador-anuncio-v1.md",
+    "modelo": "llama3.2",
+    "temperatura": 0
+  }
+}

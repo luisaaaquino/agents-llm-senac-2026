@@ -20,7 +20,7 @@ Na raiz do repositório:
 
 ```powershell
 .venv\Scripts\Activate.ps1
-python aula05-agentes\08-analista.py
+python analista\08-analista.py
 ```
 
 O projeto usa as variáveis do `.env` da raiz:

@@ -36,8 +36,8 @@ INSERT INTO precos_comparaveis (categoria, bairro, preco) VALUES
     ('geladeira', 'Santo Amaro', 340.0),
     ('geladeira', 'Santo Amaro', 360.0),
     ('geladeira', 'Santo Amaro', 380.0),
-    ('sofa',      'Santo Amaro', 250.0),
-    ('sofa',      'Santo Amaro', 420.0),
+    ('sofá',      'Santo Amaro', 250.0),
+    ('sofá',      'Santo Amaro', 420.0),
     ('mesa',      'Santo Amaro', 120.0),
     ('mesa',      'Santo Amaro', 190.0);
 -- Obs.: NÃO há comparáveis para ('bicicleta','Santo Amaro') de propósito:
