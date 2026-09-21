@@ -13,6 +13,7 @@ O banco é criado a partir de `dados/seed.sql`. Tudo é mock e simulado
 from __future__ import annotations
 
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 from typing import Any
 
@@ -32,10 +33,9 @@ def inicializar() -> None:
     """Cria o banco a partir do seed. Idempotente: recria do zero."""
     if DB_PATH.exists():
         DB_PATH.unlink()
-    con = conectar()
-    con.executescript(SEED_PATH.read_text(encoding="utf-8"))
-    con.commit()
-    con.close()
+    with closing(conectar()) as con:
+        con.executescript(SEED_PATH.read_text(encoding="utf-8"))
+        con.commit()
 
 
 def consultar_preco_comparaveis(categoria: str, bairro: str) -> dict[str, Any]:
@@ -44,15 +44,14 @@ def consultar_preco_comparaveis(categoria: str, bairro: str) -> dict[str, Any]:
     Retorna erro-como-dado quando não há comparáveis (caso do 'registro
     inexistente' da §4.5): o agente precisa contornar, não quebrar.
     """
-    con = conectar()
-    linhas = con.execute(
-        """
-        SELECT preco FROM precos_comparaveis
-        WHERE categoria = ? AND bairro = ?
-        """,
-        (categoria, bairro),
-    ).fetchall()
-    con.close()
+    with closing(conectar()) as con:
+        linhas = con.execute(
+            """
+            SELECT preco FROM precos_comparaveis
+            WHERE categoria = ? AND bairro = ?
+            """,
+            (categoria, bairro),
+        ).fetchall()
 
     if not linhas:
         return {
@@ -82,31 +81,29 @@ def publicar_anuncio(rascunho: dict[str, Any]) -> dict[str, Any]:
     if faltando:
         return {"erro": "rascunho_incompleto", "faltando": faltando}
 
-    con = conectar()
-    existente = con.execute(
-        "SELECT id FROM anuncios WHERE titulo = ? AND bairro = ? AND preco = ?",
-        (rascunho["titulo"], rascunho["bairro"], rascunho["preco"]),
-    ).fetchone()
-    if existente:
-        con.close()
-        return {"ok": True, "ja_existia": True, "anuncio_id": existente["id"],
-                "estado": "ativo"}
+    with closing(conectar()) as con:
+        existente = con.execute(
+            "SELECT id FROM anuncios WHERE titulo = ? AND bairro = ? AND preco = ?",
+            (rascunho["titulo"], rascunho["bairro"], rascunho["preco"]),
+        ).fetchone()
+        if existente:
+            return {"ok": True, "ja_existia": True,
+                    "anuncio_id": existente["id"], "estado": "ativo"}
 
-    cur = con.execute(
-        """
-        INSERT INTO anuncios (titulo, categoria, descricao, preco, bairro,
-                              estado_declarado, estado)
-        VALUES (?, ?, ?, ?, ?, ?, 'ativo')
-        """,
-        (
-            rascunho["titulo"], rascunho["categoria"], rascunho["descricao"],
-            rascunho["preco"], rascunho["bairro"],
-            1 if rascunho.get("estado_declarado") else 0,
-        ),
-    )
-    con.commit()
-    anuncio_id = cur.lastrowid
-    con.close()
+        cur = con.execute(
+            """
+            INSERT INTO anuncios (titulo, categoria, descricao, preco, bairro,
+                                  estado_declarado, estado)
+            VALUES (?, ?, ?, ?, ?, ?, 'ativo')
+            """,
+            (
+                rascunho["titulo"], rascunho["categoria"], rascunho["descricao"],
+                rascunho["preco"], rascunho["bairro"],
+                1 if rascunho.get("estado_declarado") else 0,
+            ),
+        )
+        con.commit()
+        anuncio_id = cur.lastrowid
     return {"ok": True, "ja_existia": False, "anuncio_id": anuncio_id,
             "estado": "ativo"}
 
@@ -117,14 +114,13 @@ def registrar_indicio_avaria(anuncio_ref: str, indicio: str) -> dict[str, Any]:
     recusa declarar a avaria. É um REGISTRO — a decisão é humana; o agente
     apenas aconselha e encaminha, não veta a publicação.
     """
-    con = conectar()
-    cur = con.execute(
-        "INSERT INTO indicios_moderacao (anuncio_ref, indicio, status) "
-        "VALUES (?, ?, 'pendente')",
-        (anuncio_ref, indicio),
-    )
-    con.commit()
-    indicio_id = cur.lastrowid
-    con.close()
+    with closing(conectar()) as con:
+        cur = con.execute(
+            "INSERT INTO indicios_moderacao (anuncio_ref, indicio, status) "
+            "VALUES (?, ?, 'pendente')",
+            (anuncio_ref, indicio),
+        )
+        con.commit()
+        indicio_id = cur.lastrowid
     return {"ok": True, "indicio_id": indicio_id, "status": "pendente",
             "decisao": "humana"}

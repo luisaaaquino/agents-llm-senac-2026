@@ -4,3 +4,7 @@ __pycache__/
 *.pyc
 .venv/
 atividade.md
+.env.*
+!.env.example
+*.db-journal
+.pytest_cache/

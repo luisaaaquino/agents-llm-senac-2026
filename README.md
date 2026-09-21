@@ -19,7 +19,7 @@ docs/       case.md · fontes.md · arquitetura.md · modelos.md
 prompts/    prompts versionados do Agente B (agente + avaliador)
 src/        agente_anuncio.py (o agente) · db.py (camada SQLite — §4.2)
 dados/      seed.sql (dados simulados, casos difíceis nomeados) · casos.md
-logs/       as 4 execuções demonstradas (geradas ao rodar)
+logs/       as execuções demonstradas: 4 casos oficiais + 1 extra (geradas ao rodar)
 analista/   o lab da Aula 05 (analista de prestação de contas) — NÃO é o
                    trabalho; fica aqui porque foi dele que veio o scaffolding.
 ```
