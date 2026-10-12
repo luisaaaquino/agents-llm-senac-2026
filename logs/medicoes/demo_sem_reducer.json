@@ -1,0 +1,49 @@
+{
+  "data": "2026-10-12T14:11:14",
+  "entrada": "to montando a cozinha do meu ap no brooklin, queria gastar no maximo uns 700 no total",
+  "resultados": [
+    {
+      "rotulo": "com_reducers",
+      "erro": null,
+      "ramos_paralelos": 4,
+      "categorias_nos_candidatos": [
+        "fogão",
+        "geladeira",
+        "mesa",
+        "micro-ondas"
+      ],
+      "candidatos": 8,
+      "chamadas_de_modelo_na_trajetoria": 3,
+      "campo_passos": 3,
+      "itens_sugeridos": [
+        "Geladeira Brastemp Frost Free 375L",
+        "Fogão 4 bocas Dako",
+        "Micro-ondas Panasonic 21L"
+      ]
+    },
+    {
+      "rotulo": "candidatos_sem_reducer",
+      "erro": "InvalidUpdateError: At key 'candidatos': Can receive only one value per step. Use an Annotated key to handle multiple values.",
+      "onde": "update"
+    },
+    {
+      "rotulo": "passos_sem_reducer",
+      "erro": null,
+      "ramos_paralelos": 4,
+      "categorias_nos_candidatos": [
+        "fogão",
+        "geladeira",
+        "mesa",
+        "micro-ondas"
+      ],
+      "candidatos": 8,
+      "chamadas_de_modelo_na_trajetoria": 3,
+      "campo_passos": 1,
+      "itens_sugeridos": [
+        "Fogão 4 bocas Dako",
+        "Geladeira Brastemp Frost Free 375L",
+        "Micro-ondas Panasonic 21L"
+      ]
+    }
+  ]
+}

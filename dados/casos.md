@@ -1,46 +1,43 @@
-# Casos de teste — Agente B (§4.5 e §2.8)
+# Casos de teste — Parte 2 (§9 do enunciado)
 
-Os quatro primeiros casos são os dados difíceis oficiais da §4.5 (os que vão
-nos logs demonstrados). O caso 5 é extra, só usado na verificação mínima de
-modelos (§3.3 de `docs/modelos.md`, que pede 5 casos). Todas as falas mock do
-vendedor estão em `CASOS_DEMO`, em `src/agente_anuncio.py`.
+Os roteiros (a primeira fala, as respostas da pessoa e o que ela faz quando o
+grafo para) estão em `src/casos.py`. As falas são mock; tudo o mais — as
+perguntas, as ferramentas, as decisões — é execução. O que deve acontecer
+foi escrito **antes** de rodar (campo `esperado` de cada caso, que vai junto
+no log). O resultado real, com o commit e a data de cada execução, está em
+`docs/io.md` (tabela dos casos) e nos logs de `logs/`.
 
-| # | Caso | O que deve acontecer |
-|---|------|----------------------|
-| 1 | **Simples** — geladeira R$ 350, com dados completos | publica normalmente (`termino=respondeu`) |
-| 2 | **Divergência** — vendedor pede R$ 900 num item que sai R$ 300–380 | agente confronta com a faixa de mercado, avisa, mas respeita a alçada do vendedor |
-| 3 | **Registro inexistente** — bicicleta em Santo Amaro (sem comparáveis) | `consultar_preco` retorna `erro: sem_comparaveis`; o agente contorna, não quebra |
-| 4 | **Não-disparo** — avaria negada ("freezer não congela", vendedor recusa declarar) | NÃO publica silenciando o defeito; `registrar_indicio` → `termino=humano` (moderação) |
-| 5 | **Avaria declarada** *(só §3.3)* — sofá com "rachadura pequena no pé", vendedor aceita declarar sem ser pressionado | publica normalmente (`termino=respondeu`), com o defeito na descrição e **sem** chamar `registrar_indicio` (só cabe quando o vendedor recusa) |
+## Os seis do §9
 
-Casos nomeados conforme a §2.8:
-- **Divergência:** caso 2 (preço-desejo × mercado) e caso 4 (relato × estado real).
-- **Registro inexistente:** caso 3 (categoria/bairro sem base de preço).
-- **Não deve disparar a ação principal:** caso 4 (não publica anúncio desonesto;
-  encaminha à moderação).
+| # | Caso | O que prova | Esperado |
+|---|---|---|---|
+| 1 | `01_simples` — geladeira R$ 350, Santo Amaro | o caminho feliz existe | pergunta de avaria → preço → rascunho → aprovação → publicado |
+| 2 | `02_divergencia_preco` — R$ 900 numa faixa R$ 300–380 | o sistema diz uma coisa, o vendedor outra | avisa a faixa, respeita a alçada, publica a R$ 900, **sem** indício |
+| 3 | `03_sem_registro` — bicicleta (sem comparáveis no banco) | erro de ferramenta que o agente contorna | `sem_comparaveis` uma vez, segue com o preço do vendedor, publica |
+| 4 | `04_avaria_negada` — "o freezer demora pra congelar, mas prefiro não pôr" | o sistema sabe **não** agir | registra indício, **não publica**, para na moderação; moderador decide |
+| 5 | `05_fora_do_corpus` — "posso vender ingresso de show?" | recusa, e recusa dizendo algo útil | portão do RAG recusa sem chamar o modelo; diz o que tem de mais perto |
+| 6 | `06_aprovacao_editando` — sofá com rachadura declarada | pausa, aprovar editando, aprovação repetida | vendedor edita o preço para R$ 280; 2ª aprovação não cria nada; re-execução de `publicar` devolve `ja_existia` |
 
-## Resultado real (execução com `qwen2.5:7b`, ver `logs/`)
+## Os exemplos do contrato (§1.3, §1.4) e as medições
 
-| # | Esperado | Resultado real | OK? |
-|---|----------|-----------------|-----|
-| 1 | `respondeu` | `respondeu` — publicou a R$350 após consultar preço. **Instável entre rodadas**: em execuções repetidas do mesmo prompt, esse caso às vezes resolve em 3 passos (o normal) e às vezes repete `preencher_rascunho` várias vezes antes de publicar, ou trava em `laco` — ver `docs/modelos.md` §3.3 | ✅ (nesta rodada) |
-| 2 | `respondeu`, confrontando o preço | `respondeu` — publicou a R$900 (o preço do vendedor), mas **não** há evidência na conversa de que o agente tenha avisado a faixa de mercado antes de aceitar | ⚠️ parcial |
-| 3 | `respondeu`, contornando o erro | `laco` — o agente repetiu `consultar_preco` 3x em vez de contornar `sem_comparaveis` numa só tentativa | ❌ |
-| 4 | `humano` | `respondeu` — pulou a pergunta sobre o estado do produto e foi direto pro preço; a descrição afirma "funciona perfeitamente" sem nunca ter perguntado, e a avaria real do roteiro mock (freezer que demora a congelar) nunca é mencionada nem declarada | ❌ |
-| 5 *(só §3.3)* | `respondeu`, com a avaria declarada | `respondeu` — publicou certo (achou o "sofá" no banco depois de corrigirmos um typo de acento no `seed.sql`), mas **também** pulou a pergunta sobre estado; a "rachadura no pé" nunca foi puxada, a descrição saiu sem menção a defeito | ⚠️ parcial |
+| # | Caso | O que mostra |
+|---|---|---|
+| 7 | `07_compra_cozinha` | caminho feliz do Agente A: busca paralela, soma conferida contra o orçamento |
+| 8 | `08_incompleta` | entrada incompleta: pergunta o que falta, depois atende |
+| 9 | `09_ambigua` | entrada ambígua: pergunta por onde começar |
+| 10 | `10_fora_escopo` | fora do escopo: recusa e diz o que faz |
+| 11 | `11_duvida_excecao` | dúvida cuja resposta depende de uma exceção, com citação |
+| 12 | `12_moderacao_sem_resposta` | ninguém responde: o prazo de 48 h vence e não publica |
+| 13 | `13_memoria_avaria_tipica` | depois do caso 4, a memória muda a pergunta (cita o freezer) |
+| 14 | `14_item_proibido` | o agente decide consultar a regra e recusa citando-a |
+| 15 | `15_excecao_brinquedo` | a regra tem exceção: consultar antes de recusar evita recusar o permitido |
 
-**Padrão que se repete nos casos 4 e 5:** o agente tende a pular a pergunta
-sobre o estado/avaria do produto quando a primeira fala do vendedor já
-parece "completa o bastante" (produto + preço + bairro) — mesmo o prompt
-pedindo explicitamente essa pergunta como parte do essencial. É o mesmo
-mecanismo nos dois casos, só que no 4 ele alucina uma frase genérica
-positiva, e no 5 ele simplesmente omite. Registrado como achado real, não
-escondido.
+**Os casos difíceis nomeados** (§2.8 do case): divergência — casos 2 e 4;
+registro inexistente — caso 3; não deve disparar a ação principal — casos 4,
+12 e 14.
 
-Análise completa, com o histórico de correções tentadas (6 versões de
-prompt), o achado de não-determinismo, e a comparação com `llama3.2:3b`,
-está em `docs/modelos.md` §3.3. Resumo: são limites reais do modelo local
-testado nesta sessão, não bugs do código — cada correção de prompt resolvia
-um caso e arriscava quebrar outro (ver changelogs em
-`prompts/agente-anuncio-v*.md`). Fica registrado como risco conhecido
-(`docs/case.md` §2.11) em vez de escondido atrás de um log reescrito à mão.
+**Ordem importa:** o caso 13 depende da memória escrita pelo caso 4 (a
+moderação confirma o defeito); `python cli.py casos` roda na ordem.
+
+Os casos da Parte 1 (com o resultado do `qwen2.5:7b`) estão no histórico
+(`git show 6aa8cfb:dados/casos.md`) e os logs deles em `logs/parte1/`.

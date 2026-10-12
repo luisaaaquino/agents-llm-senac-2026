@@ -1,0 +1,136 @@
+{
+  "data": "2026-10-12T14:09:05",
+  "modelo": "gemini-3.5-flash-lite",
+  "casos": [
+    {
+      "pergunta": "por quanto tempo meu anuncio fica no ar?",
+      "sem_curadoria": {
+        "recuperados": [
+          [
+            "faq-site-2025#1",
+            0.8717,
+            "revogado"
+          ],
+          [
+            "termos-de-uso-2026#3",
+            0.8001,
+            "vigente"
+          ],
+          [
+            "politica-moderacao-2026#5",
+            0.6632,
+            "vigente"
+          ]
+        ],
+        "resposta": "O anúncio fica no ar por 30 dias e você pode renová-lo por mais 30 dias ao fim do prazo. Se o anúncio estiver aguardando decisão da moderação, esse prazo não conta e só começa a valer a partir da publicação efetiva.",
+        "citacoes": [
+          "termos-de-uso-2026#3"
+        ],
+        "citou_revogado": false
+      },
+      "com_curadoria": {
+        "recuperados": [
+          [
+            "termos-de-uso-2026#3",
+            0.8001,
+            "vigente"
+          ],
+          [
+            "politica-moderacao-2026#5",
+            0.6632,
+            "vigente"
+          ],
+          [
+            "termos-de-uso-2026#2",
+            0.6577,
+            "vigente"
+          ]
+        ],
+        "resposta": "Cada anúncio ativo fica no ar por 30 dias e pode ser renovado ao fim do prazo. Anúncios aguardando moderação são uma exceção e não têm o prazo contado até serem publicados de fato.",
+        "citacoes": [
+          "termos-de-uso-2026#3"
+        ],
+        "citou_revogado": false
+      },
+      "sem_curadoria_k1": {
+        "recuperados": [
+          [
+            "faq-site-2025#1",
+            0.8717,
+            "revogado"
+          ]
+        ],
+        "resposta": "O seu anúncio fica ativo por 60 dias e, depois disso, ele sai das buscas. No entanto, você pode renovar o anúncio por mais 60 dias diretamente pelo seu perfil.",
+        "citacoes": [
+          "faq-site-2025#1"
+        ],
+        "citou_revogado": true
+      }
+    },
+    {
+      "pergunta": "posso aceitar troca em vez de dinheiro?",
+      "sem_curadoria": {
+        "recuperados": [
+          [
+            "faq-site-2025#2",
+            0.8078,
+            "revogado"
+          ],
+          [
+            "termos-de-uso-2026#4",
+            0.7559,
+            "vigente"
+          ],
+          [
+            "faq-site-2025#3",
+            0.6113,
+            "revogado"
+          ]
+        ],
+        "resposta": "Não é possível realizar trocas de produto por produto, pois o recurso foi retirado da plataforma em outubro de 2026 e a intermediação ocorre apenas para compra e venda com pagamento pelo sistema integrado.",
+        "citacoes": [
+          "termos-de-uso-2026#4"
+        ],
+        "citou_revogado": false
+      },
+      "com_curadoria": {
+        "recuperados": [
+          [
+            "termos-de-uso-2026#4",
+            0.7559,
+            "vigente"
+          ],
+          [
+            "termos-de-uso-2026#7",
+            0.591,
+            "vigente"
+          ],
+          [
+            "guia-estado-conservacao#1",
+            0.5849,
+            "vigente"
+          ]
+        ],
+        "resposta": "Não é possível aceitar troca, pois a plataforma intermedia apenas compra e venda com pagamento pelo sistema integrado. O recurso de trocas foi retirado porque a operação não passa pelo pagamento protegido nem pelo código de entrega.",
+        "citacoes": [
+          "termos-de-uso-2026#4"
+        ],
+        "citou_revogado": false
+      },
+      "sem_curadoria_k1": {
+        "recuperados": [
+          [
+            "faq-site-2025#2",
+            0.8078,
+            "revogado"
+          ]
+        ],
+        "resposta": "Sim, você pode aceitar troca, bastando marcar a opção \"aceito trocas\" no formulário do anúncio e combinar os detalhes pelo chat.",
+        "citacoes": [
+          "faq-site-2025#2"
+        ],
+        "citou_revogado": true
+      }
+    }
+  ]
+}

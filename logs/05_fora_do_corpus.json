@@ -1,0 +1,126 @@
+{
+  "caso": "05_fora_do_corpus",
+  "prova": "a pergunta não está no corpus: recusa, e recusa dizendo algo útil",
+  "esperado": "recusa / recusou",
+  "carimbo": {
+    "data": "2026-10-12T14:01:15",
+    "commit": "1a5cd36",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 6,
+      "episodios": 4,
+      "episodios_hash": "e4657ddb06a4",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "C-002:05_fora_do_corpus",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "posso vender ingresso de show pelo site?",
+      "saida": {
+        "thread_id": "C-002:05_fora_do_corpus",
+        "agente": "duvida",
+        "tipo": "recusa",
+        "resultado": "Não encontrei nenhuma regra do Santo Desapego sobre isso, então prefiro não chutar. O mais perto que eu tenho é sobre: Como o comprador paga; Quando o vendedor recebe o dinheiro. Para esse caso, a equipe responde pela Central de Ajuda.",
+        "dados": null,
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "melhor similaridade 0.617 abaixo do limiar 0.67",
+          "faltando": [
+            "regra sobre este assunto no corpus"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "recusou",
+        "motivo_termino": "melhor similaridade 0.617 abaixo do limiar 0.67"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "posso vender ingresso de show pelo site?",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 319,
+          "segundos": 4.59,
+          "tentativas": 1,
+          "saida": {
+            "rota": "duvida",
+            "leituras": [],
+            "categoria": null,
+            "motivo": "A usuaria esta perguntando sobre as regras da plataforma em relacao ao que pode ser anunciado."
+          }
+        },
+        {
+          "etapa": "buscar_regras",
+          "decide": "codigo",
+          "consulta": "posso vender ingresso de show pelo site?",
+          "k": 3,
+          "recuperados": [
+            [
+              "pagamento-e-entrega#1",
+              0.6166
+            ],
+            [
+              "pagamento-e-entrega#3",
+              0.6113
+            ],
+            [
+              "termos-de-uso-2026#4",
+              0.6095
+            ]
+          ],
+          "portao": {
+            "melhor": 0.6166,
+            "limiar": 0.67,
+            "suficiente": false
+          }
+        },
+        {
+          "etapa": "recusar_sem_base",
+          "decide": "codigo",
+          "portao": {
+            "melhor": 0.6166,
+            "limiar": 0.67,
+            "suficiente": false
+          }
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "recusa",
+    "termino": "recusou",
+    "motivo": "melhor similaridade 0.617 abaixo do limiar 0.67",
+    "segundos": 7.9,
+    "passos": 1,
+    "tokens": 319,
+    "custo_usd": 0.0002123,
+    "consultas_rag": 1
+  }
+}

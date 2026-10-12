@@ -1,0 +1,490 @@
+{
+  "caso": "06_aprovacao_editando",
+  "prova": "o grafo pausa, o vendedor aprova EDITANDO o preço, e a segunda aprovação não duplica",
+  "esperado": "anuncio_publicado a R$ 280 / respondeu; 2ª aprovação sem efeito",
+  "carimbo": {
+    "data": "2026-10-12T14:01:23",
+    "commit": "1a5cd36",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 6,
+      "episodios": 4,
+      "episodios_hash": "e4657ddb06a4",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "V-022:06_aprovacao_editando",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "quero vender um sofá 3 lugares veludo verde, uns 300 reais, Santo Amaro",
+      "saida": {
+        "thread_id": "V-022:06_aprovacao_editando",
+        "agente": "anuncio",
+        "tipo": "pergunta",
+        "resultado": "O sofá tem alguma mancha no tecido de veludo, rasgo ou afundamento na espuma?",
+        "dados": {
+          "rascunho": null
+        },
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "falta informação essencial para o anúncio",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_usuario",
+        "motivo_termino": "falta informação essencial para o anúncio"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "quero vender um sofá 3 lugares veludo verde, uns 300 reais, Santo Amaro",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 329,
+          "segundos": 4.25,
+          "tentativas": 1,
+          "saida": {
+            "rota": "vender",
+            "leituras": [
+              "vender"
+            ],
+            "categoria": "sofá",
+            "motivo": "O usuário informou explicitamente que deseja vender um sofá."
+          }
+        },
+        {
+          "etapa": "iniciar_b",
+          "decide": "codigo",
+          "memoria_recuperada": {
+            "fatos_vendedor": [],
+            "fatos_categoria": [],
+            "episodios": []
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1016,
+          "segundos": 4.71,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor informou produto, preço e bairro, mas ainda preciso perguntar sobre o estado e avarias do sofá antes de prosseguir.",
+            "acao": "perguntar",
+            "pergunta": "O sofá tem alguma mancha no tecido de veludo, rasgo ou afundamento na espuma?",
+            "categoria": "sofá",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "6ae54a6664a4"
+        },
+        {
+          "etapa": "perguntar_b",
+          "decide": "codigo",
+          "pergunta": "O sofá tem alguma mancha no tecido de veludo, rasgo ou afundamento na espuma?",
+          "origem": "modelo"
+        }
+      ]
+    },
+    {
+      "tipo": "fala",
+      "enviado": "tem um pé com uma rachadura pequena, mas fora isso tá ótimo, pode colocar isso na descrição",
+      "saida": {
+        "thread_id": "V-022:06_aprovacao_editando",
+        "agente": "anuncio",
+        "tipo": "aguardando_aprovacao",
+        "resultado": "Confere antes de publicar? O anúncio \"Sofá 3 lugares veludo verde\" por R$ 300.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois. Você pode aprovar, editar algum campo ou desistir.",
+        "dados": {
+          "pendencia": {
+            "tipo": "aprovacao_vendedor",
+            "perfil": "vendedor",
+            "responsavel": "V-022",
+            "acao": "publicar_anuncio",
+            "argumentos": {
+              "titulo": "Sofá 3 lugares veludo verde",
+              "categoria": "sofá",
+              "descricao": "Sofá 3 lugares de veludo verde. Possui um pé com uma rachadura pequena.",
+              "preco": 300.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "marcas_de_uso",
+              "avarias_declaradas": [
+                "pé com rachadura pequena"
+              ]
+            },
+            "consequencia": "O anúncio \"Sofá 3 lugares veludo verde\" por R$ 300.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois.",
+            "opcoes": {
+              "aprovar": {},
+              "editar": {
+                "campos": [
+                  "descricao",
+                  "estado_conservacao",
+                  "preco",
+                  "titulo"
+                ]
+              },
+              "rejeitar": {
+                "motivo": "texto livre"
+              }
+            },
+            "expira_em": "2026-10-13T14:01:44",
+            "se_ninguem_responder": "o anúncio NÃO é publicado; o rascunho fica salvo nesta conversa"
+          }
+        },
+        "fontes": [
+          {
+            "tipo": "ferramenta",
+            "ref": "publicar_anuncio",
+            "trecho": null
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "o sistema tem o que precisa; a decisão é de uma pessoa",
+          "faltando": [
+            "decisão do vendedor"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_humano",
+        "motivo_termino": "interrupt: aprovacao_vendedor"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "tem um pé com uma rachadura pequena, mas fora isso tá ótimo, pode colocar isso na descrição",
+          "conversa_aberta": "anuncio"
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1093,
+          "segundos": 3.67,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor informou a avaria do pé rachado e autorizou colocá-la na descrição, agora temos todos os dados essenciais para consultar o preço e montar o rascunho.",
+            "acao": "consultar_preco",
+            "pergunta": null,
+            "categoria": "sofá",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "f94e0529e18b"
+        },
+        {
+          "etapa": "ferramenta_preco",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "sofá",
+            "bairro": "Santo Amaro"
+          },
+          "resultado": {
+            "categoria": "sofá",
+            "bairro": "Santo Amaro",
+            "n": 2,
+            "faixa_min": 250.0,
+            "faixa_max": 420.0,
+            "ref": "precos_comparaveis[sofá/Santo Amaro]"
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1268,
+          "segundos": 4.25,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor informou o produto, preço, bairro e aceitou declarar a avaria no pé.",
+            "acao": "preencher_rascunho",
+            "pergunta": null,
+            "categoria": "sofá",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": {
+              "titulo": "Sofá 3 lugares veludo verde",
+              "categoria": "sofá",
+              "descricao": "Sofá 3 lugares de veludo verde. Possui um pé com uma rachadura pequena.",
+              "preco": 300.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "marcas_de_uso",
+              "avarias_declaradas": [
+                "pé com rachadura pequena"
+              ]
+            },
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "3f2fe67b69e6"
+        },
+        {
+          "etapa": "portao_avaria",
+          "decide": "codigo",
+          "passou": true,
+          "avaria": {
+            "perguntada": false,
+            "negou_defeito": false,
+            "mencionada": true,
+            "falas": [
+              "tem um pé com uma rachadura pequena, mas fora isso tá ótimo, pode colocar isso na descrição"
+            ],
+            "tratada": true
+          }
+        },
+        {
+          "etapa": "avaliador",
+          "decide": "modelo",
+          "prompt": "avaliador-anuncio-v4.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 618,
+          "segundos": 3.5,
+          "tentativas": 1,
+          "saida": {
+            "tem_titulo": true,
+            "tem_categoria": true,
+            "tem_descricao": true,
+            "estado_coerente": true,
+            "sem_invencao": true,
+            "aprovado": true,
+            "faltando": []
+          }
+        },
+        {
+          "etapa": "avaliador_conferencia",
+          "decide": "codigo",
+          "aprovado_final": true,
+          "checagens_codigo": {
+            "preco": null,
+            "avaria": {
+              "perguntada": false,
+              "negou_defeito": false,
+              "mencionada": true,
+              "falas": [
+                "tem um pé com uma rachadura pequena, mas fora isso tá ótimo, pode colocar isso na descrição"
+              ],
+              "tratada": true
+            }
+          }
+        },
+        {
+          "etapa": "preparar_aprovacao",
+          "decide": "codigo",
+          "expira_em": "2026-10-13T14:01:44"
+        }
+      ]
+    },
+    {
+      "tipo": "decisao_humana",
+      "enviado": {
+        "quem": "V-022",
+        "acao": "editar",
+        "campos": {
+          "preco": 280
+        }
+      },
+      "saida": {
+        "thread_id": "V-022:06_aprovacao_editando",
+        "agente": "anuncio",
+        "tipo": "anuncio_publicado",
+        "resultado": "Pronto! \"Sofá 3 lugares veludo verde\" está no ar por R$ 280.00.",
+        "dados": {
+          "anuncio": {
+            "titulo": "Sofá 3 lugares veludo verde",
+            "categoria": "sofá",
+            "descricao": "Sofá 3 lugares de veludo verde. Possui um pé com uma rachadura pequena.",
+            "preco": 280.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "marcas_de_uso",
+            "avarias_declaradas": [
+              "pé com rachadura pequena"
+            ],
+            "estado_declarado": true
+          },
+          "anuncio_id": 21,
+          "indicio": null,
+          "desfecho": "publicado"
+        },
+        "fontes": [
+          {
+            "tipo": "banco",
+            "ref": "precos_comparaveis[sofá/Santo Amaro]",
+            "trecho": "{\"categoria\": \"sofá\", \"bairro\": \"Santo Amaro\", \"n\": 2, \"faixa_min\": 250.0, \"faixa_max\": 420.0, \"ref\": \"precos_comparaveis[sofá/Santo Amaro]\"}"
+          },
+          {
+            "tipo": "banco",
+            "ref": "anuncios[21]",
+            "trecho": null
+          },
+          {
+            "tipo": "humano",
+            "ref": "V-022",
+            "trecho": "{\"acao\": \"editar\", \"campos\": {\"preco\": 280}, \"quem\": \"V-022\"}"
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "publicado",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "respondeu",
+        "motivo_termino": "publicado"
+      },
+      "trajetoria": [
+        {
+          "etapa": "aprovacao_vendedor",
+          "decide": "humano",
+          "resposta": {
+            "acao": "editar",
+            "campos": {
+              "preco": 280
+            },
+            "quem": "V-022"
+          }
+        },
+        {
+          "etapa": "publicar",
+          "decide": "codigo",
+          "argumentos": {
+            "titulo": "Sofá 3 lugares veludo verde",
+            "categoria": "sofá",
+            "descricao": "Sofá 3 lugares de veludo verde. Possui um pé com uma rachadura pequena.",
+            "preco": 280.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "marcas_de_uso",
+            "avarias_declaradas": [
+              "pé com rachadura pequena"
+            ],
+            "estado_declarado": true
+          },
+          "edicoes_ignoradas": {},
+          "resultado": {
+            "ok": true,
+            "ja_existia": false,
+            "anuncio_id": 21,
+            "status": "ativo",
+            "chave": "0a95ff578c04f781c24ab526"
+          }
+        },
+        {
+          "etapa": "finalizar_b",
+          "decide": "codigo",
+          "desfecho": "publicado",
+          "memoria_escrita": [
+            {
+              "ok": true,
+              "ja_existia": false,
+              "entidade": "vendedor:V-022",
+              "chave": "bairro_retirada",
+              "substituiu": null
+            },
+            {
+              "ok": true,
+              "ja_existia": false,
+              "episodio_id": "9cebdfaeb1cfb4e032ac4f30",
+              "tokens_resumo": 24,
+              "tokens_extracao": 282
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tipo": "decisao_humana_repetida",
+      "enviado": {
+        "quem": "V-022",
+        "acao": "editar",
+        "campos": {
+          "preco": 280
+        }
+      },
+      "saida": {
+        "thread_id": "V-022:06_aprovacao_editando",
+        "agente": "anuncio",
+        "tipo": "erro",
+        "resultado": "Essa decisão já foi registrada; nada foi feito de novo.",
+        "dados": null,
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "não há pendência aberta nesta conversa",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "respondeu",
+        "motivo_termino": "resposta repetida: sem pendência aberta"
+      },
+      "trajetoria": []
+    }
+  ],
+  "prova_idempotencia": {
+    "anuncios_antes_da_2a_aprovacao": 21,
+    "anuncios_depois_da_2a_aprovacao": 21,
+    "anuncios_depois_de_reexecutar_publicar": 21,
+    "publicar_executou_vezes": 2,
+    "nota": "a 1ª é a execução original; a 2ª é a re-execução a partir do checkpoint anterior a publicar",
+    "resultado_de_cada_execucao": [
+      {
+        "ok": true,
+        "ja_existia": false,
+        "anuncio_id": 21,
+        "status": "ativo",
+        "chave": "0a95ff578c04f781c24ab526"
+      },
+      {
+        "ok": true,
+        "ja_existia": true,
+        "anuncio_id": 21,
+        "status": "ativo",
+        "chave": "0a95ff578c04f781c24ab526"
+      }
+    ],
+    "criou_algo": false
+  },
+  "final": {
+    "tipo": "anuncio_publicado",
+    "termino": "respondeu",
+    "motivo": "publicado",
+    "segundos": 35.9,
+    "passos": 5,
+    "tokens": 4324,
+    "custo_usd": 0.0025754000000000003,
+    "consultas_rag": 0
+  }
+}

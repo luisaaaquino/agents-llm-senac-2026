@@ -1,0 +1,701 @@
+{
+  "data": "2026-10-12T13:47:47",
+  "modelo_embedding": "gemini-embedding-001",
+  "dimensoes": 768,
+  "curado": [
+    {
+      "id": "Q01",
+      "forma": "assunto",
+      "excecao": false,
+      "top": [
+        [
+          "termos-de-uso-2026#3",
+          0.8001
+        ],
+        [
+          "politica-moderacao-2026#5",
+          0.6632
+        ],
+        [
+          "termos-de-uso-2026#2",
+          0.6577
+        ]
+      ],
+      "melhor_sim": 0.8001,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q02",
+      "forma": "assunto",
+      "excecao": false,
+      "top": [
+        [
+          "termos-de-uso-2026#4",
+          0.7559
+        ],
+        [
+          "termos-de-uso-2026#7",
+          0.591
+        ],
+        [
+          "guia-estado-conservacao#1",
+          0.5849
+        ]
+      ],
+      "melhor_sim": 0.7559,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q03",
+      "forma": "assunto",
+      "excecao": false,
+      "top": [
+        [
+          "termos-de-uso-2026#5",
+          0.7462
+        ],
+        [
+          "pagamento-e-entrega#3",
+          0.7012
+        ],
+        [
+          "pagamento-e-entrega#1",
+          0.6683
+        ]
+      ],
+      "melhor_sim": 0.7462,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q04",
+      "forma": "assunto",
+      "excecao": true,
+      "top": [
+        [
+          "pagamento-e-entrega#3",
+          0.7164
+        ],
+        [
+          "termos-de-uso-2026#5",
+          0.6955
+        ],
+        [
+          "pagamento-e-entrega#4",
+          0.5783
+        ]
+      ],
+      "melhor_sim": 0.7164,
+      "acerto@1": false,
+      "acerto@3": true,
+      "posicao_esperado": 2
+    },
+    {
+      "id": "Q05",
+      "forma": "assunto",
+      "excecao": true,
+      "top": [
+        [
+          "termos-de-uso-2026#8",
+          0.7089
+        ],
+        [
+          "termos-de-uso-2026#1",
+          0.6351
+        ],
+        [
+          "politica-moderacao-2026#6",
+          0.6346
+        ]
+      ],
+      "melhor_sim": 0.7089,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q06",
+      "forma": "assunto",
+      "excecao": true,
+      "top": [
+        [
+          "politica-moderacao-2026#4",
+          0.7248
+        ],
+        [
+          "politica-moderacao-2026#3",
+          0.614
+        ],
+        [
+          "guia-estado-conservacao#4",
+          0.6054
+        ]
+      ],
+      "melhor_sim": 0.7248,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q07",
+      "forma": "termo",
+      "excecao": false,
+      "top": [
+        [
+          "politica-moderacao-2026#2",
+          0.6984
+        ],
+        [
+          "politica-moderacao-2026#1",
+          0.6776
+        ],
+        [
+          "termos-de-uso-2026#7",
+          0.6136
+        ]
+      ],
+      "melhor_sim": 0.6984,
+      "acerto@1": false,
+      "acerto@3": true,
+      "posicao_esperado": 2
+    },
+    {
+      "id": "Q08",
+      "forma": "assunto",
+      "excecao": true,
+      "top": [
+        [
+          "politica-moderacao-2026#2",
+          0.7809
+        ],
+        [
+          "politica-moderacao-2026#1",
+          0.6605
+        ],
+        [
+          "termos-de-uso-2026#2",
+          0.6252
+        ]
+      ],
+      "melhor_sim": 0.7809,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q09",
+      "forma": "assunto",
+      "excecao": false,
+      "top": [
+        [
+          "pagamento-e-entrega#3",
+          0.7805
+        ],
+        [
+          "pagamento-e-entrega#1",
+          0.7007
+        ],
+        [
+          "pagamento-e-entrega#2",
+          0.6909
+        ]
+      ],
+      "melhor_sim": 0.7805,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q10",
+      "forma": "termo",
+      "excecao": false,
+      "top": [
+        [
+          "pagamento-e-entrega#4",
+          0.8404
+        ],
+        [
+          "pagamento-e-entrega#2",
+          0.6933
+        ],
+        [
+          "pagamento-e-entrega#3",
+          0.6493
+        ]
+      ],
+      "melhor_sim": 0.8404,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q11",
+      "forma": "assunto",
+      "excecao": false,
+      "top": [
+        [
+          "politica-moderacao-2026#5",
+          0.7307
+        ],
+        [
+          "guia-estado-conservacao#4",
+          0.7155
+        ],
+        [
+          "politica-moderacao-2026#3",
+          0.7076
+        ]
+      ],
+      "melhor_sim": 0.7307,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q12",
+      "forma": "assunto",
+      "excecao": false,
+      "top": [
+        [
+          "guia-estado-conservacao#3",
+          0.7452
+        ],
+        [
+          "guia-estado-conservacao#4",
+          0.7394
+        ],
+        [
+          "guia-estado-conservacao#1",
+          0.7177
+        ]
+      ],
+      "melhor_sim": 0.7452,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q13",
+      "forma": "fora_do_corpus",
+      "excecao": false,
+      "top": [
+        [
+          "pagamento-e-entrega#1",
+          0.6166
+        ],
+        [
+          "pagamento-e-entrega#3",
+          0.6113
+        ],
+        [
+          "termos-de-uso-2026#4",
+          0.6095
+        ]
+      ],
+      "melhor_sim": 0.6166,
+      "acerto@1": false,
+      "acerto@3": false,
+      "posicao_esperado": null
+    },
+    {
+      "id": "Q14",
+      "forma": "registro",
+      "excecao": false,
+      "top": [
+        [
+          "area-de-atuacao#1",
+          0.7825
+        ],
+        [
+          "termos-de-uso-2026#1",
+          0.6697
+        ],
+        [
+          "termos-de-uso-2026#4",
+          0.6462
+        ]
+      ],
+      "melhor_sim": 0.7825,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q15",
+      "forma": "registro",
+      "excecao": false,
+      "top": [
+        [
+          "area-de-atuacao#1",
+          0.6423
+        ],
+        [
+          "termos-de-uso-2026#6",
+          0.585
+        ],
+        [
+          "termos-de-uso-2026#3",
+          0.5832
+        ]
+      ],
+      "melhor_sim": 0.6423,
+      "acerto@1": false,
+      "acerto@3": false,
+      "posicao_esperado": null
+    }
+  ],
+  "com_revogado": [
+    {
+      "id": "Q01",
+      "forma": "assunto",
+      "excecao": false,
+      "top": [
+        [
+          "faq-site-2025#1",
+          0.8717
+        ],
+        [
+          "termos-de-uso-2026#3",
+          0.8001
+        ],
+        [
+          "politica-moderacao-2026#5",
+          0.6632
+        ]
+      ],
+      "melhor_sim": 0.8717,
+      "acerto@1": false,
+      "acerto@3": true,
+      "posicao_esperado": 2,
+      "posicao_revogado": 1
+    },
+    {
+      "id": "Q02",
+      "forma": "assunto",
+      "excecao": false,
+      "top": [
+        [
+          "faq-site-2025#2",
+          0.8078
+        ],
+        [
+          "termos-de-uso-2026#4",
+          0.7559
+        ],
+        [
+          "faq-site-2025#3",
+          0.6113
+        ]
+      ],
+      "melhor_sim": 0.8078,
+      "acerto@1": false,
+      "acerto@3": true,
+      "posicao_esperado": 2,
+      "posicao_revogado": 1
+    },
+    {
+      "id": "Q03",
+      "forma": "assunto",
+      "excecao": false,
+      "top": [
+        [
+          "termos-de-uso-2026#5",
+          0.7462
+        ],
+        [
+          "pagamento-e-entrega#3",
+          0.7012
+        ],
+        [
+          "faq-site-2025#1",
+          0.6847
+        ]
+      ],
+      "melhor_sim": 0.7462,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q04",
+      "forma": "assunto",
+      "excecao": true,
+      "top": [
+        [
+          "pagamento-e-entrega#3",
+          0.7164
+        ],
+        [
+          "termos-de-uso-2026#5",
+          0.6955
+        ],
+        [
+          "pagamento-e-entrega#4",
+          0.5783
+        ]
+      ],
+      "melhor_sim": 0.7164,
+      "acerto@1": false,
+      "acerto@3": true,
+      "posicao_esperado": 2
+    },
+    {
+      "id": "Q05",
+      "forma": "assunto",
+      "excecao": true,
+      "top": [
+        [
+          "termos-de-uso-2026#8",
+          0.7089
+        ],
+        [
+          "termos-de-uso-2026#1",
+          0.6351
+        ],
+        [
+          "politica-moderacao-2026#6",
+          0.6346
+        ]
+      ],
+      "melhor_sim": 0.7089,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q06",
+      "forma": "assunto",
+      "excecao": true,
+      "top": [
+        [
+          "politica-moderacao-2026#4",
+          0.7248
+        ],
+        [
+          "politica-moderacao-2026#3",
+          0.614
+        ],
+        [
+          "guia-estado-conservacao#4",
+          0.6054
+        ]
+      ],
+      "melhor_sim": 0.7248,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q07",
+      "forma": "termo",
+      "excecao": false,
+      "top": [
+        [
+          "politica-moderacao-2026#2",
+          0.6984
+        ],
+        [
+          "politica-moderacao-2026#1",
+          0.6776
+        ],
+        [
+          "termos-de-uso-2026#7",
+          0.6136
+        ]
+      ],
+      "melhor_sim": 0.6984,
+      "acerto@1": false,
+      "acerto@3": true,
+      "posicao_esperado": 2
+    },
+    {
+      "id": "Q08",
+      "forma": "assunto",
+      "excecao": true,
+      "top": [
+        [
+          "politica-moderacao-2026#2",
+          0.7809
+        ],
+        [
+          "politica-moderacao-2026#1",
+          0.6605
+        ],
+        [
+          "termos-de-uso-2026#2",
+          0.6252
+        ]
+      ],
+      "melhor_sim": 0.7809,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q09",
+      "forma": "assunto",
+      "excecao": false,
+      "top": [
+        [
+          "pagamento-e-entrega#3",
+          0.7805
+        ],
+        [
+          "pagamento-e-entrega#1",
+          0.7007
+        ],
+        [
+          "pagamento-e-entrega#2",
+          0.6909
+        ]
+      ],
+      "melhor_sim": 0.7805,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q10",
+      "forma": "termo",
+      "excecao": false,
+      "top": [
+        [
+          "pagamento-e-entrega#4",
+          0.8404
+        ],
+        [
+          "pagamento-e-entrega#2",
+          0.6933
+        ],
+        [
+          "pagamento-e-entrega#3",
+          0.6493
+        ]
+      ],
+      "melhor_sim": 0.8404,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q11",
+      "forma": "assunto",
+      "excecao": false,
+      "top": [
+        [
+          "politica-moderacao-2026#5",
+          0.7307
+        ],
+        [
+          "guia-estado-conservacao#4",
+          0.7155
+        ],
+        [
+          "politica-moderacao-2026#3",
+          0.7076
+        ]
+      ],
+      "melhor_sim": 0.7307,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q12",
+      "forma": "assunto",
+      "excecao": false,
+      "top": [
+        [
+          "faq-site-2025#3",
+          0.756
+        ],
+        [
+          "guia-estado-conservacao#3",
+          0.7452
+        ],
+        [
+          "guia-estado-conservacao#4",
+          0.7394
+        ]
+      ],
+      "melhor_sim": 0.756,
+      "acerto@1": false,
+      "acerto@3": true,
+      "posicao_esperado": 2
+    },
+    {
+      "id": "Q13",
+      "forma": "fora_do_corpus",
+      "excecao": false,
+      "top": [
+        [
+          "faq-site-2025#2",
+          0.6376
+        ],
+        [
+          "pagamento-e-entrega#1",
+          0.6166
+        ],
+        [
+          "faq-site-2025#1",
+          0.6155
+        ]
+      ],
+      "melhor_sim": 0.6376,
+      "acerto@1": false,
+      "acerto@3": false,
+      "posicao_esperado": null
+    },
+    {
+      "id": "Q14",
+      "forma": "registro",
+      "excecao": false,
+      "top": [
+        [
+          "area-de-atuacao#1",
+          0.7825
+        ],
+        [
+          "termos-de-uso-2026#1",
+          0.6697
+        ],
+        [
+          "termos-de-uso-2026#4",
+          0.6462
+        ]
+      ],
+      "melhor_sim": 0.7825,
+      "acerto@1": true,
+      "acerto@3": true,
+      "posicao_esperado": 1
+    },
+    {
+      "id": "Q15",
+      "forma": "registro",
+      "excecao": false,
+      "top": [
+        [
+          "area-de-atuacao#1",
+          0.6423
+        ],
+        [
+          "faq-site-2025#3",
+          0.5912
+        ],
+        [
+          "termos-de-uso-2026#6",
+          0.585
+        ]
+      ],
+      "melhor_sim": 0.6423,
+      "acerto@1": false,
+      "acerto@3": false,
+      "posicao_esperado": null
+    }
+  ]
+}

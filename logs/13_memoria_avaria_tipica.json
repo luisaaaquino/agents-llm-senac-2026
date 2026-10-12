@@ -1,0 +1,429 @@
+{
+  "caso": "13_memoria_avaria_tipica",
+  "prova": "depois do caso 4, a memória de categoria muda a pergunta do portão: pergunta pelo freezer pelo nome",
+  "esperado": "anuncio_publicado; pergunta cita o freezer",
+  "carimbo": {
+    "data": "2026-10-12T14:03:15",
+    "commit": "1a5cd36",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "resposta-regras-v1.md": "02ff466cea45",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 7,
+      "episodios": 7,
+      "episodios_hash": "86c39eccc775",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "V-025:13_memoria_avaria_tipica",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "vendo geladeira electrolux, 320 reais, Santo Amaro",
+      "saida": {
+        "thread_id": "V-025:13_memoria_avaria_tipica",
+        "agente": "anuncio",
+        "tipo": "pergunta",
+        "resultado": "A geladeira tem algum defeito, arranhão ou o freezer embaixo demora pra congelar?",
+        "dados": {
+          "rascunho": null
+        },
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "falta informação essencial para o anúncio",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_usuario",
+        "motivo_termino": "falta informação essencial para o anúncio"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "vendo geladeira electrolux, 320 reais, Santo Amaro",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 330,
+          "segundos": 4.53,
+          "tentativas": 1,
+          "saida": {
+            "rota": "vender",
+            "leituras": [
+              "vender"
+            ],
+            "categoria": "geladeira",
+            "motivo": "O usuário informou que deseja vender uma geladeira electrolux por um preço específico e localização."
+          }
+        },
+        {
+          "etapa": "iniciar_b",
+          "decide": "codigo",
+          "memoria_recuperada": {
+            "fatos_vendedor": [],
+            "fatos_categoria": [
+              "avarias_tipicas"
+            ],
+            "episodios": [
+              "2d011ae307877f0fb24384cc",
+              "642e455b645f9dfaed77593f"
+            ]
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1196,
+          "segundos": 5.16,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor informou o produto, preço e bairro, mas ainda preciso perguntar sobre defeitos ou avarias antes de prosseguir.",
+            "acao": "perguntar",
+            "pergunta": "A geladeira tem algum defeito, arranhão ou o freezer embaixo demora pra congelar?",
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "f6a0d16794a0"
+        },
+        {
+          "etapa": "perguntar_b",
+          "decide": "codigo",
+          "pergunta": "A geladeira tem algum defeito, arranhão ou o freezer embaixo demora pra congelar?",
+          "origem": "modelo"
+        }
+      ]
+    },
+    {
+      "tipo": "fala",
+      "enviado": "funciona sim, nenhum problema",
+      "saida": {
+        "thread_id": "V-025:13_memoria_avaria_tipica",
+        "agente": "anuncio",
+        "tipo": "aguardando_aprovacao",
+        "resultado": "Confere antes de publicar? O anúncio \"Geladeira Electrolux\" por R$ 320.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois. Você pode aprovar, editar algum campo ou desistir.",
+        "dados": {
+          "pendencia": {
+            "tipo": "aprovacao_vendedor",
+            "perfil": "vendedor",
+            "responsavel": "V-025",
+            "acao": "publicar_anuncio",
+            "argumentos": {
+              "titulo": "Geladeira Electrolux",
+              "categoria": "geladeira",
+              "descricao": "Geladeira Electrolux em bom estado, funcionando perfeitamente. Disponível para retirada em Santo Amaro.",
+              "preco": 320.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "bom_estado",
+              "avarias_declaradas": []
+            },
+            "consequencia": "O anúncio \"Geladeira Electrolux\" por R$ 320.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois.",
+            "opcoes": {
+              "aprovar": {},
+              "editar": {
+                "campos": [
+                  "descricao",
+                  "estado_conservacao",
+                  "preco",
+                  "titulo"
+                ]
+              },
+              "rejeitar": {
+                "motivo": "texto livre"
+              }
+            },
+            "expira_em": "2026-10-13T14:03:40",
+            "se_ninguem_responder": "o anúncio NÃO é publicado; o rascunho fica salvo nesta conversa"
+          }
+        },
+        "fontes": [
+          {
+            "tipo": "ferramenta",
+            "ref": "publicar_anuncio",
+            "trecho": null
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "o sistema tem o que precisa; a decisão é de uma pessoa",
+          "faltando": [
+            "decisão do vendedor"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_humano",
+        "motivo_termino": "interrupt: aprovacao_vendedor"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "funciona sim, nenhum problema",
+          "conversa_aberta": "anuncio"
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1237,
+          "segundos": 3.84,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor informou que o produto funciona sem problemas após a pergunta sobre defeitos.",
+            "acao": "consultar_preco",
+            "pergunta": null,
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "290a3d88a8e8"
+        },
+        {
+          "etapa": "ferramenta_preco",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro"
+          },
+          "resultado": {
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "n": 4,
+            "faixa_min": 300.0,
+            "faixa_max": 380.0,
+            "ref": "precos_comparaveis[geladeira/Santo Amaro]"
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1422,
+          "segundos": 4.2,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O essencial foi coletado, o preço está na faixa e o usuário negou defeitos, então podemos montar o rascunho do anúncio.",
+            "acao": "preencher_rascunho",
+            "pergunta": null,
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": {
+              "titulo": "Geladeira Electrolux",
+              "categoria": "geladeira",
+              "descricao": "Geladeira Electrolux em bom estado, funcionando perfeitamente. Disponível para retirada em Santo Amaro.",
+              "preco": 320.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "bom_estado",
+              "avarias_declaradas": []
+            },
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "57f40dc20dff"
+        },
+        {
+          "etapa": "portao_avaria",
+          "decide": "codigo",
+          "passou": true,
+          "avaria": {
+            "perguntada": true,
+            "negou_defeito": true,
+            "mencionada": false,
+            "falas": [],
+            "tratada": true
+          }
+        },
+        {
+          "etapa": "avaliador",
+          "decide": "modelo",
+          "prompt": "avaliador-anuncio-v4.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 588,
+          "segundos": 3.43,
+          "tentativas": 1,
+          "saida": {
+            "tem_titulo": true,
+            "tem_categoria": true,
+            "tem_descricao": true,
+            "estado_coerente": true,
+            "sem_invencao": true,
+            "aprovado": true,
+            "faltando": []
+          }
+        },
+        {
+          "etapa": "avaliador_conferencia",
+          "decide": "codigo",
+          "aprovado_final": true,
+          "checagens_codigo": {
+            "preco": null,
+            "avaria": {
+              "perguntada": true,
+              "negou_defeito": true,
+              "mencionada": false,
+              "falas": [],
+              "tratada": true
+            }
+          }
+        },
+        {
+          "etapa": "preparar_aprovacao",
+          "decide": "codigo",
+          "expira_em": "2026-10-13T14:03:40"
+        }
+      ]
+    },
+    {
+      "tipo": "decisao_humana",
+      "enviado": {
+        "quem": "V-025",
+        "acao": "aprovar"
+      },
+      "saida": {
+        "thread_id": "V-025:13_memoria_avaria_tipica",
+        "agente": "anuncio",
+        "tipo": "anuncio_publicado",
+        "resultado": "Pronto! \"Geladeira Electrolux\" está no ar por R$ 320.00.",
+        "dados": {
+          "anuncio": {
+            "titulo": "Geladeira Electrolux",
+            "categoria": "geladeira",
+            "descricao": "Geladeira Electrolux em bom estado, funcionando perfeitamente. Disponível para retirada em Santo Amaro.",
+            "preco": 320.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "bom_estado",
+            "avarias_declaradas": [],
+            "estado_declarado": true
+          },
+          "anuncio_id": 23,
+          "indicio": null,
+          "desfecho": "publicado"
+        },
+        "fontes": [
+          {
+            "tipo": "banco",
+            "ref": "precos_comparaveis[geladeira/Santo Amaro]",
+            "trecho": "{\"categoria\": \"geladeira\", \"bairro\": \"Santo Amaro\", \"n\": 4, \"faixa_min\": 300.0, \"faixa_max\": 380.0, \"ref\": \"precos_comparaveis[geladeira/Santo Amaro]\"}"
+          },
+          {
+            "tipo": "banco",
+            "ref": "anuncios[23]",
+            "trecho": null
+          },
+          {
+            "tipo": "humano",
+            "ref": "V-025",
+            "trecho": "{\"acao\": \"aprovar\", \"quem\": \"V-025\"}"
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "publicado",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "respondeu",
+        "motivo_termino": "publicado"
+      },
+      "trajetoria": [
+        {
+          "etapa": "aprovacao_vendedor",
+          "decide": "humano",
+          "resposta": {
+            "acao": "aprovar",
+            "quem": "V-025"
+          }
+        },
+        {
+          "etapa": "publicar",
+          "decide": "codigo",
+          "argumentos": {
+            "titulo": "Geladeira Electrolux",
+            "categoria": "geladeira",
+            "descricao": "Geladeira Electrolux em bom estado, funcionando perfeitamente. Disponível para retirada em Santo Amaro.",
+            "preco": 320.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "bom_estado",
+            "avarias_declaradas": [],
+            "estado_declarado": true
+          },
+          "edicoes_ignoradas": {},
+          "resultado": {
+            "ok": true,
+            "ja_existia": false,
+            "anuncio_id": 23,
+            "status": "ativo",
+            "chave": "adcf581e41468de87863f399"
+          }
+        },
+        {
+          "etapa": "finalizar_b",
+          "decide": "codigo",
+          "desfecho": "publicado",
+          "memoria_escrita": [
+            {
+              "ok": true,
+              "ja_existia": false,
+              "entidade": "vendedor:V-025",
+              "chave": "bairro_retirada",
+              "substituiu": null
+            },
+            {
+              "ok": true,
+              "ja_existia": false,
+              "episodio_id": "ab9651a616dd2f0bde5a97c4",
+              "tokens_resumo": 31,
+              "tokens_extracao": 295
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "anuncio_publicado",
+    "termino": "respondeu",
+    "motivo": "publicado",
+    "segundos": 31.9,
+    "passos": 5,
+    "tokens": 4773,
+    "custo_usd": 0.0026573,
+    "consultas_rag": 0
+  }
+}

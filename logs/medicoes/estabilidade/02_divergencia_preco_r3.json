@@ -1,0 +1,573 @@
+{
+  "caso": "02_divergencia_preco",
+  "prova": "o sistema diz uma coisa (faixa R$ 300–380), o vendedor diz outra (R$ 900): o sistema avisa, respeita a alçada, e não confunde preço com avaria",
+  "esperado": "anuncio_publicado a R$ 900 / respondeu, sem indício",
+  "carimbo": {
+    "data": "2026-10-12T14:06:12",
+    "commit": "1a5cd36",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 9,
+      "episodios": 11,
+      "episodios_hash": "57c48084c4ca",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "V-018:02_divergencia_preco",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "vendo geladeira duplex por 900 reais, Santo Amaro",
+      "saida": {
+        "thread_id": "V-018:02_divergencia_preco",
+        "agente": "anuncio",
+        "tipo": "pergunta",
+        "resultado": "A geladeira está funcionando perfeitamente? O freezer embaixo está congelando normal ou demora pra congelar?",
+        "dados": {
+          "rascunho": null
+        },
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "falta informação essencial para o anúncio",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_usuario",
+        "motivo_termino": "falta informação essencial para o anúncio"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "vendo geladeira duplex por 900 reais, Santo Amaro",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 328,
+          "segundos": 4.47,
+          "tentativas": 1,
+          "saida": {
+            "rota": "vender",
+            "leituras": [
+              "vender"
+            ],
+            "categoria": "geladeira",
+            "motivo": "O usuário está anunciando explicitamente a venda de uma geladeira em Santo Amaro."
+          }
+        },
+        {
+          "etapa": "iniciar_b",
+          "decide": "codigo",
+          "memoria_recuperada": {
+            "fatos_vendedor": [
+              "aceita_sugestao_preco",
+              "bairro_retirada"
+            ],
+            "fatos_categoria": [
+              "avarias_tipicas"
+            ],
+            "episodios": [
+              "642e455b645f9dfaed77593f",
+              "724b2ebf99d3c7892405395a"
+            ]
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1239,
+          "segundos": 5.15,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor informou o produto, preço e bairro, mas ainda não foi feita a pergunta obrigatória sobre defeitos ou avarias, especificamente sobre o congelamento do freezer.",
+            "acao": "perguntar",
+            "pergunta": "A geladeira está funcionando perfeitamente? O freezer embaixo está congelando normal ou demora pra congelar?",
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "f6a0d16794a0"
+        },
+        {
+          "etapa": "perguntar_b",
+          "decide": "codigo",
+          "pergunta": "A geladeira está funcionando perfeitamente? O freezer embaixo está congelando normal ou demora pra congelar?",
+          "origem": "modelo"
+        }
+      ]
+    },
+    {
+      "tipo": "fala",
+      "enviado": "5 anos de uso, funciona bem, sem defeito",
+      "saida": {
+        "thread_id": "V-018:02_divergencia_preco",
+        "agente": "anuncio",
+        "tipo": "pergunta",
+        "resultado": "O valor de R$ 900 fica bem acima da faixa de mercado para geladeiras em Santo Amaro, que costuma ser de R$ 300 a R$ 380. Deseja manter R$ 900 mesmo assim?",
+        "dados": {
+          "rascunho": {
+            "titulo": "Geladeira Duplex",
+            "categoria": "geladeira",
+            "descricao": "Geladeira duplex com 5 anos de uso, funcionando bem.",
+            "preco": 900.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "bom_estado",
+            "avarias_declaradas": []
+          }
+        },
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "falta informação essencial para o anúncio",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_usuario",
+        "motivo_termino": "falta informação essencial para o anúncio"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "5 anos de uso, funciona bem, sem defeito",
+          "conversa_aberta": "anuncio"
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1286,
+          "segundos": 3.58,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "Já temos produto, preço, bairro, estado e o vendedor respondeu sobre defeitos, então podemos consultar o preço no mercado local.",
+            "acao": "consultar_preco",
+            "pergunta": null,
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "290a3d88a8e8"
+        },
+        {
+          "etapa": "ferramenta_preco",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro"
+          },
+          "resultado": {
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "n": 4,
+            "faixa_min": 300.0,
+            "faixa_max": 380.0,
+            "ref": "precos_comparaveis[geladeira/Santo Amaro]"
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1444,
+          "segundos": 4.27,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "Já temos produto, preço, bairro, estado e a resposta sobre defeito, então podemos montar o rascunho completo.",
+            "acao": "preencher_rascunho",
+            "pergunta": null,
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": {
+              "titulo": "Geladeira Duplex",
+              "categoria": "geladeira",
+              "descricao": "Geladeira duplex com 5 anos de uso, funcionando bem.",
+              "preco": 900.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "bom_estado",
+              "avarias_declaradas": []
+            },
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "af228789b523"
+        },
+        {
+          "etapa": "portao_avaria",
+          "decide": "codigo",
+          "passou": true,
+          "avaria": {
+            "perguntada": true,
+            "negou_defeito": true,
+            "mencionada": false,
+            "falas": [],
+            "tratada": true
+          }
+        },
+        {
+          "etapa": "avaliador",
+          "decide": "modelo",
+          "prompt": "avaliador-anuncio-v4.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 585,
+          "segundos": 3.62,
+          "tentativas": 1,
+          "saida": {
+            "tem_titulo": true,
+            "tem_categoria": true,
+            "tem_descricao": true,
+            "estado_coerente": true,
+            "sem_invencao": true,
+            "aprovado": true,
+            "faltando": []
+          }
+        },
+        {
+          "etapa": "avaliador_conferencia",
+          "decide": "codigo",
+          "aprovado_final": false,
+          "checagens_codigo": {
+            "preco": "preco: R$ 900 está fora da faixa R$ 300–380; avise o vendedor da faixa antes de seguir",
+            "avaria": {
+              "perguntada": true,
+              "negou_defeito": true,
+              "mencionada": false,
+              "falas": [],
+              "tratada": true
+            }
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1632,
+          "segundos": 4.6,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O preco de R$ 900 esta acima da faixa de mercado em Santo Amaro e o avaliador pediu para avisar o vendedor antes de seguir.",
+            "acao": "perguntar",
+            "pergunta": "O valor de R$ 900 fica bem acima da faixa de mercado para geladeiras em Santo Amaro, que costuma ser de R$ 300 a R$ 380. Deseja manter R$ 900 mesmo assim?",
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "f6a0d16794a0"
+        },
+        {
+          "etapa": "perguntar_b",
+          "decide": "codigo",
+          "pergunta": "O valor de R$ 900 fica bem acima da faixa de mercado para geladeiras em Santo Amaro, que costuma ser de R$ 300 a R$ 380. Deseja manter R$ 900 mesmo assim?",
+          "origem": "modelo"
+        }
+      ]
+    },
+    {
+      "tipo": "fala",
+      "enviado": "sei que é caro mas quero esse valor, pode manter 900",
+      "saida": {
+        "thread_id": "V-018:02_divergencia_preco",
+        "agente": "anuncio",
+        "tipo": "aguardando_aprovacao",
+        "resultado": "Confere antes de publicar? O anúncio \"Geladeira Duplex\" por R$ 900.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois. Você pode aprovar, editar algum campo ou desistir.",
+        "dados": {
+          "pendencia": {
+            "tipo": "aprovacao_vendedor",
+            "perfil": "vendedor",
+            "responsavel": "V-018",
+            "acao": "publicar_anuncio",
+            "argumentos": {
+              "titulo": "Geladeira Duplex",
+              "categoria": "geladeira",
+              "descricao": "Geladeira duplex com 5 anos de uso, funcionando bem.",
+              "preco": 900.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "bom_estado",
+              "avarias_declaradas": []
+            },
+            "consequencia": "O anúncio \"Geladeira Duplex\" por R$ 900.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois.",
+            "opcoes": {
+              "aprovar": {},
+              "editar": {
+                "campos": [
+                  "descricao",
+                  "estado_conservacao",
+                  "preco",
+                  "titulo"
+                ]
+              },
+              "rejeitar": {
+                "motivo": "texto livre"
+              }
+            },
+            "expira_em": "2026-10-13T14:06:48",
+            "se_ninguem_responder": "o anúncio NÃO é publicado; o rascunho fica salvo nesta conversa"
+          }
+        },
+        "fontes": [
+          {
+            "tipo": "ferramenta",
+            "ref": "publicar_anuncio",
+            "trecho": null
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "o sistema tem o que precisa; a decisão é de uma pessoa",
+          "faltando": [
+            "decisão do vendedor"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_humano",
+        "motivo_termino": "interrupt: aprovacao_vendedor"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "sei que é caro mas quero esse valor, pode manter 900",
+          "conversa_aberta": "anuncio"
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1772,
+          "segundos": 3.58,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor confirmou o preço acima da faixa e o essencial está completo, então podemos gerar o rascunho final.",
+            "acao": "preencher_rascunho",
+            "pergunta": null,
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": {
+              "titulo": "Geladeira Duplex",
+              "categoria": "geladeira",
+              "descricao": "Geladeira duplex com 5 anos de uso, funcionando bem.",
+              "preco": 900.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "bom_estado",
+              "avarias_declaradas": []
+            },
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "af228789b523"
+        },
+        {
+          "etapa": "portao_avaria",
+          "decide": "codigo",
+          "passou": true,
+          "avaria": {
+            "perguntada": true,
+            "negou_defeito": true,
+            "mencionada": false,
+            "falas": [],
+            "tratada": true
+          }
+        },
+        {
+          "etapa": "avaliador",
+          "decide": "modelo",
+          "prompt": "avaliador-anuncio-v4.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 669,
+          "segundos": 3.65,
+          "tentativas": 1,
+          "saida": {
+            "tem_titulo": true,
+            "tem_categoria": true,
+            "tem_descricao": true,
+            "estado_coerente": true,
+            "sem_invencao": true,
+            "aprovado": true,
+            "faltando": []
+          }
+        },
+        {
+          "etapa": "avaliador_conferencia",
+          "decide": "codigo",
+          "aprovado_final": true,
+          "checagens_codigo": {
+            "preco": null,
+            "avaria": {
+              "perguntada": true,
+              "negou_defeito": true,
+              "mencionada": false,
+              "falas": [],
+              "tratada": true
+            }
+          }
+        },
+        {
+          "etapa": "preparar_aprovacao",
+          "decide": "codigo",
+          "expira_em": "2026-10-13T14:06:48"
+        }
+      ]
+    },
+    {
+      "tipo": "decisao_humana",
+      "enviado": {
+        "quem": "V-018",
+        "acao": "aprovar"
+      },
+      "saida": {
+        "thread_id": "V-018:02_divergencia_preco",
+        "agente": "anuncio",
+        "tipo": "anuncio_publicado",
+        "resultado": "Pronto! \"Geladeira Duplex\" está no ar por R$ 900.00.",
+        "dados": {
+          "anuncio": {
+            "titulo": "Geladeira Duplex",
+            "categoria": "geladeira",
+            "descricao": "Geladeira duplex com 5 anos de uso, funcionando bem.",
+            "preco": 900.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "bom_estado",
+            "avarias_declaradas": [],
+            "estado_declarado": true
+          },
+          "anuncio_id": 25,
+          "indicio": null,
+          "desfecho": "publicado"
+        },
+        "fontes": [
+          {
+            "tipo": "banco",
+            "ref": "precos_comparaveis[geladeira/Santo Amaro]",
+            "trecho": "{\"categoria\": \"geladeira\", \"bairro\": \"Santo Amaro\", \"n\": 4, \"faixa_min\": 300.0, \"faixa_max\": 380.0, \"ref\": \"precos_comparaveis[geladeira/Santo Amaro]\"}"
+          },
+          {
+            "tipo": "banco",
+            "ref": "anuncios[25]",
+            "trecho": null
+          },
+          {
+            "tipo": "humano",
+            "ref": "V-018",
+            "trecho": "{\"acao\": \"aprovar\", \"quem\": \"V-018\"}"
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "publicado",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "respondeu",
+        "motivo_termino": "publicado"
+      },
+      "trajetoria": [
+        {
+          "etapa": "aprovacao_vendedor",
+          "decide": "humano",
+          "resposta": {
+            "acao": "aprovar",
+            "quem": "V-018"
+          }
+        },
+        {
+          "etapa": "publicar",
+          "decide": "codigo",
+          "argumentos": {
+            "titulo": "Geladeira Duplex",
+            "categoria": "geladeira",
+            "descricao": "Geladeira duplex com 5 anos de uso, funcionando bem.",
+            "preco": 900.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "bom_estado",
+            "avarias_declaradas": [],
+            "estado_declarado": true
+          },
+          "edicoes_ignoradas": {},
+          "resultado": {
+            "ok": true,
+            "ja_existia": true,
+            "anuncio_id": 25,
+            "status": "ativo",
+            "chave": "6e61ea86727e00a54014ab28"
+          }
+        },
+        {
+          "etapa": "finalizar_b",
+          "decide": "codigo",
+          "desfecho": "publicado",
+          "memoria_escrita": [
+            {
+              "ok": true,
+              "ja_existia": true,
+              "entidade": "vendedor:V-018",
+              "chave": "bairro_retirada"
+            },
+            {
+              "ok": true,
+              "ja_existia": true,
+              "entidade": "vendedor:V-018",
+              "chave": "aceita_sugestao_preco"
+            },
+            {
+              "ok": true,
+              "ja_existia": false,
+              "episodio_id": "aeb7faa31285b65f015a8b41",
+              "tokens_resumo": 28,
+              "tokens_extracao": 285
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "anuncio_publicado",
+    "termino": "respondeu",
+    "motivo": "publicado",
+    "segundos": 44.0,
+    "passos": 8,
+    "tokens": 8955,
+    "custo_usd": 0.0048777000000000004,
+    "consultas_rag": 0
+  }
+}

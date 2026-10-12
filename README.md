@@ -1,132 +1,212 @@
-# Santo Desapego — Agentes de recomendação por intenção (Parte 1)
+# Santo Desapego — Agentes de compra e de anúncio (Parte 2)
 
 **Grupo:** Luisa Vitoria Aquino Nascimento, Maria Erica Joana da Conceição Cruz,
 Paulo Henrique Alves Santana e Marcela Andrade
 
-**Problema (uma frase):** No Santo Desapego, dois agentes ajudam os lados que mais
-erram sozinhos — um infere a intenção do comprador a partir do que ele visualiza e
-monta a sugestão; o outro conversa com o vendedor para completar o anúncio e fazer
-emergir o que ele não declara (como avarias).
+**Problema (uma frase):** No Santo Desapego, marketplace de usados entre
+vizinhos de Santo Amaro, dois agentes ajudam os lados que mais erram sozinhos —
+um entende o que o comprador procura e monta a sugestão com o que está à venda
+perto dele; o outro conversa com o vendedor para completar o anúncio e fazer
+emergir o que ele não declara (como avarias), parando para uma pessoa decidir
+antes de publicar.
 
-A Parte 1 implementa o **Agente B (Assistente de anúncio)**, o mais rico dos dois
-(tem escrita, avaliador e o encaminhamento humano da avaria). O Agente A está
-desenhado em `docs/arquitetura.md` e entra na Parte 2.
+A Parte 2 transforma isso em **um sistema**: um grafo LangGraph com uma
+triagem na entrada, os dois agentes, uma rota de dúvidas sobre as regras (RAG),
+memória entre execuções e dois pontos onde o grafo para e espera uma pessoa.
 
 ## Estrutura
 
 ```
-docs/       case.md · fontes.md · arquitetura.md · modelos.md
-prompts/    prompts versionados do Agente B (agente + avaliador)
-src/        agente_anuncio.py (o agente) · db.py (camada SQLite — §4.2)
-dados/      seed.sql (dados simulados, casos difíceis nomeados) · casos.md
-logs/       as execuções demonstradas: 4 casos oficiais + 1 extra (geradas ao rodar)
-analista/   o lab da Aula 05 (analista de prestação de contas) — NÃO é o
-                   trabalho; fica aqui porque foi dele que veio o scaffolding.
+README.md · requirements.txt · .env.example · cli.py · conferir_grafo.py
+docs/      case.md (complementado, §0) · modelos.md · prompts.md · arquitetura.md
+           rag.md · memoria.md · grafo.md · humano.md · io.md · fontes.md
+src/       o sistema: grafo.py (o grafo) · sistema.py (a porta) · contrato.py
+           (entrada/saída) · estado.py · nos_*.py (os nós) · db.py · rag.py
+           memoria.py · remocao.py · llm.py · config.py · casos.py
+  prompts/ os prompts, versionados (com changelog em cada arquivo)
+dados/     seed.sql (dados simulados) · corpus/ (as regras, com 1 revogada)
+           perguntas_rag.json (o conjunto de perguntas) · casos.md
+scripts/   medições: medir_rag · testar_prompts · experimento_revogado
+           demo_sem_reducer · demo_memoria · verificar_remocao
+logs/      os casos demonstrados (01–15) · medicoes/ · parte1/ (logs da Parte 1)
+legado/    o agente da Parte 1, preservado
 ```
 
 ## Como rodar (do zero, < 5 min)
 
+Precisa de Python 3.12+ (testado em 3.14) e de uma chave **gratuita** do Google
+AI Studio: https://aistudio.google.com/apikey (não pede cartão).
+
 ```bash
-git clone <url-do-repo> && cd <repo>
-python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\Activate.ps1
+git clone <url-do-repo> && cd agents-llm-senac-2026
+python -m venv .venv
+source .venv/bin/activate            # Windows: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-cp .env.example .env          # preencha (ver as duas opções abaixo)
-cd src && python agente_anuncio.py
+cp .env.example .env                 # Windows: copy .env.example .env
 ```
 
-O banco SQLite é criado automaticamente a partir de `dados/seed.sql`.
+No `.env`, preencha só a chave (o resto tem padrão — ver comentários no arquivo):
 
-**Duas formas de configurar o `.env`:**
+```
+OPENAI_API_KEY=<sua chave do AI Studio>
+```
 
-1. **Mistral (nuvem)** — a mesma API dos laboratórios: preencha
-   `OPENAI_API_KEY` com sua chave, `LLM_BASE_URL=https://api.mistral.ai/v1`,
-   `LLM_MODELO=mistral-small-latest`.
-2. **Ollama (local, sem chave)** — instale o [Ollama](https://ollama.com/download),
-   rode `ollama pull llama3.2` (ou outro modelo), e use
-   `OPENAI_API_KEY=ollama`, `LLM_BASE_URL=http://localhost:11434/v1`,
-   `LLM_MODELO=llama3.2` (as duas opções já vêm comentadas em
-   `.env.example`). Foi por esse caminho que os logs reais em `logs/` desta
-   entrega foram gerados — a chave da Mistral do workspace da turma estava
-   com rate limit esgotado (ver `docs/modelos.md` §3.1).
-
-**Sem nenhum dos dois?** Rode a verificação offline, que exercita a integração
-SQLite, a idempotência e o erro-como-dado sem o LLM:
+Depois:
 
 ```bash
-cd src && python agente_anuncio.py --selftest
+python cli.py preparar               # banco simulado + índice do RAG (1 chamada de embedding)
+python cli.py chat V-001             # conversa interativa como o usuário V-001
+```
+
+Outros comandos:
+
+```bash
+python cli.py caso 01_simples        # roda um caso demonstrado e grava logs/01_simples.json
+python cli.py casos                  # os 15 casos, na ordem (~10 min, por causa do limite do plano gratuito)
+python conferir_grafo.py             # nós e arestas do grafo que o sistema executa
+python cli.py pendencias             # o que está esperando uma pessoa
+python cli.py responder <thread> '{"acao": "aprovar"}' <quem>
+python cli.py prazos +49             # a rotina de prazos, com o relógio adiantado 49 h
 ```
 
 ## Como usar
 
-- **O que você digita:** as falas do vendedor. Nos 4 casos de demonstração, elas
-  já vêm mockadas em `CASOS_DEMO` (dentro de `src/agente_anuncio.py`); para uso
-  interativo, troque o roteiro por `input()`.
-- **O que o sistema faz:** conduz a conversa, consulta a faixa de preço de mercado
-  no SQLite, monta o rascunho, passa por um avaliador (checklist) e publica — ou,
-  se há avaria negada, registra o indício e suspende para a moderação humana.
-- **O que você recebe:** um anúncio publicado (ou um encaminhamento à moderação) e
-  um log JSON em `logs/` com toda a trajetória e o motivo de terminação.
+**O que você digita: texto livre**, como numa conversa. O sistema descobre o
+que você quer:
 
-### Exemplo real (caso 2, rodando com `qwen2.5:7b` via Ollama — copiado de `logs/02_divergencia_preco.json`)
+| Você escreve… | O sistema… |
+|---|---|
+| "quero vender minha geladeira consul duplex, uns 350 reais, bairro Santo Amaro" | conversa até ter um anúncio completo (pergunta de defeito, consulta o preço do bairro), confere, e **para para você aprovar** |
+| "to montando a cozinha do meu ap no brooklin, queria gastar no maximo uns 700 no total" | busca no catálogo, em paralelo, o que a intenção pede e devolve itens ativos, perto e dentro do orçamento |
+| "a taxa de 5% é cobrada em cima do frete tambem?" | responde com as regras do Santo Desapego, **citando o trecho** — ou recusa, se não houver regra |
+| "me ajuda com a lição de matemática" | recusa, e diz o que faz |
 
-```
-> vendedor: vendo geladeira duplex por 900 reais, Santo Amaro
+O que acompanha o texto sem ser digitado: o **id do usuário** (da sessão do
+site) e o **id da sessão** (a aba do chat). Juntos formam o `thread_id` da
+conversa: `V-017:aba1`.
 
-passo 1  consultar_preco   -> {"categoria":"geladeira","bairro":"Santo Amaro","n":4,
-                                "faixa_min":300.0,"faixa_max":380.0}
-passo 2  preencher_rascunho -> avaliador aprovou (5/5 critérios)
-passo 3  publicar          -> {"ok":true,"anuncio_id":2,"estado":"ativo"}
+**O que você recebe:** sempre um objeto `SaidaSistema` validado
+(`src/contrato.py`) com o **resultado** (o texto e os dados), as **fontes**
+(o trecho do corpus, o registro do banco, a ferramenta, a pessoa que decidiu)
+e a **suficiência** (se o sistema tinha base para responder — a recusa é
+parte do contrato). Os schemas e os exemplos estão em `docs/io.md`.
 
-termino=respondeu · passos=3 · tokens=6347
-```
+### O exemplo principal
 
-(O caso 1 também publica, mas oscila entre rodadas — às vezes em 3 passos
-como acima, às vezes travando em loop antes de publicar. É a instabilidade
-de reprodutibilidade documentada em `docs/modelos.md` §3.3; por isso o
-exemplo aqui é o caso 2, que se manteve estável entre as execuções.)
-
-### Exemplo offline (saída do `--selftest`, sem LLM)
+Copiado de `logs/01_simples.json` (commit `1a5cd36`, 2026-10-12 13:59:07, `gemini-3.5-flash-lite`).
+A pessoa (usuário `V-017`) digita, em três momentos:
 
 ```
-preco_ok: {"categoria": "geladeira", "bairro": "Santo Amaro", "n": 4,
-           "faixa_min": 300.0, "faixa_max": 380.0}
-preco_sem_registro: {"erro": "sem_comparaveis", "categoria": "bicicleta", ...}
-publicar_1: {"ok": true, "ja_existia": false, "anuncio_id": 1, "estado": "ativo"}
-publicar_2_idempotente: {"ok": true, "ja_existia": true, "anuncio_id": 1, ...}
-indicio: {"ok": true, "indicio_id": 1, "status": "pendente", "decisao": "humana"}
+> quero vender minha geladeira consul duplex, uns 350 reais, bairro Santo Amaro
+< [pergunta] Para montar o anúncio certinho, a geladeira funciona bem ou tem algum amassado, ferrugem ou problema para resfriar?
+
+> 5 anos de uso, funciona bem, sem defeito
+< [aguardando_aprovacao] Confere antes de publicar? O anúncio "Geladeira Consul Duplex" por R$ 350.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois. Você pode aprovar, editar algum campo ou desistir.
+
+  (o grafo parou: responder_pendencia("V-017:01_simples", {"acao": "aprovar"}, quem="V-017"))
+< [anuncio_publicado] Pronto! "Geladeira Consul Duplex" está no ar por R$ 350.00.
 ```
 
-### O que o sistema NÃO faz
+A saída final, inteira:
 
-- Não bloqueia a publicação: se o vendedor recusa declarar a avaria, o agente
-  **registra o indício** e deixa a decisão para a moderação (RF20).
-- Não impõe preço: apenas sugere pela faixa de mercado; a alçada é do vendedor.
-- Quando não sabe (sinal fraco, sem comparáveis), admite e segue — não chuta
-  **na maior parte das vezes**: no modelo local testado (`qwen2.5:7b`), o
-  caso "sem comparáveis" (bicicleta) ainda trava em loop em vez de contornar
-  — é uma limitação real, documentada e não escondida em
-  `dados/casos.md` e `docs/modelos.md` §3.3.
+```json
+{
+  "thread_id": "V-017:01_simples",
+  "agente": "anuncio",
+  "tipo": "anuncio_publicado",
+  "resultado": "Pronto! \"Geladeira Consul Duplex\" está no ar por R$ 350.00.",
+  "dados": {
+    "anuncio": {
+      "titulo": "Geladeira Consul Duplex",
+      "categoria": "geladeira",
+      "descricao": "Geladeira Consul Duplex com 5 anos de uso, funcionando bem.",
+      "preco": 350.0,
+      "bairro": "Santo Amaro",
+      "estado_conservacao": "bom_estado",
+      "avarias_declaradas": [],
+      "estado_declarado": true
+    },
+    "anuncio_id": 17,
+    "indicio": null,
+    "desfecho": "publicado"
+  },
+  "fontes": [
+    {
+      "tipo": "banco",
+      "ref": "precos_comparaveis[geladeira/Santo Amaro]",
+      "trecho": "{\"categoria\": \"geladeira\", \"bairro\": \"Santo Amaro\", \"n\": 4, \"faixa_min\": 300.0, \"faixa_max\": 380.0, \"ref\": \"precos_comparaveis[geladeira/Santo Amaro]\"}"
+    },
+    {
+      "tipo": "banco",
+      "ref": "anuncios[17]",
+      "trecho": null
+    },
+    {
+      "tipo": "humano",
+      "ref": "V-017",
+      "trecho": "{\"acao\": \"aprovar\", \"quem\": \"V-017\"}"
+    }
+  ],
+  "suficiencia": {
+    "base_suficiente": true,
+    "motivo": "publicado",
+    "faltando": []
+  },
+  "escolha_declarada": null,
+  "termino": "respondeu",
+  "motivo_termino": "publicado"
+}
+```
 
-### Limitação conhecida
+Por baixo, a trajetória do log: triagem (modelo) → pergunta de avaria
+(modelo) → consulta de preço no banco (R$ 300–380) → rascunho (modelo) →
+portão de avaria (código) → avaliador (modelo + código) → **pausa** →
+publicação (código, idempotente) → memória. 5 decisões do modelo
+(`passos`; mais 1 chamada de extração para a memória, fora do contador),
+4281 tokens nas decisões, 24,4 s. Os outros exemplos — a recusa, a entrada
+incompleta, a ambígua, a fora do escopo, o Agente A — estão em `docs/io.md`.
 
-Com o modelo local testado nesta entrega (`qwen2.5:7b`), 4 dos 5 casos (os 4
-oficiais + o 5º usado só na comparação de modelos) batem com o esperado; o
-caso 3 (sem comparáveis de verdade) entra em loop, e o histórico de 6
-versões de prompt tentando corrigir isso — sem quebrar os outros — está em
-`prompts/agente-anuncio-v1.md` a `v6.md` (cada uma com changelog). O modelo
-local também **não é perfeitamente determinístico** entre execuções
-idênticas (mesmo em `temperature=0`) — o caso 1 já saiu certo em 3 passos e
-já saiu em loop, dependendo da rodada. Análise completa em
-`docs/modelos.md` §3.3 e `docs/case.md` §2.11.
+### Quando o grafo para e espera alguém
+
+Duas situações, e nelas a saída vem com `termino = "aguardando_humano"` e a
+pendência inteira em `dados.pendencia` (a ação exata, os argumentos, a
+consequência, as opções e o prazo):
+
+1. **Antes de publicar qualquer anúncio** — quem decide é **o vendedor**:
+   `aprovar`, `editar` (corrigir título, descrição, preço ou estado antes de ir
+   ao ar) ou `rejeitar`. Prazo de 24 h; se ninguém responder, **não publica**.
+2. **Quando o vendedor se recusa a declarar um defeito** que apareceu na
+   conversa — o anúncio fica fora das buscas e quem decide é **um moderador**:
+   `publicar`, `publicar_com_aviso` (com o texto do aviso) ou `rejeitar`.
+   Prazo de 48 h; se ninguém responder, **não publica**.
+
+A conversa continua de onde parou, mesmo em outro processo (o estado fica em
+`dados/checkpoints.db`). A mesma aprovação enviada duas vezes **não** publica
+duas vezes. Detalhes em `docs/humano.md`.
+
+## O que o sistema NÃO faz
+
+- Não decide preço: avisa a faixa do bairro, e a alçada é do vendedor.
+- Não publica sem uma pessoa aprovar, e não publica escondendo um defeito sem a
+  moderação decidir.
+- Não lembra nada do comprador entre conversas (decisão de privacidade,
+  `docs/memoria.md` §1.5).
+- Não responde regra que não está no corpus — recusa e indica a Central de Ajuda.
+- Não move dinheiro: o pagamento é do site, pelo Mercado Pago.
+
+## Limitações conhecidas
+
+- **Modelo no plano gratuito do Gemini**: o Google pode usar o conteúdo enviado
+  para melhorar os produtos dele. Os dados desta entrega são todos simulados;
+  com usuários reais seria o plano pago ou um modelo local (`docs/modelos.md` §4).
+- **O modelo não é determinístico** mesmo em `temperature=0`: o caso 2 passou
+  numa rodada, entrou em laço em outras duas, e registrou um indício falso em
+  2 de 3 repetições — cada falha virou uma correção em código (`docs/grafo.md`
+  §6.3, `docs/memoria.md` P2.2). Depois delas: 3 de 3 (`logs/medicoes/estabilidade/`).
+- **Checkpoint em SQLite local**: um servidor só.
+- **O portão de avaria é um regex**: já errou uma vez (falso positivo), e frase
+  ambígua sobre defeito é onde ele pode errar de novo (`docs/grafo.md` §6.3).
 
 ## Estado da entrega
 
-| Item | Situação |
-|------|----------|
-| Case, usuários, workflow, arquitetura | prontos (`docs/`) |
-| Agente rodando + integração SQLite (§4.2) | pronto (`src/`) |
-| 5 casos rodados (4 oficiais da §4.5 + 1 da comparação de modelos) | **gerados de verdade** (`qwen2.5:7b` via Ollama) — 4/5 batem com o esperado, 1 é limitação conhecida (ver acima) |
-| `docs/modelos.md` (§3) | pronto — candidatos, conta de custo, verificação mínima com 5 casos em 2 dos 3 modelos (Mistral pendente por rate limit da turma), achado de não-determinismo |
-| `docs/case.md` §2.3–2.11 (workflow, verificador, critério, dados sensíveis, riscos) | prontos |
-| §2.5 baseline medido | **pronto** — 10 pessoas cronometradas no formulário real do site, 18/09/2026: média 2min44,5s/anúncio (`docs/case.md`); alvo do agente é projeção declarada como tal, não medida |
-| Mistral testada nos 4 casos (§3.3, 3ª coluna) | pendente — rodar quando o rate limit do workspace da turma liberar |
+O mapa item a item do enunciado está no fim de `docs/io.md`.

@@ -1,0 +1,80 @@
+{
+  "data": "2026-10-12T13:50:23",
+  "modelo": "gemini-3.5-flash-lite",
+  "prompts": {
+    "triagem-v2.md": "6592cce609db"
+  },
+  "resumo": "claras 6/6 · fronteira 4/4",
+  "casos": [
+    {
+      "mensagem": "quero vender meu sofá, 400 reais",
+      "esperado": "vender",
+      "obtido": "vender",
+      "fronteira": false,
+      "ok": true
+    },
+    {
+      "mensagem": "vendo bicicleta aro 29 em interlagos",
+      "esperado": "vender",
+      "obtido": "vender",
+      "fronteira": false,
+      "ok": true
+    },
+    {
+      "mensagem": "procuro uma geladeira barata no brooklin",
+      "esperado": "comprar",
+      "obtido": "comprar",
+      "fronteira": false,
+      "ok": true
+    },
+    {
+      "mensagem": "me indica umas coisas pra montar meu quarto",
+      "esperado": "comprar",
+      "obtido": "comprar",
+      "fronteira": false,
+      "ok": true
+    },
+    {
+      "mensagem": "qual a previsão do tempo pra amanhã?",
+      "esperado": "fora_escopo",
+      "obtido": "fora_escopo",
+      "fronteira": false,
+      "ok": true
+    },
+    {
+      "mensagem": "me ajuda com a lição de matemática do meu filho",
+      "esperado": "fora_escopo",
+      "obtido": "fora_escopo",
+      "fronteira": false,
+      "ok": true
+    },
+    {
+      "mensagem": "posso vender uma réplica de pistola de airsoft?",
+      "esperado": "duvida",
+      "obtido": "duvida",
+      "fronteira": true,
+      "ok": true
+    },
+    {
+      "mensagem": "é permitido anunciar remédio?",
+      "esperado": "duvida",
+      "obtido": "duvida",
+      "fronteira": true,
+      "ok": true
+    },
+    {
+      "mensagem": "quanto tempo meu anúncio fica no ar?",
+      "esperado": "duvida",
+      "obtido": "duvida",
+      "fronteira": true,
+      "ok": true
+    },
+    {
+      "mensagem": "quero vender minha geladeira velha e comprar uma maior",
+      "esperado": "ambigua",
+      "obtido": "ambigua",
+      "fronteira": true,
+      "ok": true
+    }
+  ]
+}

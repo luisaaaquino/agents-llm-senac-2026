@@ -1,0 +1,110 @@
+{
+  "caso": "09_ambigua",
+  "prova": "entrada ambígua: pergunta por onde começar em vez de chutar",
+  "esperado": "pergunta / aguardando_usuario",
+  "carimbo": {
+    "data": "2026-10-12T14:02:28",
+    "commit": "1a5cd36",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 7,
+      "episodios": 6,
+      "episodios_hash": "b5e069395554",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "V-023:09_ambigua",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "quero vender minha geladeira velha e comprar uma maior",
+      "saida": {
+        "thread_id": "V-023:09_ambigua",
+        "agente": "nenhum",
+        "tipo": "pergunta",
+        "resultado": "Entendi que você quer fazer mais de uma coisa. Para eu ajudar direito, vamos por partes: você prefere começar por anunciar o seu produto ou por procurar algo para comprar?",
+        "dados": {
+          "leituras": [
+            "vender",
+            "comprar"
+          ]
+        },
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "a mensagem tem mais de uma leitura; o sistema pergunta em vez de escolher",
+          "faltando": [
+            "qual das ações fazer primeiro"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_usuario",
+        "motivo_termino": "a mensagem tem mais de uma leitura; o sistema pergunta em vez de escolher"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "quero vender minha geladeira velha e comprar uma maior",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 337,
+          "segundos": 3.79,
+          "tentativas": 1,
+          "saida": {
+            "rota": "ambigua",
+            "leituras": [
+              "vender",
+              "comprar"
+            ],
+            "categoria": "geladeira",
+            "motivo": "A pessoa expressa o desejo de vender um produto e também de comprar outro na mesma frase."
+          }
+        },
+        {
+          "etapa": "desambiguar",
+          "decide": "codigo",
+          "opcoes": [
+            "anunciar o seu produto",
+            "procurar algo para comprar"
+          ]
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "pergunta",
+    "termino": "aguardando_usuario",
+    "motivo": "a mensagem tem mais de uma leitura; o sistema pergunta em vez de escolher",
+    "segundos": 3.8,
+    "passos": 1,
+    "tokens": 337,
+    "custo_usd": 0.0002529,
+    "consultas_rag": 0
+  }
+}

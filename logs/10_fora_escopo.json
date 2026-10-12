@@ -1,0 +1,98 @@
+{
+  "caso": "10_fora_escopo",
+  "prova": "fora do escopo: recusa e diz o que o sistema faz",
+  "esperado": "recusa / recusou",
+  "carimbo": {
+    "data": "2026-10-12T14:02:32",
+    "commit": "1a5cd36",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 7,
+      "episodios": 6,
+      "episodios_hash": "b5e069395554",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "C-004:10_fora_escopo",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "me ajuda a fazer a lição de matemática do meu filho?",
+      "saida": {
+        "thread_id": "C-004:10_fora_escopo",
+        "agente": "nenhum",
+        "tipo": "recusa",
+        "resultado": "Isso foge do que eu faço aqui. Eu sou o assistente do Santo Desapego e posso: montar o anúncio de um produto seu, encontrar itens à venda perto de você, ou tirar dúvidas sobre as regras da plataforma (taxa, prazos, pagamento, entrega).",
+        "dados": null,
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "pedido fora do escopo do sistema",
+          "faltando": [
+            "um pedido de compra, venda ou dúvida sobre a plataforma"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "recusou",
+        "motivo_termino": "pedido fora do escopo do sistema"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "me ajuda a fazer a lição de matemática do meu filho?",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 381,
+          "segundos": 3.92,
+          "tentativas": 1,
+          "saida": {
+            "rota": "fora_escopo",
+            "leituras": [],
+            "categoria": null,
+            "motivo": "A mensagem pede ajuda com li&ccedil;&atilde;o de casa escolar, o que n&atilde;o tem rela&ccedil;&atilde;o com transa&ccedil;&otilde;es ou funcionamento do marketplace Santo Desapego."
+          }
+        },
+        {
+          "etapa": "fora_escopo",
+          "decide": "codigo"
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "recusa",
+    "termino": "recusou",
+    "motivo": "pedido fora do escopo do sistema",
+    "segundos": 3.9,
+    "passos": 1,
+    "tokens": 381,
+    "custo_usd": 0.00035630000000000004,
+    "consultas_rag": 0
+  }
+}

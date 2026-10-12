@@ -1,0 +1,160 @@
+{
+  "data": "2026-10-12T13:53:59",
+  "modelo": "gemini-3.5-flash-lite",
+  "prompts": {
+    "avaliador-anuncio-v4.md": "7ad9fa507669",
+    "compra-interpretar-v1.md": "61a2dc35b8d8",
+    "compra-sugestao-v1.md": "37a9f0485608",
+    "resposta-regras-v1.md": "02ff466cea45",
+    "triagem-v2.md": "6592cce609db"
+  },
+  "resumo": "15/15",
+  "casos": [
+    {
+      "id": "Q01",
+      "portao": "passou",
+      "base_suficiente": true,
+      "citacoes_validas": [
+        "termos-de-uso-2026#3"
+      ],
+      "resposta": "Cada anúncio ativo fica no ar por 30 dias e pode ser renovado ao fim do prazo. Anúncios aguardando moderação são uma exceção e não têm o prazo contado até serem publicados de fato.",
+      "ok": true
+    },
+    {
+      "id": "Q02",
+      "portao": "passou",
+      "base_suficiente": true,
+      "citacoes_validas": [
+        "termos-de-uso-2026#4"
+      ],
+      "resposta": "Não é possível aceitar trocas, pois a plataforma intermedia apenas compra e venda com pagamento pelo sistema integrado. O recurso foi retirado porque a troca não possui garantia nem pagamento protegido.",
+      "ok": true
+    },
+    {
+      "id": "Q03",
+      "portao": "passou",
+      "base_suficiente": true,
+      "citacoes_validas": [
+        "termos-de-uso-2026#5"
+      ],
+      "resposta": "O site cobra uma taxa de intermediação de 5% sobre o valor nominal do produto, que é descontada automaticamente quando a venda é liquidada. Custos de frete ou entrega combinados fora da plataforma não entram nessa base de cálculo.",
+      "ok": true
+    },
+    {
+      "id": "Q04",
+      "portao": "passou",
+      "base_suficiente": true,
+      "citacoes_validas": [
+        "termos-de-uso-2026#5"
+      ],
+      "resposta": "Não, a taxa de 5% incide apenas sobre o valor nominal do produto. Custos de frete ou entrega combinados fora da plataforma não entram na base de cálculo.",
+      "ok": true
+    },
+    {
+      "id": "Q05",
+      "portao": "passou",
+      "base_suficiente": true,
+      "citacoes_validas": [
+        "termos-de-uso-2026#8"
+      ],
+      "resposta": "Ao encerrar sua conta, seus dados pessoais são excluídos ou anonimizados, exceto os registros financeiros de compras e vendas que são mantidos por 5 anos por obrigação legal.",
+      "ok": true
+    },
+    {
+      "id": "Q06",
+      "portao": "passou",
+      "base_suficiente": true,
+      "citacoes_validas": [
+        "politica-moderacao-2026#4"
+      ],
+      "resposta": "Não, você não precisa tirar foto específica de riscos superficiais na porta da geladeira. Basta descrevê-los no anúncio e selecionar o estado de conservação Marcas de Uso.",
+      "ok": true
+    },
+    {
+      "id": "Q07",
+      "portao": "passou",
+      "base_suficiente": true,
+      "citacoes_validas": [
+        "politica-moderacao-2026#1"
+      ],
+      "resposta": "Não, réplicas e simulacros de armas, incluindo os de airsoft e paintball, são proibidos e não podem ser anunciados na plataforma.",
+      "ok": true
+    },
+    {
+      "id": "Q08",
+      "portao": "passou",
+      "base_suficiente": true,
+      "citacoes_validas": [
+        "politica-moderacao-2026#2"
+      ],
+      "resposta": "Sim, você pode anunciar um brinquedo em formato de arma do seu filho desde que ele seja claramente de brinquedo, feito de plástico colorido, sem mecanismo de disparo de projétil e seja anunciado na categoria Infantil.",
+      "ok": true
+    },
+    {
+      "id": "Q09",
+      "portao": "passou",
+      "base_suficiente": true,
+      "citacoes_validas": [
+        "pagamento-e-entrega#3"
+      ],
+      "resposta": "O dinheiro da venda fica retido até a confirmação da entrega. Ele é liberado assim que o comprador digita o código correto de entrega no site.",
+      "ok": true
+    },
+    {
+      "id": "Q10",
+      "portao": "passou",
+      "base_suficiente": true,
+      "citacoes_validas": [
+        "pagamento-e-entrega#4"
+      ],
+      "resposta": "O código aceita no máximo 5 tentativas erradas. Após a quinta falha, a confirmação é bloqueada e o caso é enviado para o suporte da plataforma.",
+      "ok": true
+    },
+    {
+      "id": "Q11",
+      "portao": "passou",
+      "base_suficiente": true,
+      "citacoes_validas": [
+        "politica-moderacao-2026#5"
+      ],
+      "resposta": "Se o vendedor se recusa a declarar um defeito, o anúncio fica aguardando moderação por até 48 horas e não aparece nas buscas. A moderação decidirá se publica o anúncio como está, com aviso de avaria, ou se o rejeita.",
+      "ok": true
+    },
+    {
+      "id": "Q12",
+      "portao": "passou",
+      "base_suficiente": true,
+      "citacoes_validas": [
+        "guia-estado-conservacao#4"
+      ],
+      "resposta": "Como sua geladeira funciona mas tem um amassado (uma avaria), você deve anunciá-la como Marcas de Uso se declarar a avaria na descrição.",
+      "ok": true
+    },
+    {
+      "id": "Q13",
+      "portao": "recusou",
+      "base_suficiente": false,
+      "citacoes_validas": [],
+      "esperado_recusa": true,
+      "ok": true
+    },
+    {
+      "id": "Q14",
+      "portao": "passou",
+      "base_suficiente": true,
+      "citacoes_validas": [
+        "area-de-atuacao#1"
+      ],
+      "resposta": "O Santo Desapego atende Santo Amaro e outros 17 bairros vizinhos da zona sul de São Paulo, totalizando 18 bairros na região.",
+      "ok": true
+    },
+    {
+      "id": "Q15",
+      "portao": "recusou",
+      "base_suficiente": false,
+      "citacoes_validas": [],
+      "esperado_recusa": true,
+      "ok": true
+    }
+  ]
+}
