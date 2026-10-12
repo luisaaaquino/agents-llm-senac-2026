@@ -1,0 +1,76 @@
+{
+  "data": "2026-10-12T13:50:55",
+  "modelo": "gemini-3.5-flash-lite",
+  "prompts": {
+    "avaliador-anuncio-v4.md": "7ad9fa507669",
+    "triagem-v2.md": "6592cce609db"
+  },
+  "resumo": "8/8",
+  "casos": [
+    {
+      "caso": "bom: simples",
+      "esperado": true,
+      "obtido": true,
+      "ok": true,
+      "faltando": []
+    },
+    {
+      "caso": "bom: avaria declarada",
+      "esperado": true,
+      "obtido": true,
+      "ok": true,
+      "faltando": []
+    },
+    {
+      "caso": "bom: sem comparáveis",
+      "esperado": true,
+      "obtido": true,
+      "ok": true,
+      "faltando": []
+    },
+    {
+      "caso": "bom: indício registrado, defeito fora",
+      "esperado": true,
+      "obtido": true,
+      "ok": true,
+      "faltando": []
+    },
+    {
+      "caso": "ruim: título genérico",
+      "esperado": false,
+      "obtido": false,
+      "ok": true,
+      "faltando": [
+        "tem_titulo: o titulo deve ser especifico do produto, como Geladeira Consul Duplex"
+      ]
+    },
+    {
+      "caso": "ruim: descrição vazia",
+      "esperado": false,
+      "obtido": false,
+      "ok": true,
+      "faltando": [
+        "tem_descricao",
+        "Adicione detalhes concretos na descrição, como marca, tamanho, tempo de uso ou estado."
+      ]
+    },
+    {
+      "caso": "ruim: avaria declarada com estado como_novo",
+      "esperado": false,
+      "obtido": false,
+      "ok": true,
+      "faltando": [
+        "estado_coerente: O estado de conservação \"como_novo\" não é compatível com a avaria declarada de pé rachado. Altere o estado para \"usado\" ou \"bom\"."
+      ]
+    },
+    {
+      "caso": "ruim: inventa 'sem defeito' contra a conversa",
+      "esperado": false,
+      "obtido": false,
+      "ok": true,
+      "faltando": [
+        "sem_invencao: A descrição afirma que não há nenhum defeito, mas a conversa indica que o freezer embaixo demora para congelar."
+      ]
+    }
+  ]
+}

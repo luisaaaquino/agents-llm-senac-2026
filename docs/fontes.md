@@ -62,3 +62,35 @@ ele diga e agir sobre um catálogo real e mutável.
   https://www.emarketer.com/content/how-agentic-ai-will-reshape-shopping-2026
 - Paz.ai — Adobe Analytics teria medido 42% mais conversão entre compradores
   referidos por IA no Q1/2026. https://www.paz.ai/agentic-commerce
+---
+
+## Parte 2 — o que foi consultado
+
+### Enunciado e material da disciplina
+- Enunciado da Parte 2 — https://github.com/celsocrivelaro/senac-agentes-llm/blob/main/trabalho/02-segunda-entrega.md
+- Visão geral do trabalho — https://github.com/celsocrivelaro/senac-agentes-llm/blob/main/trabalho/00-visao-geral.md
+
+### Framework e provedor (documentação oficial, consultada em 12/10/2026)
+- LangGraph — `StateGraph`, `Send`, `interrupt`/`Command`, checkpointers: https://langchain-ai.github.io/langgraph/
+- LangGraph — o padrão do `recursion_limit` foi conferido no próprio código
+  instalado (`langgraph/_internal/_config.py`, `DEFAULT_RECURSION_LIMIT`,
+  versão 1.2.14), não na documentação.
+- Gemini API — compatibilidade com a API da OpenAI (endpoint, `response_format`,
+  embeddings): https://ai.google.dev/gemini-api/docs/openai
+- Gemini API — preços e plano gratuito (inclui o aviso de uso do conteúdo
+  para melhorar os produtos no plano gratuito): https://ai.google.dev/gemini-api/docs/pricing
+- Gemini API — limites de requisição (os valores por conta aparecem no AI
+  Studio, não na página): https://ai.google.dev/gemini-api/docs/rate-limits
+
+### Fontes do corpus (domínio)
+- Entrega Final do TCC (G11), Apêndice E (Termos de Uso), regras de negócio
+  RN01–RN15 e requisitos RF19/RF20 — repositório do TCC,
+  `docs/entregas/Entrega _Final_G11.docx`.
+- Site do TCC: `santo-desapego/src/pages/termosContent.js` (Termos e
+  Política), `santo-desapego-api/prompts/duvidas-site.md` (FAQ antigo, base do
+  documento revogado), `santo-desapego-api/utils/validacao.js` (termos
+  bloqueados), `santo-desapego-api/routes/pagamentos.js` (código de entrega,
+  commit `c325b5e`), `santo-desapego/src/componentes/SeletorBairro.jsx` e
+  `santo-desapego-api/utils/geolocalizacao.js` (bairros e coordenadas).
+- LGPD, art. 18 (direitos do titular, base da remoção) — Lei nº 13.709/2018:
+  https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm

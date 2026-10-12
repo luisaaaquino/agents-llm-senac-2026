@@ -423,3 +423,94 @@ confirmação sempre que aparecer, independente do que o avaliador decidir.
   de preço com o mercado local — não a chamada de uma lib de "itens similares" nem
   um "gerar anúncio da foto".
 
+
+---
+
+## 0. O complemento do case (Parte 2)
+
+> O que o domínio ensinou entre a Parte 1 e a Parte 2 e que não estava escrito
+> em lugar nenhum — nem no TCC, nem no site, nem na primeira versão deste case.
+> Cada item diz de onde veio, e o que mudou no sistema por causa dele.
+
+### 0.1 Vocabulário que ninguém de fora entende
+
+| Termo | O que quer dizer aqui | Por que importa ao sistema |
+|---|---|---|
+| **desapego** | o produto usado que a pessoa quer passar adiante — não é "promoção" nem "doação" | o usuário escreve "quero desapegar da geladeira": a triagem tem de ler isso como `vender` |
+| **retirada** | o comprador vai buscar no endereço do vendedor; não há frete na plataforma | o bairro do anúncio é o **bairro de retirada**, e é ele que vai para a memória semântica (`bairro_retirada`) |
+| **código de entrega** | os 6 dígitos que o vendedor passa ao comprador junto com o produto; quando o comprador digita no site, o dinheiro é liberado | é a versão real do "escrow" do TCC (RN05), implementada no site em 03/10/2026 — entrou no corpus (`pagamento-e-entrega`) |
+| **indício** | a suspeita de avaria que o vendedor se recusou a declarar | não é denúncia, não é bloqueio: é um registro para a moderação decidir, e o anúncio fica parado até lá |
+| **marcas de uso** | o estado de conservação de quem declarou defeito ou desgaste visível | o avaliador cobra a coerência: defeito declarado + "como novo" reprova (`estado_coerente`) |
+
+### 0.2 A regra que todo mundo da área conhece e nenhum documento registra
+
+**"Defeito declarado não derruba a venda; defeito descoberto na entrega derruba
+a venda e a reputação."** Vendedor experiente de usado sabe disso; vendedor de
+primeira viagem acha que esconder o defeito ajuda a vender. É a razão de o
+Agente B insistir na pergunta de avaria — e a razão de a insistência ter virado
+**portão em código** na Parte 2: o modelo, sozinho, pulou a pergunta na Parte 1
+(qwen2.5:7b) e voltou a pular no primeiro teste com o gemini-3.5-flash-lite.
+
+**A pergunta genérica não funciona; a pergunta pelo nome funciona.** "Tem algum
+defeito?" recebe "não". "O freezer de baixo congela normal?" recebe a verdade.
+Geladeira usada tem três defeitos típicos (freezer inferior lento, borracha de
+vedação, compressor barulhento) que quem vende sabe e não fala. Foi isso que a
+memória semântica de categoria (`avarias_tipicas`) passou a guardar — **só
+depois que a moderação confirma** — e o caso 13 mostra a pergunta mudando.
+
+### 0.3 A exceção que aparece em um caso a cada vinte e decide a arquitetura
+
+**O produto proibido que parece permitido, e o permitido que parece proibido.**
+Uma réplica de airsoft é proibida (simulacro de arma); uma arminha de plástico
+colorida de criança é permitida. Uma regra de palavra-chave ("arma") erra os
+dois. É por isso que o Agente B ganhou a ferramenta `consultar_regras` (RAG) e
+a ação `recusar_item`, que só vale citando uma regra que foi **de fato
+consultada** — casos 14 e 15. Antes da Parte 2 isso nem estava escrito: a
+política de moderação não existia por escrito (§2.10); o grupo a redigiu a
+partir das RN09/RN15/RF19/RF20 e da lista de termos bloqueados do site.
+
+> **A validar pelo grupo:** duas regras do corpus foram redigidas nesta entrega
+> e não estavam em nenhum documento anterior — a exceção do brinquedo
+> (`politica-moderacao-2026#2`) e "anúncio aguardando moderação não conta prazo"
+> (`termos-de-uso-2026#3`).
+
+### 0.4 O passo que parecia um e são três
+
+**"Publicar o anúncio"** parecia um passo (era uma ação do modelo na Parte 1).
+No domínio são três, com donos diferentes:
+
+1. **o anúncio está bom?** — avaliador (modelo) + checagens em código (preço, avaria);
+2. **o vendedor confirma o que vai ao ar?** — o vendedor, vendo o anúncio exato
+   e a consequência ("fica visível para os 18 bairros"); pode editar o preço;
+3. **o anúncio pode ir ao ar sem a avaria?** — só quando houve indício: o
+   moderador, em até 48 h; se ninguém decidir, **não publica**.
+
+Na Parte 1 os três eram uma ação (`publicar`) que o modelo escolhia — e ele
+errava dos dois lados (publicava sem aprovação; não publicava depois de
+aprovado). Na Parte 2 nenhum deles é decisão do modelo de anúncio.
+
+### 0.5 O que o domínio contradiz nele mesmo
+
+Achado ao montar o corpus: **as fontes oficiais do Santo Desapego discordam
+entre si.**
+
+| Assunto | Termos de Uso (TCC) | Código do site | FAQ do site (antigo) |
+|---|---|---|---|
+| vigência do anúncio | 30 dias | **60 dias** (`schema.sql`) | 60 dias |
+| trocas | não menciona | removidas em 03/10/2026 | "aceito trocas" |
+| estados de conservação | Novo / Como Novo / Bom Estado / Marcas de Uso | novo / seminovo / usado / para-reparo | novo / seminovo / usado / para reparo |
+
+O agente não tem como resolver isso — é **curadoria**: o corpus segue os Termos
+(o documento normativo, que o usuário aceita) e o FAQ antigo entra marcado
+`vigente: false`. O experimento do documento revogado (`docs/rag.md` §4.2)
+mostra o que acontece quando a curadoria falta. A divergência entre os Termos e
+o código do site foi reportada ao grupo do TCC.
+
+### 0.6 O que mudou no case por causa da entrada em texto
+
+Na Parte 1, o Agente A recebia **cliques** (evento estruturado) e inferia a
+intenção. A Parte 2 exige texto livre (§1.1). Ao reescrever, o grupo descobriu
+que o comprador **diz** o que quer quando pode falar ("to montando a cozinha,
+até 700"), e a inferência a partir de cliques virou sinal auxiliar, usado só
+quando o texto não basta. Com isso o Agente A deixou de ser um agente e virou
+um **workflow** — a justificativa está em `docs/arquitetura.md` §3.3.

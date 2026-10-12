@@ -1,0 +1,104 @@
+{
+  "data": "2026-10-12T14:09:08",
+  "1_contradicao": {
+    "gravacao_nova": {
+      "ok": true,
+      "ja_existia": false,
+      "entidade": "vendedor:V-090",
+      "chave": "bairro_retirada",
+      "substituiu": {
+        "valor": "Santo Amaro",
+        "data": "2026-06-10T10:00:00",
+        "fonte": "anuncio:antigo"
+      }
+    },
+    "gravacao_repetida": {
+      "ok": true,
+      "ja_existia": true,
+      "entidade": "vendedor:V-090",
+      "chave": "bairro_retirada"
+    },
+    "leitura": [
+      {
+        "entidade": "vendedor:V-090",
+        "chave": "bairro_retirada",
+        "condicao": "",
+        "valor": "Campo Grande",
+        "data": "2026-09-02T10:00:00",
+        "fonte": "anuncio:novo",
+        "a_confirmar": false
+      },
+      {
+        "entidade": "vendedor:V-090",
+        "chave": "bairro_retirada",
+        "condicao": "itens pequenos",
+        "valor": "Santo Amaro",
+        "data": "2026-09-05T10:00:00",
+        "fonte": "anuncio:outro",
+        "a_confirmar": false
+      }
+    ]
+  },
+  "2_decaimento": {
+    "rotina": {
+      "removidos": 1,
+      "rebaixados": 1
+    },
+    "restantes": [
+      {
+        "resumo": "[10 dias atrás] mesa de madeira, Santo Amaro, publicada",
+        "rebaixado": 0,
+        "similaridade": 0.9343
+      },
+      {
+        "resumo": "[200 dias atrás] mesa de madeira, Santo Amaro, publicada",
+        "rebaixado": 1,
+        "similaridade": 0.4624
+      }
+    ]
+  },
+  "3_remocao": {
+    "memoria_recuperada_antes_da_remocao": {
+      "fatos_vendedor": [
+        "bairro_retirada"
+      ],
+      "fatos_categoria": [
+        "avarias_tipicas"
+      ],
+      "episodios": [
+        "642e455b645f9dfaed77593f",
+        "2d011ae307877f0fb24384cc"
+      ]
+    },
+    "relatorio_da_remocao": {
+      "1_episodica": 2,
+      "2_semantica": 1,
+      "3_fila_procedural": 0,
+      "3_procedural_md": {
+        "linhas_com_o_titular": 0,
+        "acao": "nada a fazer"
+      },
+      "4_checkpoints_threads": 2,
+      "5_logs": [
+        "logs\\memoria_titular_teste_a.json",
+        "logs\\memoria_titular_teste_b.json"
+      ],
+      "6_anuncios": 2,
+      "7_indicios_anonimizados": 1,
+      "8_pendencias": 2,
+      "9_cliques": 0
+    },
+    "memoria_recuperada_depois": {
+      "fatos_vendedor": [],
+      "fatos_categoria": [
+        "avarias_tipicas"
+      ],
+      "episodios": [
+        "642e455b645f9dfaed77593f",
+        "2d011ae307877f0fb24384cc"
+      ]
+    },
+    "varredura_independente": "OK — nenhum vestígio de <titular-de-teste> em 6 lugares: checkpoints.db, indice_rag.db, memoria.db, santo_desapego.db, logs/, src/prompts/",
+    "varredura_ok": true
+  }
+}

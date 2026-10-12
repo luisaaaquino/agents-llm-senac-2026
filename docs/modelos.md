@@ -244,3 +244,68 @@ local.** Motivos, em ordem:
   maior do que a de uma API na nuvem com o mesmo prompt — reprodutibilidade
   é parte da conta de custo (§3.2 mostra que o caso "ruim" quase dobra os
   tokens), não só uma questão de correção.
+
+---
+
+## 4. Parte 2 — a troca para o Gemini (gemini-3.5-flash-lite)
+
+**Decisão:** a Parte 2 roda em `gemini-3.5-flash-lite` (chat) e
+`gemini-embedding-001` (768 dimensões), pelo endpoint compatível com a API da
+OpenAI do Google AI Studio, **plano gratuito**. O código não mudou de SDK: só o
+`.env` (`src/config.py`).
+
+### 4.1 Por que saímos do qwen2.5:7b local
+
+| Motivo | Evidência |
+|---|---|
+| **a máquina de quem desenvolve a Parte 2 não roda o 7B** | notebook com 5,8 GB de RAM e GPU integrada (Radeon, 2 GB): o qwen2.5:7b precisa de ~5–6 GB livres só para o modelo. Um 3B rodaria só na CPU, a 10–60 s por chamada — e a Parte 2 faz 5 a 10 chamadas por anúncio |
+| **a Parte 2 precisa de embedding** | RAG (busca vetorial) e memória episódica. O Ollama exigiria um segundo modelo local; o Gemini tem embedding gratuito no mesmo provedor |
+| **a chave da Mistral da turma seguia com limite esgotado** | o motivo original da Parte 1 (§3.4) não mudou |
+| **reprodutibilidade** | a Parte 1 mediu não determinismo do qwen2.5:7b em `temperature=0` (§3.3); a Parte 2 depende de logs reprodutíveis por commit |
+
+### 4.2 O que medimos antes de decidir (12/10/2026)
+
+- **Conexão e modelos disponíveis na conta nova:** `gemini-3.5-flash-lite`
+  respondeu; `gemini-3.8-flash` e `gemini-flash-latest` devolveram 503 ("high
+  demand") no teste; `gemini-2.5-flash` devolveu 404 ("no longer available to
+  new users"). Escolhemos o que respondeu de forma estável.
+- **Saída estruturada com Pydantic** (`Literal`, campos opcionais, objetos
+  aninhados): funcionou via `client.beta.chat.completions.parse`.
+- **Achado de compatibilidade:** o Gemini recusa requisição só com mensagem de
+  sistema (`contents is not specified`). O código da Parte 1 mandava só
+  `system`; `src/llm.py` passou a mandar sempre uma mensagem de usuário.
+- **O primeiro teste repetiu a falha da Parte 1:** rodando o agente da Parte 1
+  sem mudanças, o caso 4 publicou sem perguntar sobre avaria — e numa chamada
+  de teste o modelo foi direto a `preencher_rascunho` mesmo com o contexto
+  dizendo que ninguém tinha perguntado de defeito. Trocar de modelo **não**
+  resolveu o modo de falha principal; ele virou portão em código.
+- **Latência:** ~1,5 s por chamada estruturada; um anúncio completo em 25–45 s
+  de relógio, dos quais 4 s por chamada são espera proposital (abaixo).
+
+### 4.3 O preço da decisão
+
+| Custo | Como lidamos |
+|---|---|
+| **o plano gratuito usa o conteúdo enviado para melhorar os produtos do Google** | os dados desta entrega são todos simulados (§2.8 do case). Em produção, com conversa real de vendedor, o plano gratuito **não** serve: seria o pago (que não usa o conteúdo) ou o Ollama numa máquina dedicada. Declarado também na remoção (`docs/memoria.md`): a retenção no provedor fica fora do nosso alcance |
+| **limite de requisições por minuto** | `LLM_MIN_INTERVALO_S = 4` (espaçamento entre chamadas) e repetição com espera em 429/503 (`src/llm.py`, erro recuperável × fatal) |
+| **limite diário: 500 chamadas por projeto e por modelo** — medido, não lido: estourou em 12/10/2026, no meio das medições finais (`429 RESOURCE_EXHAUSTED`, cota `GenerateRequestsPerDayPerProjectPerModel-FreeTier`, `limit: 500`, "retry in 7h05m") | um anúncio custa de 5 a 9 chamadas; os 15 casos, ~80; o conjunto de medições, ~120. Um dia de desenvolvimento com três rodadas completas esgotou a cota. O 429 diário não se resolve em minutos: o `src/llm.py` o trata como recuperável, esgota as 3 tentativas e devolve `erro_fatal` — que é o comportamento certo para o usuário (mensagem de erro, nenhuma resposta inventada). Saída usada: uma chave de **outro projeto** do AI Studio (a cota é por projeto). Em produção, isso sozinho já obriga o plano pago: 500 chamadas são ~60 anúncios por dia |
+| **dependência de rede e de um fornecedor** | o provedor é trocável por `.env` (Mistral, Ollama); o embedding é o ponto menos trocável — mudar de modelo de embedding exige reindexar o corpus e a memória episódica |
+| **o modelo pode sumir** | aconteceu com o `gemini-2.5-flash` para contas novas. O nome do modelo está fixado no `.env` e no carimbo de cada log |
+
+### 4.4 Custo por execução (tokens medidos nos logs da Parte 2)
+
+Plano gratuito: **US$ 0**. Se fosse o plano pago do flash-lite (US$ 0,30/M
+entrada, US$ 2,50/M saída, tabela consultada em 12/10/2026), os custos medidos
+nos logs finais (`final.custo_usd`) ficam entre **US$ 0,0002** (recusa fora do
+corpus, caso 5) e **US$ 0,0045** (divergência de preço, caso 2 — o mais longo,
+8 chamadas) por conversa — a tabela por caso está em `docs/io.md`. O teto
+`B_MAX_CUSTO_USD = 0,02` é ~4x o caso mais caro medido.
+
+### 4.5 Mudaríamos de ideia se
+
+- o grupo levar o agente para o site do TCC com usuários reais → plano pago ou
+  modelo local (política de dados, §4.3);
+- o `gemini-3.8-flash` estabilizar e acertar os mesmos casos com menos passos —
+  a comparação é rodar `python cli.py casos` com `LLM_MODELO` trocado;
+- o avaliador continuar compartilhando pontos cegos com o agente (risco do
+  `docs/case.md` §2.11) → `LLM_MODELO_AVALIADOR` com outro modelo.

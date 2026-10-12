@@ -1,7 +1,13 @@
-# Memória do agente — Santo Desapego (rascunho do §4 da Parte 2)
+# Memória do agente — Santo Desapego (§5 da Parte 2)
 
-> Exercício 8 (Aula 08). Documento de **decisão**: nada aqui foi implementado
-> ainda — a implementação é o exercício complementar. Onde há número, ele vem
+> **Parte 2: implementado.** As Decisões 1 e 2 abaixo são as do exercício 8
+> (Aula 08), mantidas como foram escritas. O que mudou na implementação, as
+> medições e a gestão da conversa (§5.5) estão na seção **Parte 2 — o que foi
+> implementado**, no fim. Código: src/memoria.py, src/remocao.py,
+> scripts/demo_memoria.py, scripts/verificar_remocao.py.
+>
+> Texto original do exercício 8: documento de **decisão**: nada aqui foi
+> implementado ainda — a implementação é o exercício complementar. Onde há número, ele vem
 > marcado como **[medido]** (tirado dos logs reais da Parte 1, `qwen2.5:7b`
 > via Ollama) ou **[projeção]** (estimativa declarada, a medir na
 > implementação).
@@ -373,3 +379,189 @@ terceira, e a pior para avaliar, porque muda sozinha a cada anúncio.
 Aceitamos essas três perdas de propósito. Neste case, a memória errada é
 pior que a memória ausente, porque o erro que mais custa é publicar um
 defeito escondido.
+
+
+---
+
+## Parte 2 — o que foi implementado, o que mudou, e o que foi medido
+
+### P2.1 O que mudou em relação ao desenho
+
+| Decidido no exercício 8 | Implementado | Por quê |
+|---|---|---|
+| checkpoint em `checkpoints/{execucao_id}.json` | `SqliteSaver` do LangGraph, `dados/checkpoints.db`, endereçado por `thread_id` | o framework já grava o estado íntegro a cada super-passo — o checkpoint deixou de ser código nosso (`docs/grafo.md` §6.5) |
+| episódica em Chroma | tabela `memoria_episodica` (SQLite) + cosseno em numpy, `gemini-embedding-001` 768 dim | a escala (~1.000 episódios/semestre) não pede índice dedicado; a remoção por metadado vira `DELETE WHERE vendedor_id = ?` (`docs/rag.md` §4.1) |
+| `prompts/procedural.md` | `src/prompts/procedural.md` (3 regras, ~70 tokens) | os prompts foram para `src/prompts/` (§2.2). Uma das 4 regras previstas — "use a grafia do vendedor na categoria" — **saiu antes de entrar**: virou código (categoria `Literal` com vocabulário fechado). Regra que vira código deixa a memória (§2.2) |
+| `anuncios` sem `vendedor_id` (item 6 do inventário) | coluna `vendedor_id` no `seed.sql` | sem ela a remoção por titular era impossível |
+| `registrar_indicio_avaria` sem idempotência e com `anuncio_ref` fixo | chave derivada do conteúdo + `anuncio_id` ligado em `preparar_moderacao` | as duas correções prometidas em §1.1 |
+| procedural: "pergunte sobre avaria antes do rascunho" | **continua** na procedural **e** virou portão em código (`portao_avaria`) | a regra no prompt não bastou com nenhum dos modelos testados |
+
+### P2.2 As três memórias, rodando
+
+| Tipo | Estrutura | Quem escreve (§5.3) | Volume por execução |
+|---|---|---|---|
+| episódica | `memoria_episodica`: resumo + vetor + metadados (`data`, `categoria`, `bairro`, `vendedor_id`, `desfecho`, `avaria`) | **código**, com 1 chamada de extração (`extracao-memoria-v1.md`) a partir de **campos estruturados**, depois `filtrar_pii` | **1 episódio** por anúncio que chega a ter rascunho (uma frase de até 40 palavras) |
+| semântica | `memoria_semantica` (entidade, chave, condição) → valor, `data`, `fonte`, `substituiu` | **código por regra, sem modelo**: `bairro_retirada` do anúncio publicado; `aceita_sugestao_preco` quando o pedido estava acima da faixa; `avarias_tipicas` da categoria **só depois que a moderação confirma** | **0 a 2 fatos** |
+| procedural | `src/prompts/procedural.md`, inteira no system prompt; candidatas em `regras_candidatas` | **código propõe** (execução que termina em `laco`, `orcamento` ou avaliador 3x), **humano aprova** editando o arquivo | **0** na maioria; 1 candidata por execução que falha |
+
+**Idempotência na escrita de memória** (§5.3): toda gravação tem chave
+derivada do conteúdo e devolve `ja_existia`. Medido em
+`logs/medicoes/demo_memoria.json`: gravar o mesmo fato duas vezes → a segunda
+devolve `{"ja_existia": true}` e não toca no histórico.
+
+**O efeito da memória, medido** (era a projeção do §1.3): depois que a
+moderação confirmou o defeito do freezer no **caso 4**, o **caso 13** — outra
+pessoa, outra geladeira — recebeu uma primeira pergunta que cita o freezer
+pelo nome, em vez do genérico "tem algum defeito?"
+(`logs/13_memoria_avaria_tipica.json`, passo `iniciar_b`:
+`memoria_recuperada.fatos_categoria = ["avarias_tipicas"]`). Isso confirma
+também o preço do §2.4: a mesma primeira fala produz conversas diferentes
+conforme a memória — e o carimbo de cada log registra o `memoria.snapshot()`.
+
+**Dois defeitos que a memória trouxe, medidos e corrigidos:**
+
+1. **A memória de categoria foi lida como fala do vendedor.** Nas 3
+   repetições do caso 2 (vendedor honesto, geladeira sem defeito), a memória
+   já tinha `categoria:geladeira / avarias_tipicas = ["freezer inferior…"]`,
+   aprendido com **outro** vendedor no caso 4. Em **2 de 3** execuções o
+   modelo escreveu *"a memória indica que ele relatou anteriormente que o
+   freezer demora"* e **registrou um indício falso** contra quem tinha dito
+   "sem defeito" (`logs/medicoes/estabilidade_antes_da_correcao/`). É o risco
+   do §1.4 ("memória errada é pior que memória ausente") acontecendo, e ele
+   veio de uma memória **certa** — o defeito era a leitura. Correção em
+   código (commit `1a5cd36`): `registrar_indicio` só grava se houver uma
+   **fala do vendedor nesta conversa** que mencione defeito; e o texto da
+   memória de categoria passou a dizer "vistos em OUTROS anúncios, não são
+   deste vendedor; use só para perguntar". Depois: **3 de 3** sem indício.
+2. **A chave do episódio dependia do texto do modelo.** O §5.3 pede chave
+   derivada do conteúdo; a 1ª versão usava o resumo escrito pelo modelo — que
+   **varia entre execuções** ("12/10/2026" × "[2026-10-12]", "preço mantido" ×
+   "manteve-se"). Resultado na rodada final: o mesmo anúncio do caso 2 virou
+   **4 episódios** (um por execução), e a re-execução de `publicar` do caso 6
+   gravou **um segundo** episódio do sofá — o anúncio, esse, não duplicou,
+   porque a chave do banco usa campos estruturados. Correção
+   (`chave_episodio` em `src/memoria.py`): a chave é vendedor + **anúncio**
+   (ou a conversa, se não houve anúncio) + desfecho, e, se o episódio já
+   existe, a extração nem é chamada. Verificado sem rede: duas gravações do
+   mesmo anúncio com resumos diferentes → a segunda devolve `ja_existia:
+   true` e não chama o embedding. **Esta correção é posterior aos logs dos
+   casos** (que foram gerados no commit `1a5cd36`); os logs mostram o defeito.
+
+### P2.3 As três causas de esquecimento, executadas
+
+Escolhemos as **três** (a razão de cada uma está na Decisão 2). Medido em
+`logs/medicoes/demo_memoria.json` (`python scripts/demo_memoria.py`):
+
+| Causa | O que o código faz | Resultado medido |
+|---|---|---|
+| **contradição** | `gravar_fato` substitui pela chave (entidade, chave, **condição**) e guarda o anterior em `substituiu` | "Santo Amaro" (10/06) → "Campo Grande" (02/09): a leitura devolve Campo Grande, com Santo Amaro em `substituiu`. Um terceiro fato "Santo Amaro" com `condicao = "itens pequenos"` **não** empata: os dois voltam, cada um com a sua condição (o caso que o carimbo não resolve, §2.1) |
+| **decaimento** | `rotina_decaimento`: > 180 dias rebaixa (similaridade × 0,5); > 365 dias remove. Fato de vendedor > 180 dias volta `a_confirmar` | 3 episódios de 10, 200 e 400 dias: 1 removido, 1 rebaixado (similaridade 0,93 → 0,46), 1 intacto |
+| **remoção** | `remover_titular` (`src/remocao.py`) nas 9 estruturas do inventário | abaixo |
+
+**A remoção, com a verificação independente** (o roteiro do §2.3):
+
+1. **Grava** — duas execuções reais do grafo para um titular de teste (o caso 4
+   e o caso 1, com outro `usuario_id`): passam por episódio, fato semântico,
+   indício, anúncio, pendência, checkpoint e log.
+2. **Verifica que o comportamento mudou** — uma conversa nova do titular
+   recupera `fatos_vendedor = ["bairro_retirada"]` e um episódio dele.
+3. **Remove** — o relatório (execução final): 2 episódios, 1 fato, 2 threads
+   de checkpoint, 2 logs, 2 anúncios, 2 pendências apagados; 1 indício
+   **anonimizado**.
+4. **Verifica que voltou** — a mesma conversa nova recupera `fatos_vendedor = []`.
+5. **Varre** — `scripts/verificar_remocao.py`, que **não importa** o código da
+   remoção: abre os 4 bancos SQLite (todas as tabelas, todas as colunas,
+   inclusive os blobs dos checkpoints, como bytes), os logs e os prompts, e
+   procura o identificador no texto. Resultado: **"OK — nenhum vestígio em 6
+   lugares"**.
+
+**Os três que escapam com frequência (§5.4), no nosso caso:**
+
+- **checkpoint** — guarda a conversa literal e os argumentos de cada passo. É
+  apagado pela thread inteira (o `thread_id` começa com o id do titular — é
+  por isso que ele é `<usuario>:<sessao>`).
+- **log** — os logs de `logs/` guardam a conversa inteira; a remoção apaga o
+  arquivo. O próprio relatório da demonstração **mascara** o id
+  (`<titular-de-teste>`), senão a varredura seguinte o encontraria nele.
+- **procedural** — a remoção **varre** `procedural.md` e **reporta** linhas com
+  o id, mas não edita: é fonte versionada, a edição é humana. A fila de
+  candidatas é apagada pelo `origem_thread`.
+
+**O que fica de propósito:** o fato de categoria `avarias_tipicas`
+("freezer inferior com congelamento lento") nasceu do indício do titular e
+**não sai** com a remoção — descreve o produto, não a pessoa, e não carrega
+id. O indício fica **anonimizado** (sem vendedor, sem thread, sem fala
+literal) como registro de moderação.
+
+**O índice não precisa ser reconstruído**: a remoção é por metadado, então
+serve aos três usos — privacidade, custo e recuperação de incidente.
+
+**Fora do alcance, declarado:** o que foi enviado ao provedor do modelo. No
+plano gratuito do Gemini, o Google pode usar o conteúdo para melhorar os
+produtos (`docs/modelos.md` §4.3) — com dado real isso inviabiliza o plano
+gratuito; nesta entrega os dados são simulados.
+
+### P2.4 Os dois níveis, e a fronteira entre as três estruturas (§5.1)
+
+| | checkpoint | memória | RAG |
+|---|---|---|---|
+| no case | o anúncio sendo montado: conversa, rascunho, decisão do humano pendente | o que o sistema viveu: como terminaram anúncios parecidos, onde o vendedor retira, que defeito a geladeira usada costuma ter | as regras da plataforma, escritas por quem mantém os Termos e a política |
+| escopo | uma thread (`usuario:sessao`) | todas as execuções do Agente B | nenhuma — externo |
+| propósito | **retomar** (o vendedor volta amanhã; o moderador decide em 48 h) | **lembrar** | **consultar** |
+| leitura | a cada turno da thread, inteiro | uma vez, no `iniciar_b` (semântica por chave, episódica k=2) | quando o agente pede (`consultar_regras`) ou na rota de dúvida |
+| quem escreve | o framework, a cada super-passo | o código, em `finalizar_b` | ninguém — curado (`dados/corpus/`) |
+
+**O que precisa estar no checkpoint para retomar sem reaplicar efeito
+colateral:** `escritas` (o `anuncio_id` e o `indicio_id` já gravados),
+`pendencia` (o que o humano está decidindo, com o prazo), `rascunho` e
+`decisao_humana`. E não basta estar no checkpoint: as escritas são
+idempotentes **também no banco**, porque o processo pode morrer entre gravar
+no banco e gravar o checkpoint (o caso 6 re-executa `publicar` a partir do
+checkpoint anterior e prova que não duplica — `docs/humano.md` §8.5).
+
+**O que a recuperação por relevância traz que a serialização não traria:**
+serializar as threads antigas daria ao agente milhares de conversas literais
+— o arquivo morto. O que entra na janela são **2 episódios** da mesma
+categoria e **os fatos por chave** do vendedor (~100 tokens). O que ela deixa
+para trás: a evidência literal (a fala "prefiro não pôr isso"), que vive só no
+checkpoint, no log e no indício, e morre com eles.
+
+**A ordem de descarte** (§1.2) foi implementada no `agente_b`: as 10 últimas
+falas entram sempre; das mais antigas, **só sobrevivem as que falam de
+avaria**. Nenhum caso desta entrega passou de 10 falas — a regra existe, mas
+não foi exercitada (declarado).
+
+### P2.5 A conversa, e o que sobra dela (§5.5)
+
+**O que identifica uma conversa.** `thread_id = "<usuario_id>:<sessao_id>"`
+(`Entrada.thread_id` em `src/contrato.py`). O `usuario_id` vem da sessão
+logada do site; o `sessao_id`, da aba de chat aberta. **A mesma pessoa com
+duas abas** tem duas conversas independentes, dois checkpoints: pode montar
+dois anúncios ao mesmo tempo sem um contaminar o outro. O preço: a memória de
+longo prazo é a mesma para as duas (é por `vendedor_id`), então o que uma
+aprende a outra só vê no próximo `iniciar_b`.
+
+**Onde o checkpoint é gravado.** Em banco: `SqliteSaver` em
+`dados/checkpoints.db`. A conversa e a pausa do humano **sobrevivem ao
+processo** (dá para fechar o terminal, abrir outro e `python cli.py responder
+…`). Limitação declarada: um arquivo local; com mais de um servidor seria
+Postgres.
+
+**O que acontece quando a janela enche.** A política do §1.2, aplicada na
+montagem do contexto do `agente_b`: (1) a conversa entra recortada — as 10
+últimas falas, mais as falas antigas sobre avaria, que nunca saem; (2) de cada
+ferramenta entra **só o último resultado** (`faixa_de_preco`,
+`regras_consultadas`, `ultima_avaliacao`), não a trajetória inteira — o "tool
+clearing" está na forma do estado, porque cada ferramenta escreve num campo
+que **substitui** o anterior; (3) a memória de longo prazo é limitada na
+leitura (k=2 episódios). **O que se perde**: o meio de uma conversa longa que
+não fale de avaria (ex.: o vendedor disse a cor na fala 3 e a conversa foi a
+15 falas) — o rascunho pode perder esse detalhe cosmético. A triagem vê só as
+6 últimas falas.
+
+**O que passa da conversa para a memória de longo prazo.** Ao fim de cada
+anúncio (`finalizar_b`), por regra: 1 episódio (resumo de campos
+estruturados), 0–2 fatos semânticos, 0–1 regra candidata. **A conversa em si
+não passa** — nem a fala literal, nem a descrição escrita pelo modelo. Do
+Agente A, **nada passa** (Decisão 1.5): a conversa do comprador morre com a
+thread.

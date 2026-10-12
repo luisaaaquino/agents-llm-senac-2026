@@ -1,0 +1,150 @@
+{
+  "caso": "11_duvida_excecao",
+  "prova": "dúvida cuja resposta depende de uma exceção do corpus, com citação",
+  "esperado": "resposta / respondeu, citando termos-de-uso-2026#5",
+  "carimbo": {
+    "data": "2026-10-12T14:02:36",
+    "commit": "1a5cd36",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 7,
+      "episodios": 6,
+      "episodios_hash": "b5e069395554",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "C-005:11_duvida_excecao",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "a taxa de 5% é cobrada em cima do frete tambem?",
+      "saida": {
+        "thread_id": "C-005:11_duvida_excecao",
+        "agente": "duvida",
+        "tipo": "resposta",
+        "resultado": "Não, a taxa de 5% incide apenas sobre o valor nominal do produto. Custos de frete ou entrega combinados fora da plataforma não entram na base de cálculo.",
+        "dados": null,
+        "fontes": [
+          {
+            "tipo": "corpus",
+            "ref": "termos-de-uso-2026#5",
+            "trecho": "Os pagamentos são processados pelo Mercado Pago. A plataforma não armazena dados de cartão. A taxa de intermediação é de 5% (cinco por cento) sobre o valor do produto e é descontada automaticamente quando a venda é liquidada: o vendedor recebe 95% e vê o valor líquido antes de confirmar a venda. Anunciar é gratuito. Exceção: a taxa incide só sobre o valor nominal do produto — custos de frete ou entrega combinados fora da plataforma não entram na base de cálculo."
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "resposta sustentada pelos trechos citados",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "respondeu",
+        "motivo_termino": "resposta sustentada pelos trechos citados"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "a taxa de 5% é cobrada em cima do frete tambem?",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 353,
+          "segundos": 3.85,
+          "tentativas": 1,
+          "saida": {
+            "rota": "duvida",
+            "leituras": [
+              "duvida"
+            ],
+            "categoria": null,
+            "motivo": "A mensagem questiona especificamente sobre a incidência da taxa de 5% em relação ao frete, tratando-se de uma dúvida sobre as regras e taxas da plataforma."
+          }
+        },
+        {
+          "etapa": "buscar_regras",
+          "decide": "codigo",
+          "consulta": "a taxa de 5% é cobrada em cima do frete tambem?",
+          "k": 3,
+          "recuperados": [
+            [
+              "pagamento-e-entrega#3",
+              0.7164
+            ],
+            [
+              "termos-de-uso-2026#5",
+              0.6955
+            ],
+            [
+              "pagamento-e-entrega#4",
+              0.5783
+            ]
+          ],
+          "portao": {
+            "melhor": 0.7164,
+            "limiar": 0.67,
+            "suficiente": true
+          }
+        },
+        {
+          "etapa": "responder_regras",
+          "decide": "modelo",
+          "prompt": "resposta-regras-v1.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 623,
+          "segundos": 5.39,
+          "tentativas": 1,
+          "saida": {
+            "resposta": "Não, a taxa de 5% incide apenas sobre o valor nominal do produto. Custos de frete ou entrega combinados fora da plataforma não entram na base de cálculo.",
+            "citacoes": [
+              "termos-de-uso-2026#5"
+            ],
+            "base_suficiente": true
+          }
+        },
+        {
+          "etapa": "conferir_citacoes",
+          "decide": "codigo",
+          "validas": [
+            "termos-de-uso-2026#5"
+          ],
+          "invalidas": [],
+          "suficiente_final": true
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "resposta",
+    "termino": "respondeu",
+    "motivo": "resposta sustentada pelos trechos citados",
+    "segundos": 12.6,
+    "passos": 2,
+    "tokens": 976,
+    "custo_usd": 0.000647,
+    "consultas_rag": 1
+  }
+}

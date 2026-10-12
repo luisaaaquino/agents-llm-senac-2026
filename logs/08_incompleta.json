@@ -1,0 +1,274 @@
+{
+  "caso": "08_incompleta",
+  "prova": "entrada incompleta: pergunta o que falta e depois atende",
+  "esperado": "pergunta -> sugestao",
+  "carimbo": {
+    "data": "2026-10-12T14:02:12",
+    "commit": "1a5cd36",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 7,
+      "episodios": 6,
+      "episodios_hash": "b5e069395554",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "C-003:08_incompleta",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "oi, quero comprar umas coisas",
+      "saida": {
+        "thread_id": "C-003:08_incompleta",
+        "agente": "compra",
+        "tipo": "pergunta",
+        "resultado": "Me conta o que você está procurando — um produto específico (ex.: uma geladeira) ou o que quer resolver (ex.: montar a cozinha)? Se puder, diga também o bairro e quanto quer gastar.",
+        "dados": null,
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "não dá para saber o que a pessoa procura",
+          "faltando": [
+            "o que procura"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_usuario",
+        "motivo_termino": "não dá para saber o que a pessoa procura"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "oi, quero comprar umas coisas",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 315,
+          "segundos": 4.03,
+          "tentativas": 1,
+          "saida": {
+            "rota": "comprar",
+            "leituras": [
+              "comprar"
+            ],
+            "categoria": null,
+            "motivo": "O usuário manifesta explicitamente o desejo de comprar produtos na plataforma."
+          }
+        },
+        {
+          "etapa": "iniciar_a",
+          "decide": "codigo",
+          "refinando": false
+        },
+        {
+          "etapa": "interpretar_compra",
+          "decide": "modelo",
+          "prompt": "compra-interpretar-v1.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 376,
+          "segundos": 3.7,
+          "tentativas": 1,
+          "saida": {
+            "intencao": null,
+            "categorias": [],
+            "orcamento_total": null,
+            "preco_max_item": null,
+            "bairro": null,
+            "faltando": [
+              "o_que_procura"
+            ],
+            "ambiguidade": null,
+            "escolha": null
+          }
+        },
+        {
+          "etapa": "completar_pedido",
+          "decide": "codigo",
+          "pedido": {
+            "intencao": null,
+            "categorias": [],
+            "orcamento_total": null,
+            "preco_max_item": null,
+            "bairro": null,
+            "faltando": [
+              "o_que_procura"
+            ],
+            "ambiguidade": null,
+            "escolha": null
+          },
+          "escolhas": []
+        },
+        {
+          "etapa": "perguntar_a",
+          "decide": "codigo"
+        }
+      ]
+    },
+    {
+      "tipo": "fala",
+      "enviado": "uma mesa pra cozinha, até 150, moro no jardim cordeiro",
+      "saida": {
+        "thread_id": "C-003:08_incompleta",
+        "agente": "compra",
+        "tipo": "sugestao",
+        "resultado": "Selecionamos a mesa dobrável pois está exatamente no seu bairro, com ótimo preço e pronta para a cozinha.\n- Mesa dobrável para cozinha — R$ 90, Jardim Cordeiro (0.0 km)",
+        "dados": {
+          "pedido": {
+            "intencao": "comprar uma mesa para a cozinha",
+            "categorias": [
+              "mesa"
+            ],
+            "orcamento_total": null,
+            "preco_max_item": 150.0,
+            "bairro": "Jardim Cordeiro",
+            "faltando": [],
+            "ambiguidade": null,
+            "escolha": null
+          },
+          "itens": [
+            {
+              "id": 9,
+              "titulo": "Mesa dobrável para cozinha",
+              "categoria": "mesa",
+              "preco": 90.0,
+              "bairro": "Jardim Cordeiro",
+              "estado_conservacao": "bom_estado",
+              "dist_km": 0.0
+            }
+          ],
+          "correcoes": [],
+          "soma": 90.0
+        },
+        "fontes": [
+          {
+            "tipo": "banco",
+            "ref": "anuncios[9]",
+            "trecho": "Mesa dobrável para cozinha · R$ 90 · Jardim Cordeiro · status ativo"
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "itens ativos encontrados no catálogo",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "respondeu",
+        "motivo_termino": "itens ativos encontrados no catálogo"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "uma mesa pra cozinha, até 150, moro no jardim cordeiro",
+          "conversa_aberta": "compra"
+        },
+        {
+          "etapa": "interpretar_compra",
+          "decide": "modelo",
+          "prompt": "compra-interpretar-v1.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 455,
+          "segundos": 5.12,
+          "tentativas": 1,
+          "saida": {
+            "intencao": "comprar uma mesa para a cozinha",
+            "categorias": [
+              "mesa"
+            ],
+            "orcamento_total": null,
+            "preco_max_item": 150.0,
+            "bairro": "Jardim Cordeiro",
+            "faltando": [],
+            "ambiguidade": null,
+            "escolha": null
+          }
+        },
+        {
+          "etapa": "completar_pedido",
+          "decide": "codigo",
+          "pedido": {
+            "intencao": "comprar uma mesa para a cozinha",
+            "categorias": [
+              "mesa"
+            ],
+            "orcamento_total": null,
+            "preco_max_item": 150.0,
+            "bairro": "Jardim Cordeiro",
+            "faltando": [],
+            "ambiguidade": null,
+            "escolha": null
+          },
+          "escolhas": []
+        },
+        {
+          "etapa": "buscar_categoria",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "mesa",
+            "preco_max": 150.0,
+            "bairro": "Jardim Cordeiro",
+            "usuario_id": "C-003"
+          },
+          "n": 1,
+          "erro": null
+        },
+        {
+          "etapa": "montar_sugestao",
+          "decide": "modelo",
+          "prompt": "compra-sugestao-v1.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 414,
+          "segundos": 3.14,
+          "tentativas": 1,
+          "saida": {
+            "itens_ids": [
+              9
+            ],
+            "justificativa": "Selecionamos a mesa dobrável pois está exatamente no seu bairro, com ótimo preço e pronta para a cozinha.",
+            "categorias_de_fora": []
+          }
+        },
+        {
+          "etapa": "conferir_sugestao",
+          "decide": "codigo",
+          "correcoes": []
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "sugestao",
+    "termino": "respondeu",
+    "motivo": "itens ativos encontrados no catálogo",
+    "segundos": 16.1,
+    "passos": 4,
+    "tokens": 1560,
+    "custo_usd": 0.001084,
+    "consultas_rag": 0
+  }
+}

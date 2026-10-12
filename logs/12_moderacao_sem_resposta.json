@@ -1,0 +1,422 @@
+{
+  "caso": "12_moderacao_sem_resposta",
+  "prova": "ninguém da moderação responde: o prazo de 48 h vence e o anúncio não é publicado",
+  "esperado": "aguardando_moderacao -> expirou",
+  "carimbo": {
+    "data": "2026-10-12T14:02:48",
+    "commit": "1a5cd36",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "resposta-regras-v1.md": "02ff466cea45",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 7,
+      "episodios": 6,
+      "episodios_hash": "b5e069395554",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "V-024:12_moderacao_sem_resposta",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "vendo fogão 4 bocas, 250 reais, Santo Amaro",
+      "saida": {
+        "thread_id": "V-024:12_moderacao_sem_resposta",
+        "agente": "anuncio",
+        "tipo": "pergunta",
+        "resultado": "O fogao funciona perfeitamente ou tem alguma avaria, como queimador entupido ou forno com problema?",
+        "dados": {
+          "rascunho": null
+        },
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "falta informação essencial para o anúncio",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_usuario",
+        "motivo_termino": "falta informação essencial para o anúncio"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "vendo fogão 4 bocas, 250 reais, Santo Amaro",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 332,
+          "segundos": 3.05,
+          "tentativas": 1,
+          "saida": {
+            "rota": "vender",
+            "leituras": [
+              "vender"
+            ],
+            "categoria": "fogão",
+            "motivo": "O usuário está anunciando a venda de um fogão em Santo Amaro com preço definido."
+          }
+        },
+        {
+          "etapa": "iniciar_b",
+          "decide": "codigo",
+          "memoria_recuperada": {
+            "fatos_vendedor": [],
+            "fatos_categoria": [],
+            "episodios": []
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1002,
+          "segundos": 4.67,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O usuario informou o produto, preco e bairro, mas ainda nao perguntei sobre o estado e defeitos.",
+            "acao": "perguntar",
+            "pergunta": "O fogao funciona perfeitamente ou tem alguma avaria, como queimador entupido ou forno com problema?",
+            "categoria": "fogão",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "9676fb288954"
+        },
+        {
+          "etapa": "perguntar_b",
+          "decide": "codigo",
+          "pergunta": "O fogao funciona perfeitamente ou tem alguma avaria, como queimador entupido ou forno com problema?",
+          "origem": "modelo"
+        }
+      ]
+    },
+    {
+      "tipo": "fala",
+      "enviado": "uma das bocas não acende, mas não quero colocar isso",
+      "saida": {
+        "thread_id": "V-024:12_moderacao_sem_resposta",
+        "agente": "anuncio",
+        "tipo": "aguardando_moderacao",
+        "resultado": "Seu anúncio foi para a revisão da moderação, porque conversamos sobre um possível defeito que não vai na descrição. A decisão sai em até 48 horas.",
+        "dados": {
+          "pendencia": {
+            "tipo": "moderacao",
+            "perfil": "moderador",
+            "responsavel": null,
+            "acao": "decidir_indicio_de_avaria",
+            "argumentos": {
+              "anuncio_id": 22,
+              "indicio_id": 2,
+              "indicio": "fogão com uma boca que não acende, mas o vendedor se recusou a declarar",
+              "fala_literal_do_vendedor": "uma das bocas não acende, mas não quero colocar isso",
+              "rascunho": {
+                "titulo": "Fogão 4 bocas",
+                "categoria": "fogão",
+                "descricao": "Fogão 4 bocas à venda em Santo Amaro.",
+                "preco": 250.0,
+                "bairro": "Santo Amaro",
+                "estado_conservacao": "bom_estado",
+                "avarias_declaradas": []
+              }
+            },
+            "consequencia": "publicar: o anúncio entra nas buscas como está; publicar_com_aviso: entra com o aviso de avaria (texto editável); rejeitar: não é publicado.",
+            "opcoes": {
+              "publicar": {},
+              "publicar_com_aviso": {
+                "aviso": "texto do aviso (editável)"
+              },
+              "rejeitar": {
+                "motivo": "texto livre"
+              }
+            },
+            "expira_em": "2026-10-14T14:03:09",
+            "se_ninguem_responder": "o anúncio NÃO é publicado e o vendedor é avisado de que pode refazê-lo declarando o estado do produto"
+          }
+        },
+        "fontes": [
+          {
+            "tipo": "ferramenta",
+            "ref": "decidir_indicio_de_avaria",
+            "trecho": null
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "o sistema tem o que precisa; a decisão é de uma pessoa",
+          "faltando": [
+            "decisão do moderador"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_humano",
+        "motivo_termino": "interrupt: moderacao"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "uma das bocas não acende, mas não quero colocar isso",
+          "conversa_aberta": "anuncio"
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1078,
+          "segundos": 3.41,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor recusou declarar a boca do fogão que não acende.",
+            "acao": "registrar_indicio",
+            "pergunta": null,
+            "categoria": "fogão",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": "fogão com uma boca que não acende, mas o vendedor se recusou a declarar",
+            "regra_citada": null
+          },
+          "assinatura": "01b36100bba1"
+        },
+        {
+          "etapa": "registrar_indicio",
+          "decide": "codigo",
+          "argumentos": {
+            "indicio": "fogão com uma boca que não acende, mas o vendedor se recusou a declarar"
+          },
+          "resultado": {
+            "ok": true,
+            "ja_existia": false,
+            "indicio_id": 2,
+            "status": "pendente",
+            "chave": "b5c35af3bad171abd1ef2cdf"
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1261,
+          "segundos": 4.4,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor recusou declarar o defeito e o indício já foi registrado; agora devo montar o rascunho com o essencial sem incluir o defeito omitido.",
+            "acao": "preencher_rascunho",
+            "pergunta": null,
+            "categoria": "fogão",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": {
+              "titulo": "Fogão 4 bocas",
+              "categoria": "fogão",
+              "descricao": "Fogão 4 bocas à venda em Santo Amaro.",
+              "preco": 250.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "bom_estado",
+              "avarias_declaradas": []
+            },
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "8b8430c2cc92"
+        },
+        {
+          "etapa": "portao_avaria",
+          "decide": "codigo",
+          "passou": true,
+          "avaria": {
+            "perguntada": true,
+            "negou_defeito": false,
+            "mencionada": true,
+            "falas": [
+              "uma das bocas não acende, mas não quero colocar isso"
+            ],
+            "tratada": true
+          }
+        },
+        {
+          "etapa": "avaliador",
+          "decide": "modelo",
+          "prompt": "avaliador-anuncio-v4.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 612,
+          "segundos": 4.57,
+          "tentativas": 1,
+          "saida": {
+            "tem_titulo": true,
+            "tem_categoria": true,
+            "tem_descricao": true,
+            "estado_coerente": true,
+            "sem_invencao": true,
+            "aprovado": true,
+            "faltando": []
+          }
+        },
+        {
+          "etapa": "avaliador_conferencia",
+          "decide": "codigo",
+          "aprovado_final": true,
+          "checagens_codigo": {
+            "preco": null,
+            "avaria": {
+              "perguntada": true,
+              "negou_defeito": false,
+              "mencionada": true,
+              "falas": [
+                "uma das bocas não acende, mas não quero colocar isso"
+              ],
+              "tratada": true
+            }
+          }
+        },
+        {
+          "etapa": "preparar_moderacao",
+          "decide": "codigo",
+          "anuncio": {
+            "ok": true,
+            "ja_existia": false,
+            "anuncio_id": 22,
+            "status": "aguardando_moderacao",
+            "chave": "32efd4e91298c53080ede0ef"
+          },
+          "expira_em": "2026-10-14T14:03:09"
+        }
+      ]
+    },
+    {
+      "tipo": "prazo_vencido",
+      "enviado": {
+        "relogio_simulado": "2026-10-14T15:03:09"
+      },
+      "saida": {
+        "thread_id": "V-024:12_moderacao_sem_resposta",
+        "agente": "anuncio",
+        "tipo": "anuncio_nao_publicado",
+        "resultado": "O prazo para a decisão venceu e o anúncio não foi publicado. Você pode refazê-lo quando quiser.",
+        "dados": {
+          "anuncio": {
+            "titulo": "Fogão 4 bocas",
+            "categoria": "fogão",
+            "descricao": "Fogão 4 bocas à venda em Santo Amaro.",
+            "preco": 250.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "bom_estado",
+            "avarias_declaradas": []
+          },
+          "anuncio_id": 22,
+          "indicio": {
+            "id": 2,
+            "texto": "fogão com uma boca que não acende, mas o vendedor se recusou a declarar",
+            "fala_literal": "uma das bocas não acende, mas não quero colocar isso"
+          },
+          "desfecho": "expirou"
+        },
+        "fontes": [
+          {
+            "tipo": "banco",
+            "ref": "anuncios[22]",
+            "trecho": null
+          },
+          {
+            "tipo": "humano",
+            "ref": "sistema:prazo",
+            "trecho": "{\"acao\": \"expirou\", \"quem\": \"sistema:prazo\"}"
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "expirou",
+          "faltando": [
+            "anúncio concluído"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "expirou",
+        "motivo_termino": "expirou"
+      },
+      "trajetoria": [
+        {
+          "etapa": "moderacao",
+          "decide": "humano",
+          "resposta": {
+            "acao": "expirou",
+            "quem": "sistema:prazo"
+          }
+        },
+        {
+          "etapa": "aplicar_moderacao",
+          "decide": "codigo",
+          "acao": "expirou",
+          "resultados": [
+            {
+              "ok": true,
+              "anuncio_id": 22,
+              "status": "rejeitado"
+            },
+            {
+              "ok": true,
+              "ja_existia": false,
+              "indicio_id": 2,
+              "status": "expirado"
+            }
+          ]
+        },
+        {
+          "etapa": "finalizar_b",
+          "decide": "codigo",
+          "desfecho": "expirou",
+          "memoria_escrita": [
+            {
+              "ok": true,
+              "ja_existia": false,
+              "episodio_id": "cbd20633d66345250b2b82d9",
+              "tokens_resumo": 20,
+              "tokens_extracao": 257
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "anuncio_nao_publicado",
+    "termino": "expirou",
+    "motivo": "expirou",
+    "segundos": 26.5,
+    "passos": 5,
+    "tokens": 4285,
+    "custo_usd": 0.0025329000000000003,
+    "consultas_rag": 0
+  }
+}

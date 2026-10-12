@@ -1,0 +1,134 @@
+{
+  "data": "2026-10-12T13:51:51",
+  "modelo": "gemini-3.5-flash-lite",
+  "prompts": {
+    "avaliador-anuncio-v4.md": "7ad9fa507669",
+    "compra-interpretar-v1.md": "61a2dc35b8d8",
+    "compra-sugestao-v1.md": "37a9f0485608",
+    "triagem-v2.md": "6592cce609db"
+  },
+  "resumo": "modelo sem id inventado 6/6 · modelo dentro do orçamento 5/6 · final (após conferência) 6/6",
+  "casos": [
+    {
+      "pedido": {
+        "intencao": "montar a cozinha",
+        "categorias": [
+          "geladeira",
+          "fogão",
+          "micro-ondas",
+          "mesa"
+        ],
+        "orcamento_total": 700.0
+      },
+      "ids_do_modelo": [
+        2,
+        6,
+        4,
+        8
+      ],
+      "id_inventado": false,
+      "modelo_estourou": true,
+      "soma_modelo": 710.0,
+      "soma_final": 530.0,
+      "correcoes": [
+        "soma acima de R$ 700 — removida a categoria de menor prioridade: mesa (id 8)"
+      ],
+      "final_ok": true
+    },
+    {
+      "pedido": {
+        "intencao": "montar a cozinha",
+        "categorias": [
+          "geladeira",
+          "fogão"
+        ],
+        "orcamento_total": 450.0
+      },
+      "ids_do_modelo": [
+        2,
+        6
+      ],
+      "id_inventado": false,
+      "modelo_estourou": false,
+      "soma_modelo": 400.0,
+      "soma_final": 400.0,
+      "correcoes": [],
+      "final_ok": true
+    },
+    {
+      "pedido": {
+        "intencao": "uma geladeira",
+        "categorias": [
+          "geladeira"
+        ],
+        "orcamento_total": null
+      },
+      "ids_do_modelo": [
+        1
+      ],
+      "id_inventado": false,
+      "modelo_estourou": false,
+      "soma_modelo": 340.0,
+      "soma_final": 340.0,
+      "correcoes": [],
+      "final_ok": true
+    },
+    {
+      "pedido": {
+        "intencao": "cozinha barata",
+        "categorias": [
+          "fogão",
+          "micro-ondas"
+        ],
+        "orcamento_total": 200.0
+      },
+      "ids_do_modelo": [
+        6
+      ],
+      "id_inventado": false,
+      "modelo_estourou": false,
+      "soma_modelo": 180.0,
+      "soma_final": 180.0,
+      "correcoes": [],
+      "final_ok": true
+    },
+    {
+      "pedido": {
+        "intencao": "mesa",
+        "categorias": [
+          "mesa"
+        ],
+        "orcamento_total": 150.0
+      },
+      "ids_do_modelo": [],
+      "id_inventado": false,
+      "modelo_estourou": false,
+      "soma_modelo": 0,
+      "soma_final": 0,
+      "correcoes": [],
+      "final_ok": true
+    },
+    {
+      "pedido": {
+        "intencao": "montar a cozinha",
+        "categorias": [
+          "geladeira",
+          "micro-ondas",
+          "mesa"
+        ],
+        "orcamento_total": 1000.0
+      },
+      "ids_do_modelo": [
+        2,
+        4,
+        8
+      ],
+      "id_inventado": false,
+      "modelo_estourou": false,
+      "soma_modelo": 530.0,
+      "soma_final": 530.0,
+      "correcoes": [],
+      "final_ok": true
+    }
+  ]
+}

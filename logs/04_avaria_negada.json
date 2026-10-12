@@ -1,0 +1,440 @@
+{
+  "caso": "04_avaria_negada",
+  "prova": "o sistema sabe NÃO agir: não publica escondendo o defeito; para e espera a moderação",
+  "esperado": "aguardando_moderacao (não publicado) -> decisão do moderador",
+  "carimbo": {
+    "data": "2026-10-12T14:00:43",
+    "commit": "1a5cd36",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 4,
+      "episodios": 3,
+      "episodios_hash": "ad43b12c0705",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "V-021:04_avaria_negada",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "vendo geladeira consul, 380 reais, Santo Amaro",
+      "saida": {
+        "thread_id": "V-021:04_avaria_negada",
+        "agente": "anuncio",
+        "tipo": "pergunta",
+        "resultado": "A geladeira tem algum defeito, amassado ou problema para gelar?",
+        "dados": {
+          "rascunho": null
+        },
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "falta informação essencial para o anúncio",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_usuario",
+        "motivo_termino": "falta informação essencial para o anúncio"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "vendo geladeira consul, 380 reais, Santo Amaro",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 323,
+          "segundos": 4.44,
+          "tentativas": 1,
+          "saida": {
+            "rota": "vender",
+            "leituras": [],
+            "categoria": "geladeira",
+            "motivo": "O usuário está anunciando um produto para venda na região de Santo Amaro."
+          }
+        },
+        {
+          "etapa": "iniciar_b",
+          "decide": "codigo",
+          "memoria_recuperada": {
+            "fatos_vendedor": [],
+            "fatos_categoria": [],
+            "episodios": [
+              "2d011ae307877f0fb24384cc",
+              "642e455b645f9dfaed77593f"
+            ]
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1142,
+          "segundos": 4.87,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O usuario informou produto, preco e bairro mas ainda nao foi perguntado sobre defeitos ou avarias, seguindo a regra da memoria procedural.",
+            "acao": "perguntar",
+            "pergunta": "A geladeira tem algum defeito, amassado ou problema para gelar?",
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "f6a0d16794a0"
+        },
+        {
+          "etapa": "perguntar_b",
+          "decide": "codigo",
+          "pergunta": "A geladeira tem algum defeito, amassado ou problema para gelar?",
+          "origem": "modelo"
+        }
+      ]
+    },
+    {
+      "tipo": "fala",
+      "enviado": "ah, o freezer embaixo demora pra congelar, mas prefiro não pôr isso no anúncio",
+      "saida": {
+        "thread_id": "V-021:04_avaria_negada",
+        "agente": "anuncio",
+        "tipo": "aguardando_moderacao",
+        "resultado": "Seu anúncio foi para a revisão da moderação, porque conversamos sobre um possível defeito que não vai na descrição. A decisão sai em até 48 horas.",
+        "dados": {
+          "pendencia": {
+            "tipo": "moderacao",
+            "perfil": "moderador",
+            "responsavel": null,
+            "acao": "decidir_indicio_de_avaria",
+            "argumentos": {
+              "anuncio_id": 20,
+              "indicio_id": 1,
+              "indicio": "O freezer embaixo demora pra congelar, mas o vendedor recusou declarar.",
+              "fala_literal_do_vendedor": "ah, o freezer embaixo demora pra congelar, mas prefiro não pôr isso no anúncio",
+              "rascunho": {
+                "titulo": "Geladeira Consul",
+                "categoria": "geladeira",
+                "descricao": "Geladeira Consul à venda em Santo Amaro.",
+                "preco": 380.0,
+                "bairro": "Santo Amaro",
+                "estado_conservacao": "bom_estado",
+                "avarias_declaradas": []
+              }
+            },
+            "consequencia": "publicar: o anúncio entra nas buscas como está; publicar_com_aviso: entra com o aviso de avaria (texto editável); rejeitar: não é publicado.",
+            "opcoes": {
+              "publicar": {},
+              "publicar_com_aviso": {
+                "aviso": "texto do aviso (editável)"
+              },
+              "rejeitar": {
+                "motivo": "texto livre"
+              }
+            },
+            "expira_em": "2026-10-14T14:01:07",
+            "se_ninguem_responder": "o anúncio NÃO é publicado e o vendedor é avisado de que pode refazê-lo declarando o estado do produto"
+          }
+        },
+        "fontes": [
+          {
+            "tipo": "ferramenta",
+            "ref": "decidir_indicio_de_avaria",
+            "trecho": null
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "o sistema tem o que precisa; a decisão é de uma pessoa",
+          "faltando": [
+            "decisão do moderador"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_humano",
+        "motivo_termino": "interrupt: moderacao"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "ah, o freezer embaixo demora pra congelar, mas prefiro não pôr isso no anúncio",
+          "conversa_aberta": "anuncio"
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1215,
+          "segundos": 4.15,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor recusou declarar o problema no freezer que foi mencionado na conversa",
+            "acao": "registrar_indicio",
+            "pergunta": null,
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": "O freezer embaixo demora pra congelar, mas o vendedor recusou declarar.",
+            "regra_citada": null
+          },
+          "assinatura": "a1deb5bda799"
+        },
+        {
+          "etapa": "registrar_indicio",
+          "decide": "codigo",
+          "argumentos": {
+            "indicio": "O freezer embaixo demora pra congelar, mas o vendedor recusou declarar."
+          },
+          "resultado": {
+            "ok": true,
+            "ja_existia": false,
+            "indicio_id": 1,
+            "status": "pendente",
+            "chave": "f39b7557f62e91cdae77bc54"
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1397,
+          "segundos": 3.91,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor recusou declarar a avaria, o indicio ja foi registrado, entao sigo para o rascunho sem o defeito.",
+            "acao": "preencher_rascunho",
+            "pergunta": null,
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": {
+              "titulo": "Geladeira Consul",
+              "categoria": "geladeira",
+              "descricao": "Geladeira Consul à venda em Santo Amaro.",
+              "preco": 380.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "bom_estado",
+              "avarias_declaradas": []
+            },
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "ce1744402377"
+        },
+        {
+          "etapa": "portao_avaria",
+          "decide": "codigo",
+          "passou": true,
+          "avaria": {
+            "perguntada": true,
+            "negou_defeito": false,
+            "mencionada": true,
+            "falas": [
+              "ah, o freezer embaixo demora pra congelar, mas prefiro não pôr isso no anúncio"
+            ],
+            "tratada": true
+          }
+        },
+        {
+          "etapa": "avaliador",
+          "decide": "modelo",
+          "prompt": "avaliador-anuncio-v4.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 597,
+          "segundos": 3.55,
+          "tentativas": 1,
+          "saida": {
+            "tem_titulo": true,
+            "tem_categoria": true,
+            "tem_descricao": true,
+            "estado_coerente": true,
+            "sem_invencao": true,
+            "aprovado": true,
+            "faltando": []
+          }
+        },
+        {
+          "etapa": "avaliador_conferencia",
+          "decide": "codigo",
+          "aprovado_final": true,
+          "checagens_codigo": {
+            "preco": null,
+            "avaria": {
+              "perguntada": true,
+              "negou_defeito": false,
+              "mencionada": true,
+              "falas": [
+                "ah, o freezer embaixo demora pra congelar, mas prefiro não pôr isso no anúncio"
+              ],
+              "tratada": true
+            }
+          }
+        },
+        {
+          "etapa": "preparar_moderacao",
+          "decide": "codigo",
+          "anuncio": {
+            "ok": true,
+            "ja_existia": false,
+            "anuncio_id": 20,
+            "status": "aguardando_moderacao",
+            "chave": "e961a64826edefdd8fb92abe"
+          },
+          "expira_em": "2026-10-14T14:01:07"
+        }
+      ]
+    },
+    {
+      "tipo": "decisao_humana",
+      "enviado": {
+        "quem": "M-001",
+        "acao": "publicar_com_aviso",
+        "aviso": "freezer inferior com congelamento lento"
+      },
+      "saida": {
+        "thread_id": "V-021:04_avaria_negada",
+        "agente": "anuncio",
+        "tipo": "anuncio_publicado",
+        "resultado": "A moderação publicou \"Geladeira Consul\" com um aviso sobre o estado do produto.",
+        "dados": {
+          "anuncio": {
+            "titulo": "Geladeira Consul",
+            "categoria": "geladeira",
+            "descricao": "Geladeira Consul à venda em Santo Amaro.",
+            "preco": 380.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "bom_estado",
+            "avarias_declaradas": []
+          },
+          "anuncio_id": 20,
+          "indicio": {
+            "id": 1,
+            "texto": "O freezer embaixo demora pra congelar, mas o vendedor recusou declarar.",
+            "fala_literal": "ah, o freezer embaixo demora pra congelar, mas prefiro não pôr isso no anúncio"
+          },
+          "desfecho": "moderacao_publicou_com_aviso"
+        },
+        "fontes": [
+          {
+            "tipo": "banco",
+            "ref": "anuncios[20]",
+            "trecho": null
+          },
+          {
+            "tipo": "humano",
+            "ref": "M-001",
+            "trecho": "{\"acao\": \"publicar_com_aviso\", \"aviso\": \"freezer inferior com congelamento lento\", \"quem\": \"M-001\"}"
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "moderacao_publicou_com_aviso",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "respondeu",
+        "motivo_termino": "moderacao_publicou_com_aviso"
+      },
+      "trajetoria": [
+        {
+          "etapa": "moderacao",
+          "decide": "humano",
+          "resposta": {
+            "acao": "publicar_com_aviso",
+            "aviso": "freezer inferior com congelamento lento",
+            "quem": "M-001"
+          }
+        },
+        {
+          "etapa": "aplicar_moderacao",
+          "decide": "codigo",
+          "acao": "publicar_com_aviso",
+          "resultados": [
+            {
+              "ok": true,
+              "ja_existia": false,
+              "anuncio_id": 20
+            },
+            {
+              "ok": true,
+              "anuncio_id": 20,
+              "status": "ativo"
+            },
+            {
+              "ok": true,
+              "ja_existia": false,
+              "indicio_id": 1,
+              "status": "confirmado"
+            }
+          ]
+        },
+        {
+          "etapa": "finalizar_b",
+          "decide": "codigo",
+          "desfecho": "moderacao_publicou_com_aviso",
+          "memoria_escrita": [
+            {
+              "ok": true,
+              "ja_existia": false,
+              "entidade": "vendedor:V-021",
+              "chave": "bairro_retirada",
+              "substituiu": null
+            },
+            {
+              "ok": true,
+              "ja_existia": false,
+              "entidade": "categoria:geladeira",
+              "chave": "avarias_tipicas",
+              "substituiu": null
+            },
+            {
+              "ok": true,
+              "ja_existia": false,
+              "episodio_id": "569a36940212bd0085673e58",
+              "tokens_resumo": 28,
+              "tokens_extracao": 273
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "anuncio_publicado",
+    "termino": "respondeu",
+    "motivo": "moderacao_publicou_com_aviso",
+    "segundos": 31.9,
+    "passos": 5,
+    "tokens": 4674,
+    "custo_usd": 0.0026034,
+    "consultas_rag": 0
+  }
+}

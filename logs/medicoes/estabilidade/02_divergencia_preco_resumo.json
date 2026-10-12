@@ -1,0 +1,88 @@
+{
+  "caso": "02_divergencia_preco",
+  "esperado": "anuncio_publicado a R$ 900 / respondeu, sem indício",
+  "carimbo": {
+    "data": "2026-10-12T14:06:56",
+    "commit": "1a5cd36",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 9,
+      "episodios": 12,
+      "episodios_hash": "8a62e5f9a194",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "execucoes": [
+    {
+      "execucao": 1,
+      "tipo": "anuncio_publicado",
+      "termino": "respondeu",
+      "motivo": "publicado",
+      "segundos": 32.3,
+      "passos": 6,
+      "tokens": 6422,
+      "custo_usd": 0.0034006,
+      "consultas_rag": 0,
+      "acoes_do_agente_b": [
+        "perguntar",
+        "consultar_preco",
+        "consultar_preco",
+        "preencher_rascunho"
+      ]
+    },
+    {
+      "execucao": 2,
+      "tipo": "anuncio_publicado",
+      "termino": "respondeu",
+      "motivo": "publicado",
+      "segundos": 43.9,
+      "passos": 8,
+      "tokens": 8927,
+      "custo_usd": 0.0048297,
+      "consultas_rag": 0,
+      "acoes_do_agente_b": [
+        "perguntar",
+        "consultar_preco",
+        "preencher_rascunho",
+        "perguntar",
+        "preencher_rascunho"
+      ]
+    },
+    {
+      "execucao": 3,
+      "tipo": "anuncio_publicado",
+      "termino": "respondeu",
+      "motivo": "publicado",
+      "segundos": 44.0,
+      "passos": 8,
+      "tokens": 8955,
+      "custo_usd": 0.0048777000000000004,
+      "consultas_rag": 0,
+      "acoes_do_agente_b": [
+        "perguntar",
+        "consultar_preco",
+        "preencher_rascunho",
+        "perguntar",
+        "preencher_rascunho"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "caso": "02_divergencia_preco",
+  "esperado": "anuncio_publicado a R$ 900 / respondeu, sem indício",
+  "carimbo": {
+    "data": "2026-10-12T13:47:45",
+    "commit": "3848cc4",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 9,
+      "episodios": 10,
+      "episodios_hash": "522f01f54ade",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "execucoes": [
+    {
+      "execucao": 1,
+      "tipo": "anuncio_publicado",
+      "termino": "respondeu",
+      "motivo": "publicado",
+      "segundos": 24.3,
+      "passos": 4,
+      "tokens": 3484,
+      "custo_usd": 0.0020088,
+      "consultas_rag": 0,
+      "acoes_do_agente_b": [
+        "perguntar",
+        "preencher_rascunho"
+      ]
+    },
+    {
+      "execucao": 2,
+      "tipo": "erro",
+      "termino": "erro_fatal",
+      "motivo": "V-018 não tem perfil de moderador",
+      "segundos": 24.5,
+      "passos": 5,
+      "tokens": 4840,
+      "custo_usd": 0.0027324000000000003,
+      "consultas_rag": 0,
+      "acoes_do_agente_b": [
+        "perguntar",
+        "registrar_indicio",
+        "preencher_rascunho"
+      ]
+    },
+    {
+      "execucao": 3,
+      "tipo": "erro",
+      "termino": "erro_fatal",
+      "motivo": "V-018 não tem perfil de moderador",
+      "segundos": 24.2,
+      "passos": 5,
+      "tokens": 4839,
+      "custo_usd": 0.0027079,
+      "consultas_rag": 0,
+      "acoes_do_agente_b": [
+        "perguntar",
+        "registrar_indicio",
+        "preencher_rascunho"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "data": "2026-10-12T13:51:27",
+  "modelo": "gemini-3.5-flash-lite",
+  "prompts": {
+    "avaliador-anuncio-v4.md": "7ad9fa507669",
+    "compra-interpretar-v1.md": "61a2dc35b8d8",
+    "triagem-v2.md": "6592cce609db"
+  },
+  "resumo": "categorias 8/8 · sem valor inventado 8/8",
+  "casos": [
+    {
+      "texto": "procuro uma cadeira",
+      "categorias": [
+        "cadeira"
+      ],
+      "orcamento": null,
+      "preco_max_item": null,
+      "bairro": null,
+      "faltando": [],
+      "categorias_ok": true,
+      "inventou_valor": false
+    },
+    {
+      "texto": "to montando a cozinha do meu ap no brooklin, queria gastar no maximo uns 700 no total",
+      "categorias": [
+        "fogão",
+        "geladeira",
+        "mesa",
+        "micro-ondas"
+      ],
+      "orcamento": 700.0,
+      "preco_max_item": null,
+      "bairro": "Brooklin",
+      "faltando": [],
+      "categorias_ok": true,
+      "inventou_valor": false
+    },
+    {
+      "texto": "quero uma bike pra ir trabalhar, até 800",
+      "categorias": [
+        "bicicleta"
+      ],
+      "orcamento": 800.0,
+      "preco_max_item": 800.0,
+      "bairro": null,
+      "faltando": [],
+      "categorias_ok": true,
+      "inventou_valor": false
+    },
+    {
+      "texto": "preciso de uma cama de casal, moro em socorro",
+      "categorias": [
+        "cama"
+      ],
+      "orcamento": null,
+      "preco_max_item": null,
+      "bairro": "Socorro",
+      "faltando": [],
+      "categorias_ok": true,
+      "inventou_valor": false
+    },
+    {
+      "texto": "oi",
+      "categorias": [],
+      "orcamento": null,
+      "preco_max_item": null,
+      "bairro": null,
+      "faltando": [
+        "o_que_procura"
+      ],
+      "categorias_ok": true,
+      "inventou_valor": false
+    },
+    {
+      "texto": "algo pra sala, um sofá, uns 500",
+      "categorias": [
+        "sofá"
+      ],
+      "orcamento": 500.0,
+      "preco_max_item": 500.0,
+      "bairro": null,
+      "faltando": [],
+      "categorias_ok": true,
+      "inventou_valor": false
+    },
+    {
+      "texto": "quero mobiliar o quarto do bebê",
+      "categorias": [
+        "armário",
+        "cama"
+      ],
+      "orcamento": null,
+      "preco_max_item": null,
+      "bairro": null,
+      "faltando": [],
+      "categorias_ok": true,
+      "inventou_valor": false
+    },
+    {
+      "texto": "geladeira duplex até 400 no campo belo",
+      "categorias": [
+        "geladeira"
+      ],
+      "orcamento": null,
+      "preco_max_item": 400.0,
+      "bairro": "Campo Belo",
+      "faltando": [],
+      "categorias_ok": true,
+      "inventou_valor": false
+    }
+  ]
+}

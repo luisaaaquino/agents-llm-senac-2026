@@ -1,0 +1,280 @@
+{
+  "caso": "07_compra_cozinha",
+  "prova": "caminho feliz do Agente A: busca paralela por categoria, soma conferida",
+  "esperado": "sugestao / respondeu, soma <= 700, nenhum item do próprio C-001",
+  "carimbo": {
+    "data": "2026-10-12T14:01:59",
+    "commit": "1a5cd36",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 7,
+      "episodios": 6,
+      "episodios_hash": "b5e069395554",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "C-001:07_compra_cozinha",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "to montando a cozinha do meu ap no brooklin, queria gastar no maximo uns 700 no total",
+      "saida": {
+        "thread_id": "C-001:07_compra_cozinha",
+        "agente": "compra",
+        "tipo": "sugestao",
+        "resultado": "Separei 3 itens ativos perto de você, somando R$ 650 (dentro dos R$ 700). Ficou de fora: mesa, porque não coube no orçamento.\n- Geladeira Brastemp Frost Free 375L — R$ 340, Brooklin (0.0 km)\n- Fogão 4 bocas Dako — R$ 180, Jardim Petrópolis (0.7 km)\n- Micro-ondas Panasonic 21L — R$ 130, Brooklin (0.0 km)",
+        "dados": {
+          "pedido": {
+            "intencao": "mobiliar a cozinha",
+            "categorias": [
+              "geladeira",
+              "fogão",
+              "micro-ondas",
+              "mesa"
+            ],
+            "orcamento_total": 700.0,
+            "preco_max_item": null,
+            "bairro": "Brooklin",
+            "faltando": [],
+            "ambiguidade": null,
+            "escolha": null
+          },
+          "itens": [
+            {
+              "id": 1,
+              "titulo": "Geladeira Brastemp Frost Free 375L",
+              "categoria": "geladeira",
+              "preco": 340.0,
+              "bairro": "Brooklin",
+              "estado_conservacao": "bom_estado",
+              "dist_km": 0.0
+            },
+            {
+              "id": 6,
+              "titulo": "Fogão 4 bocas Dako",
+              "categoria": "fogão",
+              "preco": 180.0,
+              "bairro": "Jardim Petrópolis",
+              "estado_conservacao": "marcas_de_uso",
+              "dist_km": 0.7
+            },
+            {
+              "id": 4,
+              "titulo": "Micro-ondas Panasonic 21L",
+              "categoria": "micro-ondas",
+              "preco": 130.0,
+              "bairro": "Brooklin",
+              "estado_conservacao": "bom_estado",
+              "dist_km": 0.0
+            }
+          ],
+          "correcoes": [
+            "soma acima de R$ 700 — removida a categoria de menor prioridade: mesa (id 8)"
+          ],
+          "soma": 650.0
+        },
+        "fontes": [
+          {
+            "tipo": "banco",
+            "ref": "anuncios[1]",
+            "trecho": "Geladeira Brastemp Frost Free 375L · R$ 340 · Brooklin · status ativo"
+          },
+          {
+            "tipo": "banco",
+            "ref": "anuncios[6]",
+            "trecho": "Fogão 4 bocas Dako · R$ 180 · Jardim Petrópolis · status ativo"
+          },
+          {
+            "tipo": "banco",
+            "ref": "anuncios[4]",
+            "trecho": "Micro-ondas Panasonic 21L · R$ 130 · Brooklin · status ativo"
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "itens ativos encontrados no catálogo",
+          "faltando": [
+            "fora do orçamento: mesa"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "respondeu",
+        "motivo_termino": "itens ativos encontrados no catálogo"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "to montando a cozinha do meu ap no brooklin, queria gastar no maximo uns 700 no total",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 341,
+          "segundos": 4.6,
+          "tentativas": 1,
+          "saida": {
+            "rota": "comprar",
+            "leituras": [],
+            "categoria": "outro",
+            "motivo": "O usuário está procurando itens para montar a cozinha e gastar um valor máximo, caracterizando a intenção de compra."
+          }
+        },
+        {
+          "etapa": "iniciar_a",
+          "decide": "codigo",
+          "refinando": false
+        },
+        {
+          "etapa": "interpretar_compra",
+          "decide": "modelo",
+          "prompt": "compra-interpretar-v1.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 419,
+          "segundos": 3.97,
+          "tentativas": 1,
+          "saida": {
+            "intencao": "mobiliar a cozinha",
+            "categorias": [
+              "geladeira",
+              "fogão",
+              "micro-ondas",
+              "mesa"
+            ],
+            "orcamento_total": 700.0,
+            "preco_max_item": null,
+            "bairro": "Brooklin",
+            "faltando": [],
+            "ambiguidade": null,
+            "escolha": null
+          }
+        },
+        {
+          "etapa": "completar_pedido",
+          "decide": "codigo",
+          "pedido": {
+            "intencao": "mobiliar a cozinha",
+            "categorias": [
+              "geladeira",
+              "fogão",
+              "micro-ondas",
+              "mesa"
+            ],
+            "orcamento_total": 700.0,
+            "preco_max_item": null,
+            "bairro": "Brooklin",
+            "faltando": [],
+            "ambiguidade": null,
+            "escolha": null
+          },
+          "escolhas": []
+        },
+        {
+          "etapa": "buscar_categoria",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "geladeira",
+            "preco_max": 700.0,
+            "bairro": "Brooklin",
+            "usuario_id": "C-001"
+          },
+          "n": 3,
+          "erro": null
+        },
+        {
+          "etapa": "buscar_categoria",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "fogão",
+            "preco_max": 700.0,
+            "bairro": "Brooklin",
+            "usuario_id": "C-001"
+          },
+          "n": 2,
+          "erro": null
+        },
+        {
+          "etapa": "buscar_categoria",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "micro-ondas",
+            "preco_max": 700.0,
+            "bairro": "Brooklin",
+            "usuario_id": "C-001"
+          },
+          "n": 2,
+          "erro": null
+        },
+        {
+          "etapa": "buscar_categoria",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "mesa",
+            "preco_max": 700.0,
+            "bairro": "Brooklin",
+            "usuario_id": "C-001"
+          },
+          "n": 2,
+          "erro": null
+        },
+        {
+          "etapa": "montar_sugestao",
+          "decide": "modelo",
+          "prompt": "compra-sugestao-v1.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1139,
+          "segundos": 4.0,
+          "tentativas": 1,
+          "saida": {
+            "itens_ids": [
+              1,
+              6,
+              4,
+              8
+            ],
+            "justificativa": "Selecionamos opções bem avaliadas e próximas para mobiliar sua cozinha dentro do orçamento de 700 reais.",
+            "categorias_de_fora": []
+          }
+        },
+        {
+          "etapa": "conferir_sugestao",
+          "decide": "codigo",
+          "correcoes": [
+            "soma acima de R$ 700 — removida a categoria de menor prioridade: mesa (id 8)"
+          ]
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "sugestao",
+    "termino": "respondeu",
+    "motivo": "itens ativos encontrados no catálogo",
+    "segundos": 12.6,
+    "passos": 3,
+    "tokens": 1899,
+    "custo_usd": 0.0010823,
+    "consultas_rag": 0
+  }
+}

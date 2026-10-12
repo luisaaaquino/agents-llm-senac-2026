@@ -1,0 +1,417 @@
+{
+  "caso": "03_sem_registro",
+  "prova": "erro de ferramenta (sem_comparaveis) que o agente contorna",
+  "esperado": "anuncio_publicado / respondeu, uma única consulta de preço",
+  "carimbo": {
+    "data": "2026-10-12T14:00:15",
+    "commit": "1a5cd36",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 3,
+      "episodios": 2,
+      "episodios_hash": "91cd32969b9c",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "V-019:03_sem_registro",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "quero anunciar uma bicicleta, uns 500 reais, Santo Amaro",
+      "saida": {
+        "thread_id": "V-019:03_sem_registro",
+        "agente": "anuncio",
+        "tipo": "pergunta",
+        "resultado": "A bicicleta tem algum defeito, arranhão ou peça gasta?",
+        "dados": {
+          "rascunho": null
+        },
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "falta informação essencial para o anúncio",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_usuario",
+        "motivo_termino": "falta informação essencial para o anúncio"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "quero anunciar uma bicicleta, uns 500 reais, Santo Amaro",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 319,
+          "segundos": 4.19,
+          "tentativas": 1,
+          "saida": {
+            "rota": "vender",
+            "leituras": [],
+            "categoria": "bicicleta",
+            "motivo": "O usuário quer anunciar e vender um produto na plataforma."
+          }
+        },
+        {
+          "etapa": "iniciar_b",
+          "decide": "codigo",
+          "memoria_recuperada": {
+            "fatos_vendedor": [],
+            "fatos_categoria": [],
+            "episodios": []
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1001,
+          "segundos": 3.9,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O usuario informou o produto, preco e bairro, mas ainda falta perguntar sobre o estado e avarias da bicicleta.",
+            "acao": "perguntar",
+            "pergunta": "A bicicleta tem algum defeito, arranhão ou peça gasta?",
+            "categoria": "bicicleta",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "75703c989059"
+        },
+        {
+          "etapa": "perguntar_b",
+          "decide": "codigo",
+          "pergunta": "A bicicleta tem algum defeito, arranhão ou peça gasta?",
+          "origem": "modelo"
+        }
+      ]
+    },
+    {
+      "tipo": "fala",
+      "enviado": "aro 29, seminova, sem defeito nenhum",
+      "saida": {
+        "thread_id": "V-019:03_sem_registro",
+        "agente": "anuncio",
+        "tipo": "aguardando_aprovacao",
+        "resultado": "Confere antes de publicar? O anúncio \"Bicicleta Aro 29 Seminova\" por R$ 500.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois. Você pode aprovar, editar algum campo ou desistir.",
+        "dados": {
+          "pendencia": {
+            "tipo": "aprovacao_vendedor",
+            "perfil": "vendedor",
+            "responsavel": "V-019",
+            "acao": "publicar_anuncio",
+            "argumentos": {
+              "titulo": "Bicicleta Aro 29 Seminova",
+              "categoria": "bicicleta",
+              "descricao": "Bicicleta aro 29, seminova, sem defeitos.",
+              "preco": 500.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "como_novo",
+              "avarias_declaradas": []
+            },
+            "consequencia": "O anúncio \"Bicicleta Aro 29 Seminova\" por R$ 500.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois.",
+            "opcoes": {
+              "aprovar": {},
+              "editar": {
+                "campos": [
+                  "descricao",
+                  "estado_conservacao",
+                  "preco",
+                  "titulo"
+                ]
+              },
+              "rejeitar": {
+                "motivo": "texto livre"
+              }
+            },
+            "expira_em": "2026-10-13T14:00:36",
+            "se_ninguem_responder": "o anúncio NÃO é publicado; o rascunho fica salvo nesta conversa"
+          }
+        },
+        "fontes": [
+          {
+            "tipo": "ferramenta",
+            "ref": "publicar_anuncio",
+            "trecho": null
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "o sistema tem o que precisa; a decisão é de uma pessoa",
+          "faltando": [
+            "decisão do vendedor"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_humano",
+        "motivo_termino": "interrupt: aprovacao_vendedor"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "aro 29, seminova, sem defeito nenhum",
+          "conversa_aberta": "anuncio"
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1060,
+          "segundos": 3.6,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor informou o produto, preço, bairro e estado, e já respondeu sobre defeitos, então vou consultar o preço de mercado para a bicicleta em Santo Amaro.",
+            "acao": "consultar_preco",
+            "pergunta": null,
+            "categoria": "bicicleta",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "77428c8f358c"
+        },
+        {
+          "etapa": "ferramenta_preco",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "bicicleta",
+            "bairro": "Santo Amaro"
+          },
+          "resultado": {
+            "erro": "sem_comparaveis",
+            "categoria": "bicicleta",
+            "bairro": "Santo Amaro",
+            "dica": "não há preço de referência; siga com o preço do vendedor e registre isso"
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1221,
+          "segundos": 4.5,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor informou o produto, preço, bairro e estado, e respondeu sobre os defeitos, tendo todos os dados essenciais para montar o rascunho.",
+            "acao": "preencher_rascunho",
+            "pergunta": null,
+            "categoria": "bicicleta",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": {
+              "titulo": "Bicicleta Aro 29 Seminova",
+              "categoria": "bicicleta",
+              "descricao": "Bicicleta aro 29, seminova, sem defeitos.",
+              "preco": 500.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "como_novo",
+              "avarias_declaradas": []
+            },
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "7d18e41329d7"
+        },
+        {
+          "etapa": "portao_avaria",
+          "decide": "codigo",
+          "passou": true,
+          "avaria": {
+            "perguntada": true,
+            "negou_defeito": true,
+            "mencionada": false,
+            "falas": [],
+            "tratada": true
+          }
+        },
+        {
+          "etapa": "avaliador",
+          "decide": "modelo",
+          "prompt": "avaliador-anuncio-v4.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 586,
+          "segundos": 3.13,
+          "tentativas": 1,
+          "saida": {
+            "tem_titulo": true,
+            "tem_categoria": true,
+            "tem_descricao": true,
+            "estado_coerente": true,
+            "sem_invencao": true,
+            "aprovado": true,
+            "faltando": []
+          }
+        },
+        {
+          "etapa": "avaliador_conferencia",
+          "decide": "codigo",
+          "aprovado_final": true,
+          "checagens_codigo": {
+            "preco": null,
+            "avaria": {
+              "perguntada": true,
+              "negou_defeito": true,
+              "mencionada": false,
+              "falas": [],
+              "tratada": true
+            }
+          }
+        },
+        {
+          "etapa": "preparar_aprovacao",
+          "decide": "codigo",
+          "expira_em": "2026-10-13T14:00:36"
+        }
+      ]
+    },
+    {
+      "tipo": "decisao_humana",
+      "enviado": {
+        "quem": "V-019",
+        "acao": "aprovar"
+      },
+      "saida": {
+        "thread_id": "V-019:03_sem_registro",
+        "agente": "anuncio",
+        "tipo": "anuncio_publicado",
+        "resultado": "Pronto! \"Bicicleta Aro 29 Seminova\" está no ar por R$ 500.00.",
+        "dados": {
+          "anuncio": {
+            "titulo": "Bicicleta Aro 29 Seminova",
+            "categoria": "bicicleta",
+            "descricao": "Bicicleta aro 29, seminova, sem defeitos.",
+            "preco": 500.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "como_novo",
+            "avarias_declaradas": [],
+            "estado_declarado": true
+          },
+          "anuncio_id": 19,
+          "indicio": null,
+          "desfecho": "publicado"
+        },
+        "fontes": [
+          {
+            "tipo": "ferramenta",
+            "ref": "precos_comparaveis",
+            "trecho": "{\"erro\": \"sem_comparaveis\", \"categoria\": \"bicicleta\", \"bairro\": \"Santo Amaro\", \"dica\": \"não há preço de referência; siga com o preço do vendedor e registre isso\"}"
+          },
+          {
+            "tipo": "banco",
+            "ref": "anuncios[19]",
+            "trecho": null
+          },
+          {
+            "tipo": "humano",
+            "ref": "V-019",
+            "trecho": "{\"acao\": \"aprovar\", \"quem\": \"V-019\"}"
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "publicado",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "respondeu",
+        "motivo_termino": "publicado"
+      },
+      "trajetoria": [
+        {
+          "etapa": "aprovacao_vendedor",
+          "decide": "humano",
+          "resposta": {
+            "acao": "aprovar",
+            "quem": "V-019"
+          }
+        },
+        {
+          "etapa": "publicar",
+          "decide": "codigo",
+          "argumentos": {
+            "titulo": "Bicicleta Aro 29 Seminova",
+            "categoria": "bicicleta",
+            "descricao": "Bicicleta aro 29, seminova, sem defeitos.",
+            "preco": 500.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "como_novo",
+            "avarias_declaradas": [],
+            "estado_declarado": true
+          },
+          "edicoes_ignoradas": {},
+          "resultado": {
+            "ok": true,
+            "ja_existia": false,
+            "anuncio_id": 19,
+            "status": "ativo",
+            "chave": "06d9884941d7a4d0f98f3b4e"
+          }
+        },
+        {
+          "etapa": "finalizar_b",
+          "decide": "codigo",
+          "desfecho": "publicado",
+          "memoria_escrita": [
+            {
+              "ok": true,
+              "ja_existia": false,
+              "entidade": "vendedor:V-019",
+              "chave": "bairro_retirada",
+              "substituiu": null
+            },
+            {
+              "ok": true,
+              "ja_existia": false,
+              "episodio_id": "af4cb791b5094d17d4c14315",
+              "tokens_resumo": 26,
+              "tokens_extracao": 258
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "anuncio_publicado",
+    "termino": "respondeu",
+    "motivo": "publicado",
+    "segundos": 27.6,
+    "passos": 5,
+    "tokens": 4187,
+    "custo_usd": 0.0024837,
+    "consultas_rag": 0
+  }
+}
