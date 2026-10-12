@@ -155,8 +155,7 @@ def main() -> None:
         pasta = config.LOGS_DIR / "medicoes" / "estabilidade"
         resumo = []
         for i in range(1, n + 1):
-            print(f"
-=== {caso.nome} — execução {i}/{n} ===")
+            print(f"\n=== {caso.nome} — execução {i}/{n} ===")
             log = rodar_caso(caso, pasta / f"{caso.nome}_r{i}.json")
             acoes = [p["saida"].get("acao") for t in log["turnos"] for p in t["trajetoria"]
                      if p["etapa"] == "agente_b" and "saida" in p]
