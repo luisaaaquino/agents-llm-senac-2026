@@ -79,7 +79,7 @@ def construir(estado_tipo: type = Estado, checkpointer: Any = None):
                             ["perguntar_b", "ferramenta_preco", "ferramenta_regras",
                              "portao_avaria", "registrar_indicio", "recusar_item", "finalizar_b"])
     g.add_edge("perguntar_b", END)
-    g.add_edge("ferramenta_preco", "agente_b")
+    g.add_conditional_edges("ferramenta_preco", _rota(b.rotear_preco), ["agente_b", "perguntar_b"])
     g.add_edge("ferramenta_regras", "agente_b")
     g.add_edge("registrar_indicio", "agente_b")
     g.add_conditional_edges("recusar_item", _rota(b.rotear_recusa), ["finalizar_b", "agente_b"])

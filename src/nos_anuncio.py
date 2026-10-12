@@ -214,14 +214,45 @@ def perguntar_b(estado: Estado) -> dict[str, Any]:
                     dados={"rascunho": estado.get("rascunho")})}
 
 
+def _vendedor_avisado(estado: Estado, faixa: dict[str, Any]) -> bool:
+    msgs = estado.get("mensagens", [])[estado.get("msg_inicio", 0):]
+    return any(m["quem"] == "agente" and str(int(faixa["faixa_max"])) in m["texto"] for m in msgs)
+
+
 def ferramenta_preco(estado: Estado) -> dict[str, Any]:
-    """[código] Consulta estruturada no SQLite. Erro volta como dado."""
+    """[código] Consulta estruturada no SQLite. Erro volta como dado.
+
+    Consulta REPETIDA (mesma categoria e bairro) não vai ao banco de novo.
+    Nas rodadas finais do caso 2 (v8 e v9 do prompt) o modelo repetiu
+    `consultar_preco` 3x com a faixa já na mão, e o motivo que ele escreveu
+    foi "consultar o preço de mercado para apresentar ao usuário": ele queria
+    AVISAR o vendedor e não ligou isso a `perguntar`. A condição é verificável
+    (preço fora da faixa e vendedor ainda não avisado), então a repetição vira,
+    em código, a pergunta que faltava — o degrau mais barato que resolve."""
     d = estado["decisao_b"]
-    r = db.consultar_preco_comparaveis(d.get("categoria") or "outro",
-                                       d.get("bairro") or "")
+    argumentos = {"categoria": d.get("categoria"), "bairro": d.get("bairro")}
+    anterior = estado.get("faixa_preco")
+    if anterior and anterior.get("categoria") == argumentos["categoria"] \
+            and anterior.get("bairro") == argumentos["bairro"]:
+        pedido = _preco_pedido(estado)
+        fora = ("faixa_max" in anterior and pedido is not None
+                and not anterior["faixa_min"] * 0.7 <= pedido <= anterior["faixa_max"] * 1.15)
+        if fora and not _vendedor_avisado(estado, anterior):
+            pergunta = (f"Pelo mercado aqui em {anterior['bairro']}, {anterior['categoria']} usada sai entre "
+                        f"R$ {anterior['faixa_min']:.0f} e R$ {anterior['faixa_max']:.0f}. Você pediu "
+                        f"R$ {pedido:.0f}: quer manter esse valor ou ajustar? A decisão é sua.")
+            return {"pergunta_portao": pergunta, "trajetoria": [passo_codigo(
+                "ferramenta_preco", argumentos=argumentos, repetida=True,
+                acao_do_codigo="avisar a faixa ao vendedor (preço fora da faixa, ainda não avisado)")]}
+        return {"trajetoria": [passo_codigo("ferramenta_preco", argumentos=argumentos, repetida=True,
+                                            acao_do_codigo="nenhuma: o resultado anterior continua valendo")]}
+    r = db.consultar_preco_comparaveis(argumentos["categoria"] or "outro", argumentos["bairro"] or "")
     return {"faixa_preco": r, "trajetoria": [passo_codigo(
-        "ferramenta_preco", argumentos={"categoria": d.get("categoria"), "bairro": d.get("bairro")},
-        resultado=r)]}
+        "ferramenta_preco", argumentos=argumentos, resultado=r)]}
+
+
+def rotear_preco(estado: Estado) -> str:
+    return "perguntar_b" if estado.get("pergunta_portao") else "agente_b"
 
 
 def ferramenta_regras(estado: Estado) -> dict[str, Any]:
@@ -302,8 +333,7 @@ def checar_preco(rascunho: dict[str, Any], faixa: dict[str, Any] | None,
     preco = float(rascunho["preco"])
     if faixa["faixa_min"] * 0.7 <= preco <= faixa["faixa_max"] * 1.15:
         return None
-    avisou = any(m["quem"] == "agente" and str(int(faixa["faixa_max"])) in m["texto"] for m in conversa)
-    if avisou:
+    if any(m["quem"] == "agente" and str(int(faixa["faixa_max"])) in m["texto"] for m in conversa):
         return None   # o vendedor foi avisado da faixa e manteve: a alçada é dele
     return (f"preco: R$ {preco:.0f} está fora da faixa R$ {faixa['faixa_min']:.0f}–"
             f"{faixa['faixa_max']:.0f}; avise o vendedor da faixa antes de seguir")
