@@ -58,7 +58,7 @@ esperado, e o caso 4 nunca publicado com a avaria omitida.
 ## Changelog
 - v8 → v9 (12/10/2026): VOLTOU a frase "chame `consultar_preco` uma única vez;
   o primeiro resultado já é a resposta" (estava na v4–v6 e saiu na v7). Na
-  rodada final dos casos com a v8 (commit 18d8bfe), o caso 2 (R$ 900 × faixa
+  rodada final dos casos com a v8 (commit e0d5764), o caso 2 (R$ 900 × faixa
   R$ 300–380) repetiu `consultar_preco` 3x com os mesmos argumentos e terminou
   em `laco` (logs/medicoes/02_divergencia_preco_v8_laco.json) — na rodada de
   desenvolvimento, com o mesmo prompt, o caso tinha passado. A v7 tirou a

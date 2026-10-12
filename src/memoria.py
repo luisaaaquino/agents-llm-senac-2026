@@ -120,15 +120,31 @@ def ler_fatos(entidade: str) -> list[dict[str, Any]]:
 
 
 # --- Episódica (índice por similaridade) -------------------------------------
+def chave_episodio(vendedor_id: str, origem: str, desfecho: str) -> str:
+    """Chave do episódio derivada de campos ESTRUTURADOS (quem, de qual anúncio
+    ou conversa, como terminou) — não do resumo. Na 1ª versão a chave incluía o
+    resumo escrito pelo modelo, que varia entre execuções ("12/10/2026" ×
+    "[2026-10-12]", "preço mantido" × "manteve-se"): o mesmo anúncio virou 4
+    episódios nas repetições do caso 2, e a re-execução de `publicar` do caso 6
+    gravou um segundo. Conteúdo não determinístico não serve de chave."""
+    return _hash("episodio", vendedor_id, origem, desfecho)
+
+
+def episodio_existe(chave: str) -> bool:
+    with closing(_conectar()) as con:
+        return con.execute("SELECT 1 FROM memoria_episodica WHERE id=?", (chave,)).fetchone() is not None
+
+
 def gravar_episodio(vendedor_id: str, categoria: str, bairro: str | None, desfecho: str,
-                    avaria: str, resumo: str, data: str | None = None) -> dict[str, Any]:
+                    avaria: str, resumo: str, data: str | None = None,
+                    origem: str | None = None) -> dict[str, Any]:
     # O carimbo de tempo é metadado obrigatório, posto pelo código (§2.1).
     data = data or _agora()
     resumo = filtrar_pii(resumo)
-    chave = _hash(vendedor_id, categoria, bairro, desfecho, avaria, resumo)
-    with closing(_conectar()) as con:
-        if con.execute("SELECT 1 FROM memoria_episodica WHERE id=?", (chave,)).fetchone():
-            return {"ok": True, "ja_existia": True, "episodio_id": chave}
+    chave = (chave_episodio(vendedor_id, origem, desfecho) if origem
+             else _hash(vendedor_id, categoria, bairro, desfecho, avaria, resumo))
+    if episodio_existe(chave):
+        return {"ok": True, "ja_existia": True, "episodio_id": chave}
     vetor = np.asarray(llm.embeddings([resumo])[0], dtype=np.float32)
     with closing(_conectar()) as con:
         con.execute("INSERT INTO memoria_episodica VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)",

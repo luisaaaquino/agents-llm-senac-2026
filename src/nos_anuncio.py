@@ -598,7 +598,14 @@ def _escrever_memoria(estado: Estado, desfecho: str) -> list[dict[str, Any]]:
             escritas.append(memoria.gravar_fato(f"categoria:{r['categoria']}", "avarias_tipicas",
                                                 atuais + [nova],
                                                 fonte=f"moderacao:indicio:{estado['indicio']['id']}"))
-    if r.get("categoria"):
+    # origem do episódio: o anúncio gravado (o mesmo anúncio em execuções
+    # repetidas tem o mesmo id, porque a publicação é idempotente) ou, sem
+    # anúncio, a conversa. Se o episódio já existe, nem chama a extração.
+    origem = (f"anuncio:{estado['escritas']['anuncio_id']}" if estado.get("escritas", {}).get("anuncio_id")
+              else f"thread:{estado['thread_id']}")
+    if r.get("categoria") and memoria.episodio_existe(memoria.chave_episodio(vendedor, origem, desfecho)):
+        escritas.append({"ok": True, "ja_existia": True, "episodio": origem, "extracao": "não chamada"})
+    elif r.get("categoria"):
         avaria = ("negada" if estado.get("indicio") else
                   "declarada" if r.get("avarias_declaradas") else "nenhuma")
         campos = {"data": datetime.now().date().isoformat(), "categoria": r.get("categoria"),
@@ -610,7 +617,7 @@ def _escrever_memoria(estado: Estado, desfecho: str) -> list[dict[str, Any]]:
                                               json.dumps(campos, ensure_ascii=False), ResumoEpisodio,
                                               max_tokens=150)
         escritas.append({**memoria.gravar_episodio(vendedor, r["categoria"], r.get("bairro"),
-                                                   desfecho, avaria, resumo.resumo),
+                                                   desfecho, avaria, resumo.resumo, origem=origem),
                          "tokens_extracao": uso.total})
     if desfecho in ("laco", "orcamento", "avaliador_reprovou"):
         escritas.append(memoria.propor_regra(
