@@ -106,7 +106,11 @@ def _texto_memoria(mem: dict[str, Any] | None) -> str:
         sufixo = " (antigo — confirme com o vendedor)" if f["a_confirmar"] else ""
         partes.append(f"- vendedor: {f['chave']} = {f['valor']}{sufixo}")
     for f in mem.get("categoria", []):
-        partes.append(f"- categoria: {f['chave']} = {f['valor']}")
+        if f["chave"] == "avarias_tipicas":
+            partes.append(f"- defeitos comuns em {f['entidade'].split(':', 1)[1]} usada, vistos em OUTROS "
+                          f"anúncios (não são deste vendedor; use só para perguntar): {', '.join(f['valor'])}")
+        else:
+            partes.append(f"- categoria: {f['chave']} = {f['valor']}")
     for e in mem.get("episodios", []):
         partes.append(f"- anúncio parecido: {e['resumo']}")
     return ("MEMÓRIA (fatos de execuções anteriores; a conversa atual vence a memória):\n"
@@ -455,6 +459,19 @@ def registrar_indicio(estado: Estado) -> dict[str, Any]:
     registra o indício e volta ao laço para terminar o rascunho sem ele."""
     texto = estado["decisao_b"].get("indicio") or "possível avaria não declarada"
     falas = avaria_da_conversa(estado)["falas"]
+    if not falas:
+        # Indício só vale ancorado numa FALA DO VENDEDOR nesta conversa. Nas
+        # repetições de estabilidade do caso 2, o modelo leu o fato de
+        # categoria da memória ("freezer inferior lento", aprendido com OUTRO
+        # vendedor) como algo que este vendedor teria dito, e registrou um
+        # indício falso contra quem respondeu "sem defeito". A memória não é
+        # evidência sobre a pessoa — conferido em código, como a citação do
+        # recusar_item. Nada é gravado; a recusa volta ao laço como observação.
+        return {"avaliacao": {"aprovado": False, "faltando": [
+                    "indicio: recusado pelo código — nenhuma fala do vendedor nesta conversa menciona "
+                    "defeito; a memória de categoria descreve OUTROS anúncios, não este vendedor"]},
+                "trajetoria": [passo_codigo("registrar_indicio", argumentos={"indicio": texto},
+                                            recusado="sem fala do vendedor que mencione defeito")]}
     r = db.registrar_indicio(estado["usuario_id"], estado["thread_id"], texto,
                              falas[-1] if falas else None, anuncio_id=None)
     return {"indicio": {"id": r["indicio_id"], "texto": texto, "fala_literal": falas[-1] if falas else None},
