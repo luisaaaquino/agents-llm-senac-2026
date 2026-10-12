@@ -1,0 +1,17 @@
+[
+  {"id": "Q01", "pergunta": "por quanto tempo meu anuncio fica no ar?", "forma": "assunto", "esperado": ["termos-de-uso-2026#3"], "excecao": false, "revogado_concorrente": "faq-site-2025#1"},
+  {"id": "Q02", "pergunta": "posso aceitar troca em vez de dinheiro?", "forma": "assunto", "esperado": ["termos-de-uso-2026#4"], "excecao": false, "revogado_concorrente": "faq-site-2025#2"},
+  {"id": "Q03", "pergunta": "quanto o site cobra quando eu vendo alguma coisa?", "forma": "assunto", "esperado": ["termos-de-uso-2026#5"], "excecao": false},
+  {"id": "Q04", "pergunta": "a taxa de 5% é cobrada em cima do frete tambem?", "forma": "assunto", "esperado": ["termos-de-uso-2026#5"], "excecao": true},
+  {"id": "Q05", "pergunta": "se eu excluir minha conta voces apagam tudo sobre mim?", "forma": "assunto", "esperado": ["termos-de-uso-2026#8"], "excecao": true},
+  {"id": "Q06", "pergunta": "preciso tirar foto de um risquinho na porta da geladeira?", "forma": "assunto", "esperado": ["politica-moderacao-2026#4"], "excecao": true},
+  {"id": "Q07", "pergunta": "posso vender uma replica de pistola de airsoft?", "forma": "termo", "esperado": ["politica-moderacao-2026#1"], "excecao": false},
+  {"id": "Q08", "pergunta": "da pra anunciar uma arminha de brinquedo de plastico do meu filho?", "forma": "assunto", "esperado": ["politica-moderacao-2026#2"], "excecao": true},
+  {"id": "Q09", "pergunta": "quando o vendedor recebe o dinheiro da venda?", "forma": "assunto", "esperado": ["pagamento-e-entrega#3"], "excecao": false},
+  {"id": "Q10", "pergunta": "o que acontece se eu errar o codigo de entrega varias vezes?", "forma": "termo", "esperado": ["pagamento-e-entrega#4"], "excecao": false},
+  {"id": "Q11", "pergunta": "o que acontece se o vendedor nao quiser contar um defeito do produto?", "forma": "assunto", "esperado": ["politica-moderacao-2026#5"], "excecao": false},
+  {"id": "Q12", "pergunta": "qual estado de conservacao eu coloco numa geladeira que funciona mas tem um amassado?", "forma": "assunto", "esperado": ["guia-estado-conservacao#4", "guia-estado-conservacao#3"], "excecao": false},
+  {"id": "Q13", "pergunta": "posso vender ingresso de show pelo site?", "forma": "fora_do_corpus", "esperado": [], "excecao": false},
+  {"id": "Q14", "pergunta": "quais bairros o santo desapego atende?", "forma": "registro", "esperado": ["area-de-atuacao#1"], "excecao": false, "observacao": "também respondida pela tabela `bairros` (consulta estruturada)"},
+  {"id": "Q15", "pergunta": "quanto sai uma geladeira usada aqui em santo amaro?", "forma": "registro", "esperado": [], "excecao": false, "observacao": "não está no corpus: é consulta estruturada em precos_comparaveis — o RAG deve recusar e a ferramenta de preço responde"}
+]
