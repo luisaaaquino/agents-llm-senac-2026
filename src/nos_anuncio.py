@@ -177,7 +177,7 @@ def agente_b(estado: Estado) -> dict[str, Any]:
     }
     extra = "\n\n".join(t for t in (estado["memoria"].get("procedural", "") if estado.get("memoria") else "",
                                      _texto_memoria(estado.get("memoria"))) if t)
-    decisao, inc = chamar_modelo("agente_b", "agente-anuncio-v8.md",
+    decisao, inc = chamar_modelo("agente_b", "agente-anuncio-v9.md",
                                  json.dumps(contexto, ensure_ascii=False, indent=1),
                                  DecisaoAnuncio, extra_sistema=extra)
     d = decisao.model_dump()

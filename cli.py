@@ -8,6 +8,7 @@ Linha de comando do sistema.
     python cli.py pendencias               # o que está esperando uma pessoa
     python cli.py responder <thread> <json> <quem>   # ex.: '{"acao": "aprovar"}' V-017
     python cli.py prazos [+horas]          # roda a rotina de prazos (simula o relógio)
+    python cli.py repetir 02_divergencia_preco 3   # estabilidade: N execuções do mesmo caso
 """
 from __future__ import annotations
 
@@ -46,7 +47,7 @@ def _contadores(thread_id: str) -> dict:
     return {k: v.get(k, 0) for k in ("passos", "tokens", "custo_usd", "consultas_rag")}
 
 
-def rodar_caso(caso: Caso) -> dict:
+def rodar_caso(caso: Caso, destino=None) -> dict:
     thread = f"{caso.usuario_id}:{caso.nome}"
     GRAFO.checkpointer.delete_thread(thread)   # cada execução do caso começa do zero
     entrada = Entrada(texto=caso.primeira_fala, usuario_id=caso.usuario_id, sessao_id=caso.nome)
@@ -115,9 +116,10 @@ def rodar_caso(caso: Caso) -> dict:
             break
     log["final"] = {"tipo": s.tipo, "termino": s.termino, "motivo": s.motivo_termino,
                     "segundos": round(time.monotonic() - inicio, 1), **_contadores(thread)}
-    destino = config.LOGS_DIR / f"{caso.nome}.json"
+    destino = destino or config.LOGS_DIR / f"{caso.nome}.json"
+    destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"  == {s.tipo} / {s.termino} · {log['final']} · log: logs/{destino.name}")
+    print(f"  == {s.tipo} / {s.termino} · {log['final']} · log: {destino.relative_to(config.ROOT)}")
     return log
 
 
@@ -148,6 +150,21 @@ def main() -> None:
         for caso in CASOS.values():
             print(f"\n=== {caso.nome} ===")
             rodar_caso(caso)
+    elif cmd == "repetir":
+        caso, n = CASOS[args[1]], int(args[2]) if len(args) > 2 else 3
+        pasta = config.LOGS_DIR / "medicoes" / "estabilidade"
+        resumo = []
+        for i in range(1, n + 1):
+            print(f"
+=== {caso.nome} — execução {i}/{n} ===")
+            log = rodar_caso(caso, pasta / f"{caso.nome}_r{i}.json")
+            acoes = [p["saida"].get("acao") for t in log["turnos"] for p in t["trajetoria"]
+                     if p["etapa"] == "agente_b" and "saida" in p]
+            resumo.append({"execucao": i, **log["final"], "acoes_do_agente_b": acoes})
+        (pasta / f"{caso.nome}_resumo.json").write_text(json.dumps(
+            {"caso": caso.nome, "esperado": caso.esperado, "carimbo": carimbo(), "execucoes": resumo},
+            ensure_ascii=False, indent=2), encoding="utf-8")
+        print(json.dumps(resumo, ensure_ascii=False, indent=1))
     elif cmd == "pendencias":
         print(json.dumps(db.pendencias(), ensure_ascii=False, indent=2))
     elif cmd == "responder":

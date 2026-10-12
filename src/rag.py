@@ -15,8 +15,8 @@ RAG: as regras do Santo Desapego como memória CONSULTÁVEL (§4).
 
 Índice: SQLite + numpy (cosseno). O desenho da Aula 07 usava Chroma; aqui o
 corpus tem dezenas de trechos e a memória episódica ~1.000 episódios por
-semestre — uma varredura em numpy custa < 1 ms e evita uma dependência que
-não tem wheel estável para o Python 3.14 desta máquina.
+semestre — uma varredura em numpy custa < 1 ms, e a escala não pede uma
+dependência a mais (o Chroma não foi testado nesta máquina).
 """
 from __future__ import annotations
 
