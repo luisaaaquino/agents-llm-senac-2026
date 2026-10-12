@@ -28,9 +28,13 @@ dados/     seed.sql (dados simulados) · corpus/ (as regras, com 1 revogada)
            perguntas_rag.json (o conjunto de perguntas) · casos.md
 scripts/   medições: medir_rag · testar_prompts · experimento_revogado
            demo_sem_reducer · demo_memoria · verificar_remocao
-logs/      os casos demonstrados (01–15) · medicoes/ · parte1/ (logs da Parte 1)
-legado/    o agente da Parte 1, preservado
+logs/      os casos demonstrados (01–15) · medicoes/ (testes e experimentos)
+           parte1/ (logs e comparação de modelos da Parte 1)
+legado/    o que não é a Parte 2, preservado para o histórico:
+           parte1/ (o agente da Parte 1) · analista-aula05/ (o lab da Aula 05)
 ```
+
+Tudo o que é da Parte 1 ou de aula fica em `legado/` e `logs/parte1/`; o resto é a Parte 2.
 
 ## Como rodar (do zero, < 5 min)
 

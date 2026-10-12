@@ -174,7 +174,7 @@ dois é simplesmente "melhor em tudo":**
   `acao: "perguntar"` — cumpria a sintaxe do JSON, ignorava a semântica (ver
   achado em §3.1). **Depois** desse fix, o campo passou a vir preenchido,
   mas surgiu um problema mais sério: nos 4 casos (logs em
-  `docs/comparacao_modelos/llama3.2/`), o modelo **repete literalmente a
+  `logs/parte1/comparacao_modelos/llama3.2/`), o modelo **repete literalmente a
   mesma pergunta, palavra por palavra**, toda vez — mesmo depois do vendedor
   já ter respondido, e no caso 4, mesmo depois do vendedor **declarar a
   avaria sem ser insistido**. Ele nunca chega a chamar `consultar_preco` nem
