@@ -8,3 +8,5 @@ atividade.md
 !.env.example
 *.db-journal
 .pytest_cache/
+
+dados/checkpoints.db*
