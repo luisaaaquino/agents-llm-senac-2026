@@ -1,22 +1,18 @@
 """
-RAG: as regras do Santo Desapego como memória CONSULTÁVEL (§4).
+Busca nas regras do Santo Desapego (RAG).
 
-- Forma: busca vetorial sobre o corpus de regras (dados/corpus/*.md).
-  As perguntas de REGISTRO (preço de mercado, itens do catálogo, bairros)
-  não passam por aqui — são consulta estruturada no SQLite (src/db.py).
-  A classificação das perguntas que levou a essa divisão está em docs/rag.md.
-- Corte: por ESTRUTURA — uma seção "##" vira um trecho. Os documentos são
-  regulamentos com seções curtas e autocontidas; cortar por caracteres
-  partiria uma regra da sua exceção ("…Exceção: …" fica na mesma seção).
-- k = config.RAG_K; portão: maior similaridade < config.RAG_LIMIAR -> sem base.
-- Curadoria: documento com `vigente: false` no cabeçalho fica no índice, mas
-  é filtrado na busca. `incluir_revogados=True` existe só para o experimento
-  do documento revogado (docs/rag.md §4.2).
+- Busca vetorial sobre os documentos de dados/corpus/*.md. Perguntas sobre
+  registros (preço de mercado, catálogo, bairros) não passam por aqui: são
+  consultas SQL em src/db.py.
+- Corte por seção: cada "##" vira um trecho, assim a regra e a exceção
+  dela ficam no mesmo trecho.
+- Devolve os k trechos mais próximos (config.RAG_K). Se a maior similaridade
+  ficar abaixo de config.RAG_LIMIAR, considera que não há base.
+- Documento com `vigente: false` continua no índice, mas fica fora da busca.
+  `incluir_revogados=True` só é usado no experimento do documento revogado.
 
-Índice: SQLite + numpy (cosseno). O desenho da Aula 07 usava Chroma; aqui o
-corpus tem dezenas de trechos e a memória episódica ~1.000 episódios por
-semestre — uma varredura em numpy custa < 1 ms, e a escala não pede uma
-dependência a mais (o Chroma não foi testado nesta máquina).
+O índice é SQLite + numpy (similaridade de cosseno). Com poucas dezenas de
+trechos, a busca leva menos de 1 ms.
 """
 from __future__ import annotations
 
@@ -35,7 +31,7 @@ from . import config, llm
 
 @dataclass
 class Trecho:
-    id: str            # "<doc_id>#<n>" — é o que a resposta cita
+    id: str            # formato "<doc_id>#<n>", que é o id citado na resposta
     doc_id: str
     titulo_doc: str
     secao: str
@@ -78,7 +74,7 @@ def _conectar() -> sqlite3.Connection:
 
 
 def indexar(diretorio: Path | None = None) -> dict[str, Any]:
-    """(Re)constrói o índice inteiro. O corpus muda pouco (docs/rag.md §4.2)."""
+    """Reconstrói o índice inteiro (o corpus muda pouco)."""
     diretorio = diretorio or config.CORPUS_DIR
     trechos = [t for arq in sorted(diretorio.glob("*.md")) for t in cortar_documento(arq)]
     vetores = llm.embeddings([f"{t.titulo_doc} — {t.secao}\n{t.texto}" for t in trechos])
@@ -122,7 +118,7 @@ def buscar(pergunta: str, k: int | None = None, incluir_revogados: bool = False)
 
 
 def verificar_citacoes(citadas: list[str], recuperados: list[dict[str, Any]]) -> dict[str, Any]:
-    """Citação verificada em CÓDIGO: só vale o id que de fato foi recuperado."""
+    """Confere a citação: só vale um id que foi de fato recuperado."""
     ids = {t["id"] for t in recuperados}
     validas = [c for c in citadas if c in ids]
     return {"validas": validas, "invalidas": [c for c in citadas if c not in ids]}

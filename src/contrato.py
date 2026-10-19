@@ -1,14 +1,14 @@
 """
-O contrato do sistema com quem o usa (§1).
+Contrato de entrada e saída do sistema.
 
-Entrada: TEXTO livre, mais o que acompanha o texto sem ser digitado por
-ninguém (quem é o usuário, qual a sessão) — é disso que sai o thread_id.
+Entrada: o texto que a pessoa digitou, mais o id do usuário e o da sessão,
+que vêm do site e formam o thread_id.
 
-Saída: um objeto validado, com os três campos obrigatórios do §1.2:
-  - resultado   -> `resultado` (texto ao usuário) + `dados` (o anúncio, os itens)
-  - fonte       -> `fontes` (trecho do corpus, registro do banco, ferramenta)
-  - suficiência -> `suficiencia` (teve base? se não, o que faltou)
-A recusa é parte do contrato: `suficiencia.base_suficiente = False`.
+Saída: um objeto validado com
+  - `resultado` (texto para o usuário) e `dados` (o anúncio, os itens)
+  - `fontes` (trecho do corpus, registro do banco, ferramenta)
+  - `suficiencia` (se houve base para responder e, se não, o que faltou)
+Uma recusa tem `suficiencia.base_suficiente = False`.
 """
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ TipoSaida = Literal[
 ]
 
 Termino = Literal[
-    "aguardando_usuario",  # o turno acabou com uma pergunta — a conversa continua
+    "aguardando_usuario",  # o turno acabou com uma pergunta e a conversa continua
     "aguardando_humano",   # interrupt: aprovação ou moderação pendente
     "respondeu",           # o objetivo da conversa foi cumprido
     "recusou",             # fora do escopo / sem base no corpus
@@ -52,7 +52,7 @@ class Entrada(BaseModel):
     @property
     def thread_id(self) -> str:
         # usuário + sessão: a mesma pessoa com duas abas abertas tem duas
-        # conversas independentes (docs/memoria.md §5.5).
+        # conversas separadas.
         return f"{self.usuario_id}:{self.sessao_id}"
 
 

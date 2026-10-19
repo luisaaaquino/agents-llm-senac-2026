@@ -1,8 +1,8 @@
 """
-Contratos de saída de cada etapa em que o MODELO é chamado (§2.1, coluna
-"contrato de saída"). O schema garante que a resposta seja uma das opções
-válidas; ele NÃO garante que seja a opção certa (§6.3) — por isso cada
-etapa tem, além do schema, uma conferência em código em src/nos_*.py.
+Formato de saída de cada chamada ao modelo (Pydantic).
+
+O schema garante que a resposta é uma das opções válidas, mas não que é a
+certa. Por isso os nós em src/nos_*.py também conferem o resultado em código.
 """
 from __future__ import annotations
 

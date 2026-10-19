@@ -1,8 +1,8 @@
 """
-§4.2 — o documento revogado. O FAQ antigo (dados/corpus/faq-site-2025.md,
-`vigente: false`) responde duas perguntas do conjunto de um jeito que não vale
-mais (60 dias; "aceito trocas"). Roda a resposta completa (busca + modelo)
-SEM curadoria (o revogado entra na busca) e COM curadoria (filtro `vigente`).
+Testa o documento revogado. O FAQ antigo (dados/corpus/faq-site-2025.md,
+`vigente: false`) responde duas perguntas do conjunto de um jeito que não
+vale mais (60 dias; "aceito trocas"). Roda a resposta completa (busca +
+modelo) sem curadoria (o revogado entra na busca) e com curadoria.
 
     python scripts/experimento_revogado.py
 """
@@ -34,8 +34,8 @@ def responder(pergunta: str, incluir_revogados: bool, k: int | None = None) -> d
 
 
 def main() -> None:
-    # k=1 sem curadoria: o que acontece quando só o 1º trecho entra no contexto
-    # (é o revogado que vence a busca nas duas perguntas — rag_buscador.json).
+    # k=1 sem curadoria: só o primeiro trecho entra no contexto, e nas duas
+    # perguntas o primeiro é o documento revogado.
     linhas = [{"pergunta": p, "sem_curadoria": responder(p, True), "com_curadoria": responder(p, False),
                "sem_curadoria_k1": responder(p, True, k=1)} for p in PERGUNTAS]
     destino = config.LOGS_DIR / "medicoes" / "rag_revogado.json"

@@ -1,26 +1,23 @@
 """
-Remoção a pedido do titular (LGPD art. 18 / RF04) — docs/memoria.md §2.3.
+Remoção dos dados de um titular, a pedido dele (LGPD art. 18).
 
-O requisito é de COBERTURA: o identificador sai de todas as estruturas em que
-foi gravado, não só das três memórias. O inventário abaixo é o do
-docs/memoria.md §2.3, conferido contra o que o código grava hoje:
+O identificador precisa sair de todos os lugares onde foi gravado:
 
   1. memória episódica        (memoria.db: memoria_episodica)        apaga
   2. memória semântica        (memoria.db: memoria_semantica, com o
                                histórico em `substituiu`)            apaga
   3. procedural + fila         (src/prompts/procedural.md e
-                               memoria.db: regras_candidatas)        fila: apaga · arquivo: só REPORTA
+                               memoria.db: regras_candidatas)        fila: apaga · arquivo: só avisa
   4. checkpoints do LangGraph (checkpoints.db: checkpoints, writes) apaga a thread inteira
   5. logs                      (logs/*.json)                          apaga o arquivo
   6. anúncios                  (santo_desapego.db: anuncios)          apaga
-  7. indícios de moderação     (santo_desapego.db: indicios_moderacao) ANONIMIZA (registro de moderação)
+  7. indícios de moderação     (santo_desapego.db: indicios_moderacao) anonimiza
   8. pendências                (santo_desapego.db: pendencias_humanas) apaga
   9. cliques                   (santo_desapego.db: cliques)           apaga
-Fora do alcance (declarado): a retenção do provedor do modelo (Google, plano
-gratuito — docs/modelos.md §4) e backups.
+Ficam de fora: os dados retidos pelo provedor do modelo e os backups.
 
-A verificação NÃO usa este módulo: é scripts/verificar_remocao.py, que varre
-os arquivos procurando o identificador por conta própria.
+A conferência é feita por scripts/verificar_remocao.py, que não usa este
+módulo e procura o identificador direto nos arquivos.
 """
 from __future__ import annotations
 

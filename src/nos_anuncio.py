@@ -1,19 +1,18 @@
 """
-Agente B — assistente de anúncio (vendedor), como nós do grafo.
+Agente B: assistente de anúncio para o vendedor.
 
-O laço: `agente_b` (modelo escolhe UMA ação) -> ferramenta -> `agente_b`…
-até ter um rascunho que passe pelo PORTÃO (código) e pelo AVALIADOR (modelo
-+ código). Publicar não é ação do modelo: depois do avaliador, quem decide é
-o vendedor (interrupt) — ou a moderação, se houve indício de avaria.
+O laço: `agente_b` (o modelo escolhe uma ação) -> ferramenta -> `agente_b`,
+até ter um rascunho que passe pelo portão (código) e pelo avaliador (modelo
+e código). O modelo não publica: depois do avaliador, quem decide é o
+vendedor, ou a moderação se houver indício de avaria.
 
-Pontos de parada (docs/humano.md):
-  1. `aprovacao_vendedor` — ação que sai para o mundo (o anúncio fica visível
-     para os vizinhos); perfil: o vendedor dono da conversa; prazo 24 h.
-  2. `moderacao` — confiança baixa: o vendedor recusou declarar um defeito;
-     perfil: moderador; prazo 48 h; silêncio = não publica.
-Nada com efeito colateral roda dentro desses dois nós (o nó do interrupt
-re-executa inteiro na retomada): as escritas ficam no nó anterior (abrir a
-pendência) e no posterior (publicar / aplicar a decisão), ambas idempotentes.
+Pontos de parada:
+  1. `aprovacao_vendedor`: o vendedor confirma a publicação; prazo de 24 h.
+  2. `moderacao`: o vendedor não quis declarar um defeito e um moderador
+     decide; prazo de 48 h; sem resposta, não publica.
+Esses dois nós só têm o interrupt, porque rodam de novo na retomada. As
+escritas ficam no nó anterior (abrir a pendência) e no seguinte (publicar
+ou aplicar a decisão), e são idempotentes.
 """
 from __future__ import annotations
 
@@ -32,14 +31,12 @@ from .esquemas import Avaliacao, DecisaoAnuncio, ResumoEpisodio
 from .estado import Estado
 from .nos_comuns import chamar_modelo, passo_codigo, saida, turno_estourou
 
-# --- o que a conversa diz sobre avaria (DERIVADO, não guardado — §7.3) ---------
+# --- o que a conversa diz sobre avaria (recalculado, não guardado) -----------
 _NEGA = re.compile(r"\b(sem (nenhum )?(defeito|problema|avaria)s?|nenhum (defeito|problema)|"
                    r"n[ãa]o tem (nenhum )?(defeito|problema)|tudo funcionando|funciona (bem|perfeit\w*|100))",
                    re.I)
-# Só termos inequívocos de defeito. Na 1ª versão havia "barulho", "solto" e
-# "mancha": no caso 15 ("é só de apertar e fazer barulho", um brinquedo) o
-# detector viu avaria onde não havia e o anúncio foi parar na moderação —
-# o custo do degrau "regra em código" para julgar texto livre (docs/grafo.md §6.3).
+# Só termos claros de defeito. Palavras como "barulho" ou "mancha" sozinhas
+# davam falso positivo (ex.: brinquedo que "faz barulho").
 _MENCIONA = re.compile(r"\b(defeito|avaria|quebrad\w*|rachad\w*|rachadura|trincad\w*|amassad\w*|"
                        r"riscad\w*|rasgad\w*|vaza\w*|n[ãa]o (gela|congela|funciona|liga|acende|esquenta)|"
                        r"demora\w* (pra|para) (gelar|congelar|esquentar|ligar)|barulho estranho|"
@@ -76,8 +73,8 @@ def _preco_pedido(estado: Estado) -> float | None:
 
 
 def iniciar_b(estado: Estado) -> dict[str, Any]:
-    """[código] Começa um anúncio novo: zera os campos do B e recupera a memória
-    (semântica por chave, episódica por filtro+similaridade, procedural inteira)."""
+    """[código] Começa um anúncio novo: zera os campos do Agente B e lê a memória
+    (semântica por chave, episódica por categoria e similaridade, procedural inteira)."""
     vendedor = estado["usuario_id"]
     categoria = estado.get("categoria_mencionada")
     fatos = memoria.ler_fatos(f"vendedor:{vendedor}")
@@ -128,8 +125,8 @@ def _assinatura(decisao: dict[str, Any]) -> str:
 
 
 def detectar_laco(estado: Estado, assinatura: str) -> bool:
-    """Reimplantado sobre o grafo (§6.5): `recursion_limit` limita o dano, não
-    detecta. Laço = a MESMA ação com os MESMOS argumentos N vezes seguidas."""
+    """Detecta laço: a mesma ação com os mesmos argumentos N vezes seguidas.
+    O recursion_limit só limita o estrago, não detecta o laço."""
     anteriores = [p["assinatura"] for p in estado.get("trajetoria", [])
                   if p.get("etapa") == "agente_b" and "assinatura" in p]
     ultimas = anteriores[-(config.LACO_REPETICOES - 1):]
@@ -137,7 +134,7 @@ def detectar_laco(estado: Estado, assinatura: str) -> bool:
 
 
 def checar_orcamento(estado: Estado) -> str | None:
-    """Os quatro tetos da Aula 05 — o framework só cobre o de passos (e mal)."""
+    """Confere os limites de passos, tokens, custo e tempo."""
     if estado.get("passos", 0) - estado.get("passos_inicio", 0) >= config.B_MAX_PASSOS:
         return f"passos: {config.B_MAX_PASSOS} decisões do modelo neste anúncio"
     if estado.get("tokens", 0) >= config.B_MAX_TOKENS:
@@ -150,7 +147,7 @@ def checar_orcamento(estado: Estado) -> str | None:
 
 
 def agente_b(estado: Estado) -> dict[str, Any]:
-    """[MODELO] Escolhe a próxima ação (ReAct, uma ação por volta)."""
+    """[modelo] Escolhe a próxima ação (uma por volta)."""
     estouro = checar_orcamento(estado)
     if estouro:
         return {"desfecho": "orcamento", "motivo_termino": estouro,
@@ -158,8 +155,8 @@ def agente_b(estado: Estado) -> dict[str, Any]:
 
     avaria = avaria_da_conversa(estado)
     msgs = estado.get("mensagens", [])[estado.get("msg_inicio", 0):]
-    # Ordem de descarte (docs/memoria.md §1.2): as 10 últimas falas ficam; das
-    # antigas, só sobrevivem as que falam de avaria — nunca são descartadas.
+    # Corte do histórico: ficam as 10 últimas falas; das mais antigas, só
+    # ficam as que falam de avaria.
     recentes = msgs[-10:]
     antigas_avaria = [m for m in msgs[:-10] if m["texto"] in avaria["falas"]]
     contexto = {
@@ -168,9 +165,7 @@ def agente_b(estado: Estado) -> dict[str, Any]:
             "faixa_de_preco": estado.get("faixa_preco"),
             "regras_consultadas": estado.get("regras_consultadas"),
             "ultima_avaliacao": estado.get("avaliacao"),
-            # Na 1ª rodada do teste de remoção o modelo repetiu registrar_indicio
-            # 3x (o detector de laço parou). A observação agora diz o que já foi
-            # feito e o que falta — dado, não instrução nova no prompt.
+            # Avisa que o indício já foi registrado, para o modelo não registrar de novo.
             "indicio_registrado": ({**estado["indicio"],
                                     "situacao": "JÁ REGISTRADO para a moderação — não registre de novo; "
                                                 "monte o rascunho sem esse defeito"}
@@ -195,7 +190,7 @@ def agente_b(estado: Estado) -> dict[str, Any]:
 
 
 def rotear_b(estado: Estado) -> str:
-    """[código] A ação já foi escolhida pelo modelo; o mapa ação -> nó é fixo."""
+    """[código] Leva a ação escolhida pelo modelo ao nó correspondente."""
     if estado.get("desfecho") in ("orcamento", "laco"):
         return "finalizar_b"
     return {"perguntar": "perguntar_b", "consultar_preco": "ferramenta_preco",
@@ -224,15 +219,11 @@ def _vendedor_avisado(estado: Estado, faixa: dict[str, Any]) -> bool:
 
 
 def ferramenta_preco(estado: Estado) -> dict[str, Any]:
-    """[código] Consulta estruturada no SQLite. Erro volta como dado.
+    """[código] Consulta a faixa de preço no SQLite. Erro volta como dado.
 
-    Consulta REPETIDA (mesma categoria e bairro) não vai ao banco de novo.
-    Nas rodadas finais do caso 2 (v8 e v9 do prompt) o modelo repetiu
-    `consultar_preco` 3x com a faixa já na mão, e o motivo que ele escreveu
-    foi "consultar o preço de mercado para apresentar ao usuário": ele queria
-    AVISAR o vendedor e não ligou isso a `perguntar`. A condição é verificável
-    (preço fora da faixa e vendedor ainda não avisado), então a repetição vira,
-    em código, a pergunta que faltava — o degrau mais barato que resolve."""
+    Se a mesma consulta (categoria e bairro) for pedida de novo, não vai ao
+    banco. Se o preço pedido está fora da faixa e o vendedor ainda não foi
+    avisado, a consulta repetida vira a pergunta ao vendedor sobre o preço."""
     d = estado["decisao_b"]
     argumentos = {"categoria": d.get("categoria"), "bairro": d.get("bairro")}
     anterior = estado.get("faixa_preco")
@@ -260,7 +251,7 @@ def rotear_preco(estado: Estado) -> str:
 
 
 def ferramenta_regras(estado: Estado) -> dict[str, Any]:
-    """[código] RAG como FERRAMENTA do agente: só roda quando o modelo pede."""
+    """[código] Busca no corpus de regras; só roda quando o modelo pede."""
     consulta = estado["decisao_b"].get("consulta") or estado["texto_turno"]
     r = rag.buscar(consulta)
     regras = ([{"id": t["id"], "texto": t["texto"]} for t in r["trechos"]] if r["suficiente"]
@@ -273,8 +264,8 @@ def ferramenta_regras(estado: Estado) -> dict[str, Any]:
 
 
 def recusar_item(estado: Estado) -> dict[str, Any]:
-    """[código] O modelo quer recusar o produto: só vale citando uma regra que
-    foi DE FATO consultada nesta conversa (citação verificada em código)."""
+    """[código] Recusa o produto. Só vale se citar uma regra que foi de fato
+    consultada nesta conversa."""
     citada = estado["decisao_b"].get("regra_citada")
     consultadas = {t["id"] for t in estado.get("regras_consultadas") or [] if t.get("id")}
     if citada in consultadas:
@@ -292,11 +283,9 @@ def rotear_recusa(estado: Estado) -> str:
 
 
 def portao_avaria(estado: Estado) -> dict[str, Any]:
-    """[código] Sequencial com portão: rascunho só passa se a conversa já tratou
-    de avaria. O prompt pedia isso desde a v4 e o modelo pulava (Parte 1, e o
-    gemini-3.5-flash-lite no primeiro teste) — virou regra verificável."""
+    """[código] Portão: o rascunho só segue se a conversa já tratou de avaria."""
     if not estado["decisao_b"].get("rascunho"):
-        # erro de contrato vira dado: o laço continua, com a observação
+        # rascunho ausente vira observação e o laço continua
         return {"avaliacao": {"aprovado": False,
                               "faltando": ["rascunho: a ação preencher_rascunho veio sem o rascunho"]},
                 "trajetoria": [passo_codigo("portao_avaria", passou=False, erro="rascunho_ausente")]}
@@ -331,21 +320,21 @@ def rotear_portao(estado: Estado) -> str:
 
 def checar_preco(rascunho: dict[str, Any], faixa: dict[str, Any] | None,
                  conversa: list[dict[str, str]]) -> str | None:
-    """[código] Três caminhos para o preço passar (era critério do modelo na v2)."""
+    """[código] Condições em que o preço é aceito."""
     if not faixa or "erro" in faixa:
         return None   # sem comparáveis: não há faixa contra a qual comparar
     preco = float(rascunho["preco"])
     if faixa["faixa_min"] * 0.7 <= preco <= faixa["faixa_max"] * 1.15:
         return None
     if any(m["quem"] == "agente" and str(int(faixa["faixa_max"])) in m["texto"] for m in conversa):
-        return None   # o vendedor foi avisado da faixa e manteve: a alçada é dele
+        return None   # o vendedor foi avisado da faixa e manteve o preço: a decisão é dele
     return (f"preco: R$ {preco:.0f} está fora da faixa R$ {faixa['faixa_min']:.0f}–"
             f"{faixa['faixa_max']:.0f}; avise o vendedor da faixa antes de seguir")
 
 
 def avaliador(estado: Estado) -> dict[str, Any]:
-    """[MODELO + código] Avaliador-otimizador. O modelo julga texto; o código
-    confere preço, avaria mencionada e recalcula `aprovado`."""
+    """[modelo + código] Avaliador. O modelo julga o texto; o código confere
+    preço e avaria mencionada e recalcula `aprovado`."""
     rascunho = estado["rascunho"]
     conversa = estado.get("mensagens", [])[estado.get("msg_inicio", 0):]
     entrada_txt = json.dumps({"rascunho": rascunho,
@@ -397,7 +386,7 @@ def _expira(horas: int) -> str:
 
 
 def preparar_aprovacao(estado: Estado) -> dict[str, Any]:
-    """[código] Monta O QUE a pessoa vai ver (a ação exata e a consequência) e
+    """[código] Monta o que a pessoa vai ver (a ação exata e a consequência) e
     abre a pendência com prazo. Fica fora do nó do interrupt de propósito."""
     r = estado["rascunho"]
     expira = _expira(config.PRAZO_APROVACAO_VENDEDOR_H)
@@ -420,7 +409,7 @@ def preparar_aprovacao(estado: Estado) -> dict[str, Any]:
 
 
 def aprovacao_vendedor(estado: Estado) -> dict[str, Any]:
-    """[HUMANO] O grafo para aqui. Só o interrupt — nenhum efeito colateral."""
+    """[humano] O grafo para aqui. Só o interrupt, sem efeito colateral."""
     resposta = interrupt(estado["pendencia"])
     return {"decisao_humana": resposta,
             "trajetoria": [passo_codigo("aprovacao_vendedor", decide="humano", resposta=resposta)]}
@@ -432,8 +421,8 @@ def rotear_aprovacao(estado: Estado) -> str:
 
 
 def publicar(estado: Estado) -> dict[str, Any]:
-    """[código] ESCRITA. Aplica as edições (aprovar editando) e publica.
-    Idempotente pelo conteúdo: a segunda aprovação não cria um segundo anúncio."""
+    """[código] Escrita. Aplica as edições do vendedor e publica.
+    Idempotente: uma segunda aprovação não cria outro anúncio."""
     decisao = estado["decisao_humana"]
     rascunho = dict(estado["rascunho"])
     ignoradas = {}
@@ -455,18 +444,14 @@ def publicar(estado: Estado) -> dict[str, Any]:
 
 
 def registrar_indicio(estado: Estado) -> dict[str, Any]:
-    """[código] ESCRITA idempotente. O vendedor recusou declarar o defeito:
+    """[código] Escrita idempotente. O vendedor não quis declarar o defeito:
     registra o indício e volta ao laço para terminar o rascunho sem ele."""
     texto = estado["decisao_b"].get("indicio") or "possível avaria não declarada"
     falas = avaria_da_conversa(estado)["falas"]
     if not falas:
-        # Indício só vale ancorado numa FALA DO VENDEDOR nesta conversa. Nas
-        # repetições de estabilidade do caso 2, o modelo leu o fato de
-        # categoria da memória ("freezer inferior lento", aprendido com OUTRO
-        # vendedor) como algo que este vendedor teria dito, e registrou um
-        # indício falso contra quem respondeu "sem defeito". A memória não é
-        # evidência sobre a pessoa — conferido em código, como a citação do
-        # recusar_item. Nada é gravado; a recusa volta ao laço como observação.
+        # O indício só vale se vier de uma fala do vendedor nesta conversa. Um
+        # defeito comum da categoria, lido da memória, não é prova sobre este
+        # vendedor. Nada é gravado; a recusa volta ao laço como observação.
         return {"avaliacao": {"aprovado": False, "faltando": [
                     "indicio: recusado pelo código — nenhuma fala do vendedor nesta conversa menciona "
                     "defeito; a memória de categoria descreve OUTROS anúncios, não este vendedor"]},
@@ -508,14 +493,14 @@ def preparar_moderacao(estado: Estado) -> dict[str, Any]:
 
 
 def moderacao(estado: Estado) -> dict[str, Any]:
-    """[HUMANO] O grafo para aqui até um moderador decidir. Só o interrupt."""
+    """[humano] O grafo para aqui até um moderador decidir. Só o interrupt."""
     resposta = interrupt(estado["pendencia"])
     return {"decisao_humana": resposta,
             "trajetoria": [passo_codigo("moderacao", decide="humano", resposta=resposta)]}
 
 
 def aplicar_moderacao(estado: Estado) -> dict[str, Any]:
-    """[código] ESCRITA. Aplica a decisão — idempotente nas duas tabelas."""
+    """[código] Escrita. Aplica a decisão da moderação (idempotente nas duas tabelas)."""
     d = estado["decisao_humana"]
     acao = d.get("acao")
     anuncio_id, indicio_id = estado["escritas"]["anuncio_id"], estado["indicio"]["id"]
@@ -579,7 +564,7 @@ def _mensagem_final(estado: Estado, desfecho: str) -> str:
 
 
 def _escrever_memoria(estado: Estado, desfecho: str) -> list[dict[str, Any]]:
-    """Política de escrita (docs/memoria.md §1.4): código por regra + 1 extração."""
+    """Grava a memória: fatos por regra em código e um resumo do episódio."""
     vendedor, r = estado["usuario_id"], estado.get("rascunho") or {}
     faixa, escritas = estado.get("faixa_preco") or {}, []
     if desfecho in ("publicado", "moderacao_publicou", "moderacao_publicou_com_aviso") and r:
@@ -598,9 +583,9 @@ def _escrever_memoria(estado: Estado, desfecho: str) -> list[dict[str, Any]]:
             escritas.append(memoria.gravar_fato(f"categoria:{r['categoria']}", "avarias_tipicas",
                                                 atuais + [nova],
                                                 fonte=f"moderacao:indicio:{estado['indicio']['id']}"))
-    # origem do episódio: o anúncio gravado (o mesmo anúncio em execuções
-    # repetidas tem o mesmo id, porque a publicação é idempotente) ou, sem
-    # anúncio, a conversa. Se o episódio já existe, nem chama a extração.
+    # Origem do episódio: o anúncio gravado (repetições do mesmo anúncio têm
+    # o mesmo id) ou, sem anúncio, a conversa. Se o episódio já existe, a
+    # extração nem é chamada.
     origem = (f"anuncio:{estado['escritas']['anuncio_id']}" if estado.get("escritas", {}).get("anuncio_id")
               else f"thread:{estado['thread_id']}")
     if r.get("categoria") and memoria.episodio_existe(memoria.chave_episodio(vendedor, origem, desfecho)):
@@ -630,7 +615,7 @@ def _escrever_memoria(estado: Estado, desfecho: str) -> list[dict[str, Any]]:
 def finalizar_b(estado: Estado) -> dict[str, Any]:
     """[código] Fecha o anúncio: escreve memória, monta a saída, libera a conversa."""
     desfecho = estado.get("desfecho")
-    if desfecho is None:   # veio da aprovação com rejeitar/expirou
+    if desfecho is None:   # veio da aprovação com rejeitar ou expirou
         acao = (estado.get("decisao_humana") or {}).get("acao")
         desfecho = "expirou" if acao == "expirou" else "rejeitado"
         db.fechar_pendencia(estado["thread_id"], "expirada" if acao == "expirou" else "resolvida")

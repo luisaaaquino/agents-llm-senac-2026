@@ -1,20 +1,19 @@
 """
-Memória de longo prazo do Agente B — a implementação do que docs/memoria.md
-decidiu no exercício 8.
+Memória de longo prazo do Agente B.
 
-  episódica  -> índice por similaridade (SQLite + numpy), com metadados
-                (data, categoria, bairro, vendedor_id, desfecho, avaria)
-  semântica  -> chave-valor (entidade, chave, condicao) -> valor, com
-                `substituiu` guardando o histórico (contradição por carimbo)
-  procedural -> texto em src/prompts/procedural.md, anexado ao system prompt;
-                regras novas entram por uma FILA que um humano aprova
+  episódica  -> índice por similaridade (SQLite + numpy), com data,
+                categoria, bairro, vendedor_id, desfecho e avaria
+  semântica  -> chave-valor (entidade, chave, condição) -> valor; o valor
+                antigo fica guardado em `substituiu`
+  procedural -> texto em src/prompts/procedural.md, anexado ao system
+                prompt; regras novas só entram depois de um humano aprovar
 
-Política de escrita (§5.3): o AGENTE nunca escreve memória. O código escreve
-por regra (semântica), o código extrai com uma chamada de prompt versionado a
-partir de campos estruturados (episódica), e o humano aprova (procedural).
+Quem escreve: o código grava a semântica por regra, gera a episódica com
+uma chamada de modelo a partir de campos estruturados, e a procedural
+depende de aprovação humana. O agente nunca escreve memória diretamente.
 Toda escrita tem chave derivada do conteúdo e devolve `ja_existia`.
 
-O Agente A não tem memória de longo prazo (docs/memoria.md §1.5).
+O Agente A não usa memória de longo prazo.
 """
 from __future__ import annotations
 
@@ -30,12 +29,12 @@ import numpy as np
 
 from . import config, llm
 
-DECAIMENTO_REBAIXA_DIAS = 180   # docs/memoria.md §2.2
+DECAIMENTO_REBAIXA_DIAS = 180   # idade em dias a partir da qual o dado é rebaixado
 DECAIMENTO_REMOVE_DIAS = 365
 FATOR_REBAIXADO = 0.5           # multiplica a similaridade de episódio rebaixado
 PROCEDURAL_PATH = config.PROMPTS_DIR / "procedural.md"
 
-# Filtro de dado pessoal, em CÓDIGO, antes de qualquer gravação (§1.4 da memória).
+# Remove dados pessoais antes de qualquer gravação.
 _PII = [
     (re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+"), "[email]"),
     (re.compile(r"\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b"), "[cpf]"),
@@ -83,8 +82,8 @@ def _hash(*partes: Any) -> str:
 # --- Semântica (chave-valor) -------------------------------------------------
 def gravar_fato(entidade: str, chave: str, valor: Any, fonte: str,
                 condicao: str = "", data: str | None = None) -> dict[str, Any]:
-    """Grava/atualiza um fato. Contradição: o novo substitui e o antigo vai
-    para `substituiu` (o dado não é apagado — docs/memoria.md §2.1)."""
+    """Grava ou atualiza um fato. Se o valor mudou, o novo substitui o antigo,
+    que fica guardado em `substituiu`."""
     data = data or _agora()
     valor_json = json.dumps(valor, ensure_ascii=False)
     with closing(_conectar()) as con:
@@ -105,8 +104,8 @@ def gravar_fato(entidade: str, chave: str, valor: Any, fonte: str,
 
 
 def ler_fatos(entidade: str) -> list[dict[str, Any]]:
-    """Por chave, zero chamadas de modelo. Fato de vendedor com mais de 180
-    dias sem confirmação volta marcado `a_confirmar` (decaimento, §2.2)."""
+    """Lê os fatos pela chave, sem chamar o modelo. Fato de vendedor sem
+    confirmação há mais de 180 dias volta marcado como `a_confirmar`."""
     limite = datetime.now() - timedelta(days=DECAIMENTO_REBAIXA_DIAS)
     with closing(_conectar()) as con:
         linhas = con.execute("SELECT * FROM memoria_semantica WHERE entidade=?", (entidade,)).fetchall()
@@ -121,12 +120,9 @@ def ler_fatos(entidade: str) -> list[dict[str, Any]]:
 
 # --- Episódica (índice por similaridade) -------------------------------------
 def chave_episodio(vendedor_id: str, origem: str, desfecho: str) -> str:
-    """Chave do episódio derivada de campos ESTRUTURADOS (quem, de qual anúncio
-    ou conversa, como terminou) — não do resumo. Na 1ª versão a chave incluía o
-    resumo escrito pelo modelo, que varia entre execuções ("12/10/2026" ×
-    "[2026-10-12]", "preço mantido" × "manteve-se"): o mesmo anúncio virou 4
-    episódios nas repetições do caso 2, e a re-execução de `publicar` do caso 6
-    gravou um segundo. Conteúdo não determinístico não serve de chave."""
+    """Chave do episódio feita de campos estruturados (vendedor, anúncio ou
+    conversa, desfecho), e não do resumo: o resumo gerado pelo modelo muda
+    entre execuções e faria o mesmo episódio ser gravado várias vezes."""
     return _hash("episodio", vendedor_id, origem, desfecho)
 
 
@@ -138,7 +134,7 @@ def episodio_existe(chave: str) -> bool:
 def gravar_episodio(vendedor_id: str, categoria: str, bairro: str | None, desfecho: str,
                     avaria: str, resumo: str, data: str | None = None,
                     origem: str | None = None) -> dict[str, Any]:
-    # O carimbo de tempo é metadado obrigatório, posto pelo código (§2.1).
+    # A data é sempre gravada pelo código.
     data = data or _agora()
     resumo = filtrar_pii(resumo)
     chave = (chave_episodio(vendedor_id, origem, desfecho) if origem
@@ -155,8 +151,8 @@ def gravar_episodio(vendedor_id: str, categoria: str, bairro: str | None, desfec
 
 
 def ler_episodios(categoria: str, texto: str, k: int | None = None) -> list[dict[str, Any]]:
-    """Filtro por igualdade na categoria, DEPOIS similaridade; rebaixado vale
-    metade; recência desempata (docs/memoria.md §1.3)."""
+    """Filtra pela categoria e depois ordena por similaridade. Episódio
+    rebaixado vale metade; em empate, ganha o mais recente."""
     k = k or config.MEMORIA_EPISODICA_K
     with closing(_conectar()) as con:
         linhas = [dict(r) for r in con.execute(
@@ -179,9 +175,9 @@ def ler_procedural() -> str:
 
 
 def propor_regra(regra: str, motivo: str, origem_thread: str | None) -> dict[str, Any]:
-    """O código PROPÕE; nada entra no system prompt sem um humano aprovar.
-    A regra é escrita por código a partir de campos estruturados — nunca
-    com texto do vendedor (era a linha da Aula 14, docs/memoria.md §1.4)."""
+    """O código propõe a regra; ela só entra no system prompt depois que um
+    humano aprova. A regra é montada a partir de campos estruturados, nunca
+    com texto escrito pelo vendedor."""
     chave = _hash(regra)
     with closing(_conectar()) as con:
         if con.execute("SELECT 1 FROM regras_candidatas WHERE chave=?", (chave,)).fetchone():
@@ -197,7 +193,7 @@ def regras_candidatas(status: str = "pendente") -> list[dict[str, Any]]:
         return [dict(r) for r in con.execute("SELECT * FROM regras_candidatas WHERE status=?", (status,))]
 
 
-# --- Rotina de decaimento (§2.2) ----------------------------------------------
+# --- Rotina de decaimento ----------------------------------------------------
 def rotina_decaimento(hoje: datetime | None = None) -> dict[str, int]:
     hoje = hoje or datetime.now()
     rebaixa = (hoje - timedelta(days=DECAIMENTO_REBAIXA_DIAS)).isoformat()
@@ -210,7 +206,7 @@ def rotina_decaimento(hoje: datetime | None = None) -> dict[str, int]:
     return {"removidos": removidos, "rebaixados": rebaixados}
 
 
-# --- Para o carimbo da execução (docs/memoria.md §2.4) ------------------------
+# --- Resumo da memória para o registro da execução -----------------------------
 def snapshot() -> dict[str, Any]:
     with closing(_conectar()) as con:
         n_sem = con.execute("SELECT COUNT(*) FROM memoria_semantica").fetchone()[0]

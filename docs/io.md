@@ -598,7 +598,7 @@ a taxa de 5% é cobrada em cima do frete tambem?
 | 01 | `01_simples` | anuncio_publicado / respondeu | `anuncio_publicado` | `respondeu` | 5 | 4281 | 0.0026 | 24.4 |
 | 02 | `02_divergencia_preco` | anuncio_publicado a R$ 900 / respondeu, sem indício | `anuncio_publicado` | `respondeu` | 8 | 8156 | 0.0045 | 44.0 |
 | 03 | `03_sem_registro` | anuncio_publicado / respondeu, uma única consulta de preço | `anuncio_publicado` | `respondeu` | 5 | 4187 | 0.0025 | 27.6 |
-| 04 | `04_avaria_negada` | aguardando_moderacao (não publicado) -> decisão do moderador | `anuncio_publicado` | `respondeu` | 5 | 4674 | 0.0026 | 31.9 |
+| 04 | `04_avaria_negada` | aguardando_moderacao (não publicado) -> decisão do moderador | pausou em `moderacao`; publicado pelo moderador com aviso | `respondeu` | 5 | 4674 | 0.0026 | 31.9 |
 | 05 | `05_fora_do_corpus` | recusa / recusou | `recusa` | `recusou` | 1 | 319 | 0.0002 | 7.9 |
 | 06 | `06_aprovacao_editando` | anuncio_publicado a R$ 280 / respondeu; 2ª aprovação sem efeito | `anuncio_publicado` | `respondeu` | 5 | 4324 | 0.0026 | 35.9 |
 | 07 | `07_compra_cozinha` | sugestao / respondeu, soma <= 700, nenhum item do próprio C-001 | `sugestao` | `respondeu` | 3 | 1899 | 0.0011 | 12.6 |

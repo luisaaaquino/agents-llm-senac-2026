@@ -1,11 +1,10 @@
 """
-Cliente do modelo: chamada estruturada (Pydantic), espaçamento para o limite
-do plano gratuito, e a classificação de erro recuperável × fatal (§6.5 —
-o framework não faz essa classificação por nós).
+Cliente do modelo.
 
-Também é aqui que os prompts são carregados de arquivo (src/prompts/) e que
-cada carregamento entra no carimbo da execução (§2.2: cada execução registra,
-no início, a combinação de prompts em uso).
+Faz a chamada com saída estruturada (Pydantic), espaça as chamadas por
+causa do limite do plano gratuito e separa erro recuperável de fatal.
+Também carrega os prompts de src/prompts/ e guarda o hash de cada um, para
+a execução registrar quais versões estava usando.
 """
 from __future__ import annotations
 
@@ -103,12 +102,10 @@ def _classificar(erro: Exception) -> str:
 
 def chamada_estruturada(sistema: str, usuario: str, schema: type[T], *,
                         modelo: str | None = None, max_tokens: int = 800) -> tuple[T, Uso]:
-    """
-    Uma chamada ao modelo com saída validada por Pydantic.
+    """Uma chamada ao modelo com saída validada por Pydantic.
 
     `usuario` é obrigatório: o Gemini recusa requisição só com mensagem de
-    sistema ("contents is not specified") — achado ao migrar da Parte 1.
-    """
+    sistema ("contents is not specified")."""
     modelo = modelo or config.MODELO
     uso = Uso(modelo=modelo)
     inicio = time.monotonic()

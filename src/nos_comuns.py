@@ -1,11 +1,11 @@
 """
-Nós comuns: entrada, triagem (o roteador), e as rotas que não são de um
-agente — dúvida sobre regras (RAG), entrada ambígua e fora do escopo.
-Também os utilitários que todos os nós usam: chamar o modelo registrando a
-trajetória, e montar a saída validada (o contrato do §1.2).
+Nós comuns: entrada, triagem (o roteador) e as rotas que não são de um
+agente (dúvida sobre regras, entrada ambígua e fora do escopo).
+Também os utilitários usados por todos os nós: chamar o modelo registrando
+a trajetória, e montar a saída validada.
 
-Convenção: todo nó devolve só o que mudou. Contadores (`passos`, `tokens`,
-`custo_usd`) voltam como INCREMENTO — o reducer de soma faz a conta.
+Todo nó devolve só o que mudou. Contadores (`passos`, `tokens`,
+`custo_usd`) voltam como incremento e o reducer faz a soma.
 """
 from __future__ import annotations
 
@@ -50,7 +50,7 @@ def saida(estado: Estado, *, agente: str, tipo: str, resultado: str, termino: st
           motivo: str, suficiente: bool, faltando: list[str] | None = None,
           dados: dict[str, Any] | None = None, fontes: list[Fonte] | None = None,
           escolha: str | None = None) -> dict[str, Any]:
-    """Monta e VALIDA a saída (Pydantic). Devolve o update do estado."""
+    """Monta e valida a saída (Pydantic). Devolve a atualização do estado."""
     objeto = SaidaSistema(
         thread_id=estado["thread_id"], agente=agente, tipo=tipo, resultado=resultado,
         dados=dados, fontes=fontes or [],
@@ -94,7 +94,7 @@ def rotear_entrada(estado: Estado) -> str:
 
 
 def triagem(estado: Estado) -> dict[str, Any]:
-    """[MODELO] Roteador: em qual rota a mensagem cabe (Literal com 5 rotas)."""
+    """[modelo] Roteador: escolhe a rota da mensagem (uma de 5)."""
     resultado, inc = chamar_modelo("triagem", "triagem-v2.md",
                                    conversa_texto(estado, ultimas=6), Triagem, max_tokens=200)
     return {**inc, "rota": resultado.rota, "leituras": resultado.leituras,
@@ -108,7 +108,7 @@ def rotear_triagem(estado: Estado) -> str:
 
 
 def desambiguar(estado: Estado) -> dict[str, Any]:
-    """[código] Entrada ambígua: pergunta em vez de chutar (§1.4)."""
+    """[código] Entrada ambígua: pergunta em vez de adivinhar."""
     nomes = {"vender": "anunciar o seu produto", "comprar": "procurar algo para comprar",
              "duvida": "tirar uma dúvida sobre as regras"}
     opcoes = [nomes[l] for l in (estado.get("leituras") or ["vender", "comprar"]) if l in nomes]
@@ -124,7 +124,7 @@ def desambiguar(estado: Estado) -> dict[str, Any]:
 
 
 def fora_escopo(estado: Estado) -> dict[str, Any]:
-    """[código] Recusa e diz o que o sistema faz (§1.4)."""
+    """[código] Recusa e diz o que o sistema faz."""
     texto = ("Isso foge do que eu faço aqui. Eu sou o assistente do Santo Desapego e posso: "
              "montar o anúncio de um produto seu, encontrar itens à venda perto de você, "
              "ou tirar dúvidas sobre as regras da plataforma (taxa, prazos, pagamento, entrega).")
@@ -135,11 +135,11 @@ def fora_escopo(estado: Estado) -> dict[str, Any]:
                     faltando=["um pedido de compra, venda ou dúvida sobre a plataforma"])}
 
 
-# --- rota de dúvida: RAG como etapa fixa --------------------------------------------
+# --- rota de dúvida: busca no corpus em toda execução ---------------------------
 
 
 def buscar_regras(estado: Estado) -> dict[str, Any]:
-    """[código] Busca vetorial no corpus de regras + portão de suficiência."""
+    """[código] Busca vetorial no corpus de regras e confere se há base."""
     r = rag.buscar(estado["texto_turno"])
     portao = {"melhor": r["melhor_similaridade"], "limiar": r["limiar"], "suficiente": r["suficiente"]}
     return {"trechos_rag": r["trechos"], "rag_portao": portao, "consultas_rag": 1,
@@ -149,12 +149,12 @@ def buscar_regras(estado: Estado) -> dict[str, Any]:
 
 
 def rotear_portao_rag(estado: Estado) -> str:
-    """[código] Limiar numérico: abaixo dele não há base — nem chama o modelo."""
+    """[código] Abaixo do limiar não há base, e o modelo nem é chamado."""
     return "responder_regras" if estado["rag_portao"]["suficiente"] else "recusar_sem_base"
 
 
 def responder_regras(estado: Estado) -> dict[str, Any]:
-    """[MODELO] Responde só com os trechos; a citação é conferida em código."""
+    """[modelo] Responde só com os trechos encontrados; a citação é conferida em código."""
     trechos = estado["trechos_rag"]
     contexto = json.dumps([{"id": t["id"], "secao": t["secao"], "texto": t["texto"]} for t in trechos],
                           ensure_ascii=False, indent=1)

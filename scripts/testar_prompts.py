@@ -1,10 +1,10 @@
 """
-Teste de cada etapa em que o modelo é chamado (docs/prompts.md §2.1, coluna
-"como é testada") e o exercício da regra da frase (§2.3).
+Testa cada etapa em que o modelo é chamado, e faz o teste de remover
+uma frase do prompt da triagem.
 
     python scripts/testar_prompts.py            # todas as etapas
     python scripts/testar_prompts.py triagem    # uma etapa
-    python scripts/testar_prompts.py frase      # regra da frase (triagem sem uma frase)
+    python scripts/testar_prompts.py frase      # triagem sem uma frase do prompt
 
 Grava logs/medicoes/prompts_<etapa>.json.
 """

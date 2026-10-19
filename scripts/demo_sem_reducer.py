@@ -1,13 +1,13 @@
 """
-§7.2 — o que o sistema faz SEM o reducer. Monta o grafo do sistema
-(src/grafo.construir, o mesmo construtor do GRAFO entregue) trocando só o
-tipo do estado, e roda a mesma entrada do caso 07 (Agente A).
+Mostra o que acontece sem reducer. Monta o grafo com o mesmo construtor
+do sistema (src/grafo.construir), trocando só o tipo do estado, e roda a
+mesma entrada do caso 07 (Agente A).
 
-  1. `candidatos` sem reducer: os 4 ramos paralelos (Send) escrevem no campo
-     no mesmo super-passo.
-  2. `passos` sem o reducer de soma: cada nó que chama o modelo devolve o
-     incremento 1. Sem a soma, o valor é o do último nó — e o teto de passos,
-     que depende dele, nunca estoura.
+  1. `candidatos` sem reducer: os 4 ramos paralelos (Send) escrevem no
+     campo ao mesmo tempo.
+  2. `passos` sem a soma: cada nó que chama o modelo devolve 1. Sem a
+     soma, fica só o valor do último nó, e o limite de passos nunca é
+     atingido.
 
     python scripts/demo_sem_reducer.py
 """
@@ -47,7 +47,7 @@ def rodar(estado_tipo: type, rotulo: str) -> dict:
                 "chamadas_de_modelo_na_trajetoria": len(chamadas),
                 "campo_passos": final.get("passos"),
                 "itens_sugeridos": [i["titulo"] for i in (final.get("sugestao") or {}).get("itens", [])]}
-    except Exception as erro:  # noqa: BLE001 — é o que queremos mostrar
+    except Exception as erro:  # noqa: BLE001 (o erro é o que queremos mostrar)
         return {"rotulo": rotulo, "erro": f"{type(erro).__name__}: {erro}".split("\n")[0][:300],
                 "onde": traceback.extract_tb(erro.__traceback__)[-1].name}
 

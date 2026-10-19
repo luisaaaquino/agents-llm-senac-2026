@@ -1,22 +1,17 @@
 """
-O estado que atravessa o grafo (§7).
+Estado que circula pelo grafo.
 
-Na Aula 05 a regra era "a lista de mensagens não é o estado". Aqui ela vira
-declaração de tipo: `mensagens` guarda só o texto da conversa; decisão,
-contador e identificador são campos próprios, cada um com quem escreve
-documentado em docs/arquitetura.md §7.1.
+`mensagens` guarda só o texto da conversa. Decisões, contadores e ids
+ficam em campos próprios.
 
-Reducers (§7.2) — todo campo que mais de um nó escreve, ou que dois ramos
-paralelos escrevem no mesmo super-passo, tem reducer:
-  - `mensagens`, `trajetoria`: concatenação (operator.add)
-  - `passos`, `tokens`, `custo_usd`: soma — cada nó devolve o seu incremento;
-    sem a soma, o último nó a terminar apagaria a contagem dos outros
-  - `candidatos`: concatenação — é o campo que os ramos paralelos do Agente A
-    escrevem ao mesmo tempo (Send); a demonstração do que acontece SEM ele
-    está em scripts/demo_sem_reducer.py
-  - `escritas`: merge de dicionário — o id de cada escrita feita, para a
-    retomada não reaplicar efeito colateral
-Campos sem reducer têm UM nó dono (ver a tabela em docs/arquitetura.md).
+Campos com reducer (escritos por mais de um nó ou por ramos paralelos):
+  - `mensagens`, `trajetoria`: concatenação
+  - `passos`, `tokens`, `custo_usd`: soma; cada nó devolve só o incremento
+  - `candidatos`: concatenação; os ramos paralelos do Agente A escrevem
+    nele ao mesmo tempo
+  - `escritas`: junta os dicionários; guarda o id de cada escrita feita,
+    para a retomada não repetir a escrita
+Os demais campos são escritos por um único nó.
 """
 from __future__ import annotations
 
@@ -29,8 +24,8 @@ def juntar_dict(a: dict[str, Any] | None, b: dict[str, Any] | None) -> dict[str,
 
 
 def substituir_ou_limpar(a: list | None, b: list | None) -> list:
-    """Para `candidatos`: lista vazia vinda de quem inicia o turno LIMPA o
-    campo; qualquer outra lista é concatenada (os ramos paralelos)."""
+    """Reducer de `candidatos`: uma lista vazia limpa o campo (começo de uma
+    busca nova); qualquer outra lista é concatenada."""
     if b == []:
         return []
     return (a or []) + (b or [])
@@ -69,9 +64,8 @@ class Estado(TypedDict, total=False):
     pendencia: dict[str, Any] | None        # o que o humano está decidindo (interrupt)
     decisao_humana: dict[str, Any] | None
     desfecho: str | None                    # publicado | moderacao_* | rejeitado | expirou | orcamento | laco …
-    # O que a conversa diz sobre avaria (perguntada? respondida? mencionada?)
-    # NÃO é campo: é recalculado das mensagens a cada volta (`avaria_da_conversa`
-    # em src/nos_anuncio.py) — guardar criaria uma segunda fonte de verdade.
+    # O que a conversa diz sobre avaria não fica guardado aqui: é recalculado
+    # a partir das mensagens (`avaria_da_conversa` em src/nos_anuncio.py).
 
     # --- Agente A ---
     pedido: dict[str, Any] | None
@@ -91,8 +85,8 @@ class Estado(TypedDict, total=False):
     inicio_turno: float
     trajetoria: Annotated[list[dict[str, Any]], operator.add]
     escritas: Annotated[dict[str, Any], juntar_dict]
-    # `fontes` NÃO é campo: é derivada na hora de montar a saída, a partir
-    # de faixa_preco, trechos_rag, escritas e decisao_humana (§7.3).
+    # `fontes` também não é campo: é montada na hora de gerar a saída, a partir
+    # de faixa_preco, trechos_rag, escritas e decisao_humana.
     termino: str | None
     motivo_termino: str | None
     saida: dict[str, Any] | None

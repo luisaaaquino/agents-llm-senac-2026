@@ -1,16 +1,13 @@
 """
-Agente A — consultor de compra (comprador), como nós do grafo.
+Agente A: consultor de compra para o comprador.
 
-Nível de autonomia: WORKFLOW, não agente (docs/arquitetura.md §3.3). Com a
-entrada em texto, o que era "inferir intenção a partir de cliques" virou uma
-extração (modelo) seguida de consultas determinísticas (código). O modelo
-decide em dois pontos — quais categorias a intenção pede, e qual conjunto
-de itens sugerir —, e entre eles não há laço: não houve, nos casos, decisão
-que dependesse do resultado de uma busca para escolher a próxima busca.
+É um workflow, não um agente com laço: o modelo extrai do texto o que a
+pessoa procura, o código faz as buscas, e o modelo escolhe o conjunto de
+itens a sugerir. Nenhuma busca depende do resultado de outra.
 
-Padrões: sequencial com portão (o pedido tem o que procurar?) e
-paralelização por seções (uma busca por categoria, via Send — os ramos
-escrevem no mesmo campo `candidatos`, e é por isso que ele tem reducer).
+Padrões: sequencial com portão (o pedido diz o que procurar?) e busca em
+paralelo, uma por categoria, via Send. Os ramos escrevem no mesmo campo
+`candidatos`, por isso ele tem reducer.
 """
 from __future__ import annotations
 
@@ -27,7 +24,7 @@ from .nos_comuns import chamar_modelo, conversa_texto, passo_codigo, saida
 
 
 def iniciar_a(estado: Estado) -> dict[str, Any]:
-    """[código] Começa uma busca nova — ou continua o refinamento de uma sugestão."""
+    """[código] Começa uma busca nova ou continua o refinamento de uma sugestão."""
     refinando = bool(estado.get("sugestao"))
     inicio = estado.get("msg_inicio", 0) if refinando else len(estado.get("mensagens", [])) - 1
     return {"msg_inicio": inicio, "pedido": None, "candidatos": [],
@@ -35,9 +32,9 @@ def iniciar_a(estado: Estado) -> dict[str, Any]:
 
 
 def interpretar_compra(estado: Estado) -> dict[str, Any]:
-    """[MODELO] Texto livre -> parâmetros fechados de busca.
-    Teto de passos do A é ESTRUTURAL: o workflow não tem laço, então um turno
-    faz no máximo 2 chamadas de modelo (esta e montar_sugestao)."""
+    """[modelo] Transforma o texto livre em parâmetros de busca.
+    O workflow não tem laço: um turno faz no máximo 2 chamadas de modelo
+    (esta e montar_sugestao)."""
     pedido, inc = chamar_modelo("interpretar_compra", "compra-interpretar-v1.md",
                                 conversa_texto(estado, desde=estado.get("msg_inicio", 0)),
                                 PedidoCompra, max_tokens=300)
@@ -45,8 +42,8 @@ def interpretar_compra(estado: Estado) -> dict[str, Any]:
 
 
 def completar_pedido(estado: Estado) -> dict[str, Any]:
-    """[código] Portão: sem categoria, tenta o sinal auxiliar (cliques); sem
-    bairro, segue sem distância e DECLARA a escolha (§1.4, ambígua)."""
+    """[código] Portão: sem categoria, tenta usar os cliques do usuário; sem
+    bairro, segue sem calcular distância e informa essa escolha."""
     pedido = dict(estado["pedido"])
     escolhas = [pedido["escolha"]] if pedido.get("escolha") else []
     if not pedido["categorias"]:
@@ -75,7 +72,7 @@ def rotear_pedido(estado: Estado) -> list[Send] | str:
 
 
 def buscar_categoria(ramo: dict[str, Any]) -> dict[str, Any]:
-    """[código] Um ramo paralelo: itens ATIVOS da categoria, de outros vendedores."""
+    """[código] Um ramo paralelo: itens ativos da categoria, de outros vendedores."""
     r = db.buscar_catalogo(ramo["categoria"], ramo["preco_max"], ramo["bairro"], ramo["usuario_id"])
     return {"candidatos": r["itens"] or [{"categoria": ramo["categoria"], "erro": r.get("erro")}],
             "trajetoria": [passo_codigo("buscar_categoria", argumentos=ramo,
@@ -83,7 +80,7 @@ def buscar_categoria(ramo: dict[str, Any]) -> dict[str, Any]:
 
 
 def perguntar_a(estado: Estado) -> dict[str, Any]:
-    """[código] Entrada incompleta: pergunta o que falta (§1.4)."""
+    """[código] Entrada incompleta: pergunta o que falta."""
     texto = ("Me conta o que você está procurando — um produto específico (ex.: uma geladeira) "
              "ou o que quer resolver (ex.: montar a cozinha)? Se puder, diga também o bairro e "
              "quanto quer gastar.")
@@ -109,9 +106,8 @@ def conferir_sugestao(sug: Sugestao, candidatos: list[dict[str, Any]],
             correcoes.append(f"id {i} repete a categoria {por_id[i]['categoria']} — removido")
         else:
             itens.append(por_id[i])
-    # Estourou o orçamento: sai a categoria de MENOR prioridade do pedido (o
-    # modelo ordenou da mais para a menos importante), não a mais cara — numa
-    # cozinha, cortar a geladeira para caber a mesa inverte a intenção.
+    # Se passar do orçamento, sai a categoria de menor prioridade (o modelo
+    # ordenou da mais para a menos importante), não a mais cara.
     ordem = {c: i for i, c in enumerate(prioridade or [])}
     while orcamento and itens and sum(x["preco"] for x in itens) > orcamento:
         menos = max(itens, key=lambda x: (ordem.get(x["categoria"], len(ordem)), x["preco"]))
@@ -122,7 +118,7 @@ def conferir_sugestao(sug: Sugestao, candidatos: list[dict[str, Any]],
 
 
 def montar_sugestao(estado: Estado) -> dict[str, Any]:
-    """[MODELO + código] Escolhe o conjunto; o código confere ids e orçamento."""
+    """[modelo + código] O modelo escolhe os itens; o código confere ids e orçamento."""
     pedido = estado["pedido"]
     validos = [c for c in estado.get("candidatos", []) if "id" in c]
     sem_itens = sorted({c["categoria"] for c in estado.get("candidatos", []) if "erro" in c})
@@ -148,8 +144,8 @@ def montar_sugestao(estado: Estado) -> dict[str, Any]:
     cortadas = sorted({c["categoria"] for c in validos if c["id"] in sug.itens_ids}
                       - {i["categoria"] for i in itens})
     if correcoes:
-        # O texto do modelo descreve a seleção DELE; se o código mudou a
-        # seleção, o texto do modelo virou falso — quem corrigiu, escreve.
+        # Se o código mudou a seleção, o texto do modelo não vale mais;
+        # o texto passa a ser montado pelo código.
         soma = sum(i["preco"] for i in itens)
         justificativa = (f"Separei {len(itens)} itens ativos perto de você, somando R$ {soma:.0f}"
                          + (f" (dentro dos R$ {pedido['orcamento_total']:.0f})" if pedido.get("orcamento_total") else "")

@@ -1,10 +1,10 @@
 """
-Varredura INDEPENDENTE da remoção (docs/memoria.md §2.3, passo 3).
+Confere a remoção de forma independente.
 
 Não importa src/remocao.py nem src/memoria.py: abre cada arquivo do sistema
-e procura o identificador por dois critérios — nas colunas de texto de TODAS
-as tabelas de TODOS os bancos SQLite (inclusive os blobs dos checkpoints,
-como bytes), e no texto dos logs e dos prompts.
+e procura o identificador nas colunas de texto de todas as tabelas de todos
+os bancos SQLite (inclusive nos blobs dos checkpoints, como bytes), e no
+texto dos logs e dos prompts.
 
     python scripts/verificar_remocao.py V-TESTE
 """

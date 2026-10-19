@@ -1,10 +1,10 @@
 """
-Os casos demonstrados (§9) e os exemplos do contrato (§1.3, §1.4).
+Casos usados nas demonstrações e nos exemplos da documentação.
 
-Cada caso é um roteiro: a primeira fala, uma fila de respostas da pessoa
-(usada na ordem, a cada pergunta do sistema — se acabar, a pessoa diz que
-não tem mais nada) e o que a pessoa faz quando o grafo para esperando ela.
-As falas são mock; o resto — perguntas, ferramentas, decisões — é execução.
+Cada caso tem a primeira fala, as respostas da pessoa (usadas em ordem, a
+cada pergunta do sistema; quando acabam, a pessoa diz que não tem mais
+nada) e o que a pessoa decide quando o grafo para esperando por ela. As
+falas são simuladas; perguntas, ferramentas e decisões vêm da execução.
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ class Caso:
     # o que a pessoa responde em cada pausa, na ordem (aprovação, moderação…)
     decisoes: list[tuple[str, dict[str, Any]]] = field(default_factory=list)
     prova: str = ""             # o que o caso prova
-    esperado: str = ""          # término/desfecho esperado, escrito ANTES de rodar
+    esperado: str = ""          # término esperado, escrito antes de rodar
     repetir_decisao: bool = False   # caso 6: a aprovação chega duas vezes
     vencer_prazo: bool = False      # a pausa fica sem resposta e o prazo vence
 
@@ -29,7 +29,7 @@ class Caso:
 FALA_ESGOTADA = "não tenho mais nada pra acrescentar, pode seguir"
 
 CASOS: dict[str, Caso] = {c.nome: c for c in [
-    # --- os seis do §9 -----------------------------------------------------------
+    # --- os seis casos obrigatórios ----------------------------------------------
     Caso("01_simples", "V-017",
          "quero vender minha geladeira consul duplex, uns 350 reais, bairro Santo Amaro",
          ["5 anos de uso, funciona bem, sem defeito",
@@ -71,7 +71,7 @@ CASOS: dict[str, Caso] = {c.nome: c for c in [
          prova="o grafo pausa, o vendedor aprova EDITANDO o preço, e a segunda aprovação não duplica",
          esperado="anuncio_publicado a R$ 280 / respondeu; 2ª aprovação sem efeito"),
 
-    # --- exemplos do contrato (§1.3 e §1.4) e medições --------------------------
+    # --- outros casos: exemplos de entrada/saída e medições ----------------------
     Caso("07_compra_cozinha", "C-001",
          "to montando a cozinha do meu ap no brooklin, queria gastar no maximo uns 700 no total",
          prova="caminho feliz do Agente A: busca paralela por categoria, soma conferida",

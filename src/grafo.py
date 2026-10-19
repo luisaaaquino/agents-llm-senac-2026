@@ -1,10 +1,10 @@
 """
-O grafo do sistema (§6). Desenho em docs/arquitetura.md §6.1; a conferência
-contra este código é o `conferir_grafo.py` da raiz, que importa `GRAFO` daqui.
+Montagem do grafo do sistema.
 
-Compilado UMA vez, no import, com o checkpointer em SQLite
-(dados/checkpoints.db): é ele que torna a conversa retomável entre turnos e
-a pausa do humano sobrevivente à morte do processo (§8.3).
+O grafo é compilado uma vez, na importação, com o checkpointer em SQLite
+(dados/checkpoints.db). É isso que permite continuar a conversa entre
+turnos e retomar uma pausa humana mesmo depois de reiniciar o processo.
+O conferir_grafo.py da raiz importa o `GRAFO` daqui.
 """
 from __future__ import annotations
 
@@ -23,8 +23,8 @@ from .estado import Estado
 
 
 def _rota(fn):
-    """Embrulha a função de roteamento sem anotação de tipo: o LangGraph infere
-    o schema da anotação (`estado: Estado`) e a variante do §7.2 conflitaria."""
+    """Embrulha a função de roteamento sem anotação de tipo, para o LangGraph
+    não tentar inferir o schema a partir dela."""
     def rotear(estado):
         return fn(estado)
     rotear.__name__ = fn.__name__
@@ -53,8 +53,8 @@ def construir(estado_tipo: type = Estado, checkpointer: Any = None):
         ("completar_pedido", a.completar_pedido), ("buscar_categoria", a.buscar_categoria),
         ("montar_sugestao", a.montar_sugestao), ("perguntar_a", a.perguntar_a),
     ]:
-        # input_schema explícito: senão o LangGraph lê o tipo da anotação do nó
-        # (`estado: Estado`), e a variante sem reducer do §7.2 conflitaria.
+        # input_schema explícito para o LangGraph não ler o tipo da anotação do nó
+        # (o que quebraria a versão do estado sem reducer).
         # `buscar_categoria` recebe o payload do Send, não o estado.
         g.add_node(nome, fn, input_schema=None if nome == "buscar_categoria" else estado_tipo)
 
@@ -67,7 +67,7 @@ def construir(estado_tipo: type = Estado, checkpointer: Any = None):
     g.add_edge("desambiguar", END)
     g.add_edge("fora_escopo", END)
 
-    # --- dúvida (RAG como etapa fixa) ----------------------------------------------
+    # --- dúvida (busca no corpus em toda execução) ---------------------------------
     g.add_conditional_edges("buscar_regras", _rota(c.rotear_portao_rag),
                             ["responder_regras", "recusar_sem_base"])
     g.add_edge("responder_regras", END)
@@ -107,8 +107,8 @@ def construir(estado_tipo: type = Estado, checkpointer: Any = None):
 
 
 def estado_sem_reducer_em(campo: str) -> type:
-    """Mesmo Estado, com o reducer de `campo` removido — só para a
-    demonstração do §7.2 (scripts/demo_sem_reducer.py)."""
+    """Cópia do Estado sem o reducer de `campo`. Usada só em
+    scripts/demo_sem_reducer.py."""
     tipos = typing.get_type_hints(Estado, include_extras=True)
     tipos[campo] = typing.get_args(tipos[campo])[0]   # Annotated[X, reducer] -> X
     return TypedDict(f"EstadoSem_{campo}", tipos, total=False)

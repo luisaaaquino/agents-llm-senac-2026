@@ -1,12 +1,12 @@
 """
-§5.4 — as três causas de esquecimento, executadas (não descritas).
+Demonstra as três formas de esquecimento da memória.
 
-  1. contradição: o mesmo fato em duas datas -> vence o carimbo mais novo,
-     o antigo fica em `substituiu`; fato com condição diferente não empata.
+  1. contradição: o mesmo fato em duas datas -> vale o mais novo, e o
+     antigo fica em `substituiu`; fato com condição diferente não conflita.
   2. decaimento: episódio de 200 dias é rebaixado; de 400 dias é removido.
-  3. remoção: grava tudo para um titular de teste numa execução REAL do
-     grafo, mostra que o comportamento mudou, remove, mostra que voltou,
-     e roda a varredura independente (scripts/verificar_remocao.py).
+  3. remoção: grava dados de um titular de teste numa execução real do
+     grafo, mostra que o comportamento mudou, remove, mostra que voltou ao
+     normal e roda a varredura de scripts/verificar_remocao.py.
 
     python scripts/demo_memoria.py
 """
@@ -54,9 +54,9 @@ def decaimento() -> dict:
 
 def remocao_completa() -> dict:
     from cli import rodar_caso
-    # Duas execuções reais: a do caso 4 grava indício, anúncio aguardando
-    # moderação, checkpoint e log; a do caso 1 grava fato semântico
-    # (bairro_retirada) e episódio — juntas passam por todas as escritas.
+    # Duas execuções reais: o caso 4 grava indício, anúncio aguardando
+    # moderação, checkpoint e log; o caso 1 grava fato semântico
+    # (bairro_retirada) e episódio. Juntas, passam por todas as escritas.
     rodar_caso(replace(CASOS["04_avaria_negada"], nome="memoria_titular_teste_a", usuario_id=TITULAR))
     rodar_caso(replace(CASOS["01_simples"], nome="memoria_titular_teste_b", usuario_id=TITULAR,
                        decisoes=[(TITULAR, {"acao": "aprovar"})]))
@@ -76,8 +76,8 @@ def main() -> None:
     resultado = {"data": datetime.now().isoformat(timespec="seconds"),
                  "1_contradicao": contradicao(), "2_decaimento": decaimento(),
                  "3_remocao": remocao_completa()}
-    # o próprio relatório não pode guardar o id removido, senão a varredura
-    # seguinte o encontraria aqui — o titular aparece mascarado.
+    # o relatório mostra o titular mascarado, senão a próxima varredura
+    # encontraria o id aqui.
     texto = json.dumps(resultado, ensure_ascii=False, indent=2).replace(TITULAR, "<titular-de-teste>")
     destino = config.LOGS_DIR / "medicoes" / "demo_memoria.json"
     destino.parent.mkdir(parents=True, exist_ok=True)

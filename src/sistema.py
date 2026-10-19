@@ -1,12 +1,12 @@
 """
-A porta do sistema: texto entra, SaidaSistema sai.
+Ponto de entrada do sistema: recebe texto e devolve SaidaSistema.
 
   conversar(Entrada)                      -> um turno de conversa
   responder_pendencia(thread, resposta)   -> a pessoa responde a um ponto de parada
-  rotina_prazos(agora)                    -> o que acontece quando ninguém responde
+  rotina_prazos(agora)                    -> trata as pendências sem resposta
 
-thread_id = "<usuario_id>:<sessao_id>" (docs/memoria.md §5.5): o checkpoint
-do LangGraph é endereçado por ele. Mesma chave, mesma conversa.
+thread_id = "<usuario_id>:<sessao_id>"; o checkpoint do LangGraph usa essa
+chave. Mesma chave, mesma conversa.
 """
 from __future__ import annotations
 
@@ -24,12 +24,12 @@ __all__ = ["GRAFO", "conversar", "responder_pendencia", "rotina_prazos", "carimb
 
 
 def _cfg(thread_id: str) -> dict[str, Any]:
-    # recursion_limit declarado (§6.6): o padrão do LangGraph 1.2 é 10007.
+    # recursion_limit declarado aqui (o padrão do LangGraph 1.2 é 10007).
     return {"configurable": {"thread_id": thread_id}, "recursion_limit": config.RECURSION_LIMIT}
 
 
 def carimbo() -> dict[str, Any]:
-    """Combinação em uso, registrada no início de cada execução (§2.2)."""
+    """Versões dos prompts e estado da memória, registrados no início de cada execução."""
     try:
         commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True,
                                 text=True, cwd=config.ROOT).stdout.strip()
@@ -103,12 +103,12 @@ def conversar(entrada: Entrada) -> SaidaSistema:
 
 
 def responder_pendencia(thread_id: str, resposta: dict[str, Any], quem: str) -> SaidaSistema:
-    """A pessoa responde ao ponto de parada: {"acao": "aprovar" | "editar" | "rejeitar"
+    """A pessoa responde a um ponto de parada: {"acao": "aprovar" | "editar" | "rejeitar"
     | "publicar" | "publicar_com_aviso" | "expirou", ...}.
 
-    Idempotência por ESTADO: se não há mais pendência (a decisão já foi
-    tomada), a segunda resposta não retoma nada. A idempotência por CONTEÚDO
-    (chave nas escritas) cobre o caso em que o nó de escrita re-executa."""
+    Se a pendência já foi resolvida, uma segunda resposta não retoma nada. E
+    as escritas têm chave de idempotência, para o caso de o nó de escrita
+    rodar de novo."""
     pendencia = _pendencia_aberta(thread_id)
     if pendencia is None:
         return SaidaSistema(
@@ -134,8 +134,8 @@ def responder_pendencia(thread_id: str, resposta: dict[str, Any], quem: str) -> 
 
 
 def rotina_prazos(agora: datetime | None = None) -> list[dict[str, Any]]:
-    """O silêncio tem caminho declarado (§8.4): pendência vencida é retomada
-    com {"acao": "expirou"} — o anúncio não é publicado, e a pessoa é avisada."""
+    """Pendência vencida é retomada com {"acao": "expirou"}: o anúncio não
+    é publicado e a pessoa é avisada."""
     agora = agora or datetime.now()
     vencidas = [p for p in db.pendencias("aberta") if datetime.fromisoformat(p["expira_em"]) <= agora]
     saidas = []

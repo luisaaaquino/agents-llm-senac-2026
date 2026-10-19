@@ -1,9 +1,8 @@
 """
-Mede o buscador contra o conjunto de perguntas com resposta conhecida
-(dados/perguntas_rag.json) — é daqui que saem o k, o limiar do portão e o
-experimento do documento revogado registrados em docs/rag.md.
+Mede a busca contra o conjunto de perguntas com resposta conhecida
+(dados/perguntas_rag.json). Os valores de k e do limiar vêm daqui.
 
-    python scripts/medir_rag.py            # mede com curadoria (só vigentes)
+    python scripts/medir_rag.py            # mede só com documentos vigentes
     python scripts/medir_rag.py --revogado # mede também com o revogado no índice
 """
 from __future__ import annotations

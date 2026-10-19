@@ -1,9 +1,8 @@
 """
-Conferência do grafo contra o desenho (§6.4).
+Imprime os nós e as arestas do grafo que o sistema executa.
 
-Importa o MESMO objeto que o sistema executa (src/grafo.py: GRAFO — o que
-src/sistema.py invoca) e imprime os nós e as arestas. Não monta grafo
-nenhum aqui dentro. A saída vai colada em docs/arquitetura.md §6.4.
+Importa o mesmo objeto `GRAFO` usado por src/sistema.py, sem montar um
+grafo próprio. A saída está colada em docs/arquitetura.md.
 
     python conferir_grafo.py
 """
