@@ -130,3 +130,15 @@ CREATE TABLE cliques (
 );
 INSERT INTO cliques (usuario_id, anuncio_id) VALUES
     ('C-001', 1), ('C-001', 4), ('C-001', 8);
+
+-- Quem pode decidir uma pendência de moderação. Antes, bastava o id começar
+-- com "M-"; agora o id precisa estar nesta tabela, ativo.
+CREATE TABLE moderadores (
+    id      TEXT PRIMARY KEY,
+    nome    TEXT NOT NULL,
+    ativo   INTEGER NOT NULL DEFAULT 1
+);
+INSERT INTO moderadores (id, nome, ativo) VALUES
+    ('M-001', 'Moderação Santo Amaro', 1),
+    ('M-002', 'Moderação (substituto)', 1),
+    ('M-003', 'Ex-moderador', 0);

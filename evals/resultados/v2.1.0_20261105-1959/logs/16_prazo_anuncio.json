@@ -1,0 +1,152 @@
+{
+  "caso": "16_prazo_anuncio",
+  "prova": "o FAQ revogado responde '60 dias' e vence a busca sem curadoria: pega a volta do documento revogado",
+  "esperado": "{\"tipo\": \"resposta\", \"termino\": \"respondeu\", \"fontes_contem\": [\"termos-de-uso-2026#3\"], \"regex_resultado\": \"30\", \"regex_resultado_nao\": \"60\"}",
+  "carimbo": {
+    "data": "2026-11-05T20:07:16",
+    "versao_sistema": "2.1.0",
+    "commit": "2716d5e",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "resposta-regras-v1.md": "02ff466cea45",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 8,
+      "episodios": 7,
+      "episodios_hash": "60392305f24a",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "C-006:16_prazo_anuncio",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "por quanto tempo meu anuncio fica no ar?",
+      "saida": {
+        "thread_id": "C-006:16_prazo_anuncio",
+        "agente": "duvida",
+        "tipo": "resposta",
+        "resultado": "Cada anúncio ativo fica no ar por 30 dias, podendo ser renovado por igual período, exceto quando aguarda decisão da moderação, caso em que o prazo começa a contar apenas após a publicação efetiva.",
+        "dados": null,
+        "fontes": [
+          {
+            "tipo": "corpus",
+            "ref": "termos-de-uso-2026#3",
+            "trecho": "Cada anúncio ativo fica no ar por 30 (trinta) dias. Ao fim do prazo, o vendedor é avisado e pode renovar o anúncio por mais 30 dias; se não renovar, o anúncio expira e sai das buscas. Exceção: o anúncio que está aguardando decisão da moderação não conta prazo — os 30 dias começam a contar a partir da publicação efetiva."
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "resposta sustentada pelos trechos citados",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "respondeu",
+        "motivo_termino": "resposta sustentada pelos trechos citados"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "por quanto tempo meu anuncio fica no ar?",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 312,
+          "segundos": 4.46,
+          "tentativas": 1,
+          "saida": {
+            "rota": "duvida",
+            "leituras": [
+              "duvida"
+            ],
+            "categoria": null,
+            "motivo": "O usuario esta perguntando sobre as regras e prazos de funcionamento da plataforma, especificamente sobre a duracao do anuncio."
+          }
+        },
+        {
+          "etapa": "buscar_regras",
+          "decide": "codigo",
+          "consulta": "por quanto tempo meu anuncio fica no ar?",
+          "k": 3,
+          "recuperados": [
+            [
+              "termos-de-uso-2026#3",
+              0.8001
+            ],
+            [
+              "politica-moderacao-2026#5",
+              0.6632
+            ],
+            [
+              "termos-de-uso-2026#2",
+              0.6577
+            ]
+          ],
+          "portao": {
+            "melhor": 0.8001,
+            "limiar": 0.67,
+            "suficiente": true
+          }
+        },
+        {
+          "etapa": "responder_regras",
+          "decide": "modelo",
+          "prompt": "resposta-regras-v1.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 710,
+          "segundos": 19.78,
+          "tentativas": 1,
+          "saida": {
+            "resposta": "Cada anúncio ativo fica no ar por 30 dias, podendo ser renovado por igual período, exceto quando aguarda decisão da moderação, caso em que o prazo começa a contar apenas após a publicação efetiva.",
+            "citacoes": [
+              "termos-de-uso-2026#3"
+            ],
+            "base_suficiente": true
+          }
+        },
+        {
+          "etapa": "conferir_citacoes",
+          "decide": "codigo",
+          "validas": [
+            "termos-de-uso-2026#3"
+          ],
+          "invalidas": [],
+          "suficiente_final": true
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "resposta",
+    "termino": "respondeu",
+    "motivo": "resposta sustentada pelos trechos citados",
+    "segundos": 27.7,
+    "passos": 2,
+    "tokens": 1022,
+    "custo_usd": 0.000608,
+    "consultas_rag": 1
+  }
+}

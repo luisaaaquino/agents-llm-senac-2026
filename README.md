@@ -1,4 +1,4 @@
-# Santo Desapego — Agentes de compra e de anúncio (Parte 2)
+# Santo Desapego — Agentes de compra e de anúncio (Partes 2 e 3)
 
 **Grupo:** Luisa Vitoria Aquino Nascimento, Maria Erica Joana da Conceição Cruz,
 Paulo Henrique Alves Santana e Marcela Andrade
@@ -14,20 +14,31 @@ A Parte 2 transforma isso em **um sistema**: um grafo LangGraph com uma
 triagem na entrada, os dois agentes, uma rota de dúvidas sobre as regras (RAG),
 memória entre execuções e dois pontos onde o grafo para e espera uma pessoa.
 
+A Parte 3 põe esse sistema sob controle: uma **suíte de avaliação** com 30
+casos (`evals/`), **traces** OpenTelemetry de cada execução, **três controles
+de segurança** com testes (`tests/`) e o **model card** (`docs/model-card.md`).
+Ver [Parte 3](#parte-3-avaliação-testes-e-traces) abaixo.
+
 ## Estrutura
 
 ```
 README.md · requirements.txt · .env.example · cli.py · conferir_grafo.py
 docs/      case.md (complementado, §0) · modelos.md · prompts.md · arquitetura.md
            rag.md · memoria.md · grafo.md · humano.md · io.md · fontes.md
+           Parte 3: mudancas.md · evals.md · model-card.md · seguranca.md
+           observabilidade.md
 src/       o sistema: grafo.py (o grafo) · sistema.py (a porta) · contrato.py
            (entrada/saída) · estado.py · nos_*.py (os nós) · db.py · rag.py
            memoria.py · remocao.py · llm.py · config.py · casos.py
+           observabilidade.py (os traces)
   prompts/ os prompts, versionados (com changelog em cada arquivo)
 dados/     seed.sql (dados simulados) · corpus/ (as regras, com 1 revogada)
            perguntas_rag.json (o conjunto de perguntas) · casos.md
 scripts/   medições: medir_rag · testar_prompts · experimento_revogado
            demo_sem_reducer · demo_memoria · verificar_remocao
+evals/     dataset.json (30 casos) · rodar.py · comparar.py · metricas.py · juiz.py
+  resultados/  uma pasta por rodada: resultado.json · logs/ · traces.jsonl
+tests/     os testes dos controles de segurança e da autoridade (pytest)
 logs/      os casos demonstrados (01–15) · medicoes/ (testes e experimentos)
            parte1/ (logs e comparação de modelos da Parte 1)
 legado/    o que não é a Parte 2, preservado para o histórico:
@@ -71,6 +82,7 @@ python conferir_grafo.py             # nós e arestas do grafo que o sistema exe
 python cli.py pendencias             # o que está esperando uma pessoa
 python cli.py responder <thread> '{"acao": "aprovar"}' <quem>
 python cli.py prazos +49             # a rotina de prazos, com o relógio adiantado 49 h
+python scripts/ver_traces.py         # os últimos traces, como árvore de spans
 ```
 
 ## Como usar
@@ -197,6 +209,49 @@ duas vezes. Detalhes em `docs/humano.md`.
   `docs/memoria.md` §1.5).
 - Não responde regra que não está no corpus — recusa e indica a Central de Ajuda.
 - Não move dinheiro: o pagamento é do site, pelo Mercado Pago.
+
+## Parte 3: avaliação, testes e traces
+
+**Rodar a suíte de avaliação** (os 30 casos de `evals/dataset.json`, pelo
+mesmo `conversar()` / `responder_pendencia()` da CLI). A rodada começa com o
+banco e a memória zerados e leva cerca de uma hora, por causa do limite de
+chamadas por minuto do plano gratuito:
+
+```bash
+python -m evals.rodar --versao 3.0.0          # a versão tem de ser a de src/config.py
+python -m evals.rodar --versao 3.0.0 --casos 01_simples,23_ataque_moderador_falso
+```
+
+O resultado vai para `evals/resultados/v<versão>_<data>/` (`resultado.json`,
+os logs de cada caso e os traces). **Comparar duas rodadas:**
+
+```bash
+python -m evals.comparar evals/resultados/<rodada-A> evals/resultados/<rodada-B>
+python -m evals.metricas evals/resultados/<rodada-A> evals/resultados/<rodada-B>   # latência, custo, términos, SLO
+```
+
+**Os testes dos controles de segurança** (não chamam o modelo, rodam em segundos):
+
+```bash
+python -m pytest tests -q
+```
+
+**Ver os traces.** Cada execução grava spans OpenTelemetry (`invoke_agent`,
+`chat`, `execute_tool`) em JSONL: os do uso normal em `logs/traces/traces.jsonl`,
+os de cada rodada da avaliação na pasta da rodada.
+
+```bash
+python scripts/ver_traces.py                                            # últimos 5 traces
+python scripts/ver_traces.py evals/resultados/<rodada>/traces.jsonl --conversa V-031:23_ataque_moderador_falso
+python scripts/ver_traces.py <arquivo> --trace <trace_id> --atributos  # um trace, com todos os atributos
+```
+
+**Suspender o agente:** `SANTO_SUSPENSO=1` no `.env` (ou no ambiente). O
+sistema passa a recusar conversas e decisões; só a rotina de prazos continua
+expirando pendências.
+
+Os documentos da Parte 3: `docs/evals.md`, `docs/model-card.md`,
+`docs/seguranca.md`, `docs/observabilidade.md` e `docs/mudancas.md`.
 
 ## Limitações conhecidas
 

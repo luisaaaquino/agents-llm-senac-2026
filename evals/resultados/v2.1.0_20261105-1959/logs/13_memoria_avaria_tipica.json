@@ -1,0 +1,282 @@
+{
+  "caso": "13_memoria_avaria_tipica",
+  "prova": "depende da memória gravada pelo caso 04: a pergunta sobre avaria tem de citar o freezer",
+  "esperado": "{\"tipo\": \"anuncio_publicado\", \"termino\": \"respondeu\", \"algum_resultado_regex\": \"(?i)freezer\", \"resultado\": {\"anuncios_ativos\": 1, \"indicios\": 0}, \"juiz\": true}",
+  "carimbo": {
+    "data": "2026-11-05T20:05:23",
+    "versao_sistema": "2.1.0",
+    "commit": "2716d5e",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "resposta-regras-v1.md": "02ff466cea45",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 7,
+      "episodios": 6,
+      "episodios_hash": "19dd9888036f",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "V-025:13_memoria_avaria_tipica",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "vendo geladeira electrolux, 320 reais, Santo Amaro",
+      "saida": {
+        "thread_id": "V-025:13_memoria_avaria_tipica",
+        "agente": "anuncio",
+        "tipo": "pergunta",
+        "resultado": "A geladeira funciona perfeitamente ou tem algum detalhe, como o freezer embaixo demorando para congelar?",
+        "dados": {
+          "rascunho": null
+        },
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "falta informação essencial para o anúncio",
+          "faltando": [
+            "resposta do vendedor: A geladeira funciona perfeitamente ou tem algum detalhe, como o freezer embaixo demorando para congelar?"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_usuario",
+        "motivo_termino": "falta informação essencial para o anúncio"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "vendo geladeira electrolux, 320 reais, Santo Amaro",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 334,
+          "segundos": 4.68,
+          "tentativas": 1,
+          "saida": {
+            "rota": "vender",
+            "leituras": [
+              "vender"
+            ],
+            "categoria": "geladeira",
+            "motivo": "O usuário informou explicitamente que quer vender uma geladeira por um determinado preço na região de Santo Amaro."
+          }
+        },
+        {
+          "etapa": "iniciar_b",
+          "decide": "codigo",
+          "memoria_recuperada": {
+            "fatos_vendedor": [],
+            "fatos_categoria": [
+              "avarias_tipicas"
+            ],
+            "episodios": [
+              "edb4e4785b4a04e13b391dd3",
+              "4fb773462ec3a2cb1932c997"
+            ]
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1183,
+          "segundos": 10.75,
+          "tentativas": 2,
+          "saida": {
+            "motivo": "Ainda preciso perguntar sobre defeitos ou avarias antes de montar o rascunho.",
+            "acao": "perguntar",
+            "pergunta": "A geladeira funciona perfeitamente ou tem algum detalhe, como o freezer embaixo demorando para congelar?",
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "f6a0d16794a0"
+        },
+        {
+          "etapa": "perguntar_b",
+          "decide": "codigo",
+          "pergunta": "A geladeira funciona perfeitamente ou tem algum detalhe, como o freezer embaixo demorando para congelar?",
+          "origem": "modelo"
+        }
+      ]
+    },
+    {
+      "tipo": "fala",
+      "enviado": "funciona sim, nenhum problema",
+      "saida": {
+        "thread_id": "V-025:13_memoria_avaria_tipica",
+        "agente": "anuncio",
+        "tipo": "anuncio_nao_publicado",
+        "resultado": "Fiquei repetindo o mesmo passo sem avançar, então parei. O rascunho ficou salvo; você pode completar pelo formulário.",
+        "dados": {
+          "anuncio": null,
+          "anuncio_id": null,
+          "indicio": null,
+          "desfecho": "laco"
+        },
+        "fontes": [
+          {
+            "tipo": "banco",
+            "ref": "precos_comparaveis[geladeira/Santo Amaro]",
+            "trecho": "{\"categoria\": \"geladeira\", \"bairro\": \"Santo Amaro\", \"n\": 4, \"faixa_min\": 300.0, \"faixa_max\": 380.0, \"ref\": \"precos_comparaveis[geladeira/Santo Amaro]\"}"
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "a ação 'consultar_preco' com os mesmos argumentos 3x seguidas",
+          "faltando": [
+            "anúncio concluído"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "laco",
+        "motivo_termino": "a ação 'consultar_preco' com os mesmos argumentos 3x seguidas"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "funciona sim, nenhum problema",
+          "conversa_aberta": "anuncio"
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1237,
+          "segundos": 6.1,
+          "tentativas": 2,
+          "saida": {
+            "motivo": "Já temos produto, preço, bairro e a resposta sobre defeito, agora precisamos consultar o preço de mercado.",
+            "acao": "consultar_preco",
+            "pergunta": null,
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "290a3d88a8e8"
+        },
+        {
+          "etapa": "ferramenta_preco",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro"
+          },
+          "resultado": {
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "n": 4,
+            "faixa_min": 300.0,
+            "faixa_max": 380.0,
+            "ref": "precos_comparaveis[geladeira/Santo Amaro]"
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1324,
+          "segundos": 4.03,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "Já temos produto, preço, bairro, estado e o vendedor negou avarias; hora de consultar o preço para montar o rascunho.",
+            "acao": "consultar_preco",
+            "pergunta": null,
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "290a3d88a8e8"
+        },
+        {
+          "etapa": "ferramenta_preco",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro"
+          },
+          "repetida": true,
+          "acao_do_codigo": "nenhuma: o resultado anterior continua valendo"
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1319,
+          "segundos": 3.79,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "Já temos produto, preço, bairro, estado e o vendedor negou avarias; agora podemos consultar o preço de mercado.",
+            "acao": "consultar_preco",
+            "pergunta": null,
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "290a3d88a8e8"
+        },
+        {
+          "etapa": "finalizar_b",
+          "decide": "codigo",
+          "desfecho": "laco",
+          "memoria_escrita": [
+            {
+              "ok": true,
+              "ja_existia": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "anuncio_nao_publicado",
+    "termino": "laco",
+    "motivo": "a ação 'consultar_preco' com os mesmos argumentos 3x seguidas",
+    "segundos": 32.6,
+    "passos": 5,
+    "tokens": 5397,
+    "custo_usd": 0.0026663,
+    "consultas_rag": 0
+  }
+}

@@ -1,0 +1,423 @@
+{
+  "caso": "29_vendedor_rejeita",
+  "prova": "o vendedor desiste na aprovação: nada pode ser publicado",
+  "esperado": "{\"tipo\": \"anuncio_nao_publicado\", \"termino\": \"rejeitado\", \"resultado\": {\"anuncios_total\": 0}}",
+  "carimbo": {
+    "data": "2026-11-05T20:12:56",
+    "versao_sistema": "2.1.0",
+    "commit": "2716d5e",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "resposta-regras-v1.md": "02ff466cea45",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 10,
+      "episodios": 9,
+      "episodios_hash": "7630a91cebe6",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "V-036:29_vendedor_rejeita",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "vendo cadeira de escritório, 80 reais, Santo Amaro",
+      "saida": {
+        "thread_id": "V-036:29_vendedor_rejeita",
+        "agente": "anuncio",
+        "tipo": "pergunta",
+        "resultado": "A cadeira tem algum defeito, mancha no tecido, arranhão ou problema no pistão de regulagem de altura?",
+        "dados": {
+          "rascunho": null
+        },
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "falta informação essencial para o anúncio",
+          "faltando": [
+            "resposta do vendedor: A cadeira tem algum defeito, mancha no tecido, arranhão ou problema no pistão de regulagem de altura?"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_usuario",
+        "motivo_termino": "falta informação essencial para o anúncio"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "vendo cadeira de escritório, 80 reais, Santo Amaro",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 325,
+          "segundos": 8.82,
+          "tentativas": 1,
+          "saida": {
+            "rota": "vender",
+            "leituras": [
+              "vender"
+            ],
+            "categoria": "cadeira",
+            "motivo": "O usuário está anunciando um produto para venda na região de Santo Amaro."
+          }
+        },
+        {
+          "etapa": "iniciar_b",
+          "decide": "codigo",
+          "memoria_recuperada": {
+            "fatos_vendedor": [],
+            "fatos_categoria": [],
+            "episodios": []
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1015,
+          "segundos": 1.27,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O usuario informou o produto, preco e bairro, mas ainda nao perguntei sobre defeitos ou avarias, o que e obrigatorio antes de fazer o rascunho.",
+            "acao": "perguntar",
+            "pergunta": "A cadeira tem algum defeito, mancha no tecido, arranhão ou problema no pistão de regulagem de altura?",
+            "categoria": "cadeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "5151ee45d2c7"
+        },
+        {
+          "etapa": "perguntar_b",
+          "decide": "codigo",
+          "pergunta": "A cadeira tem algum defeito, mancha no tecido, arranhão ou problema no pistão de regulagem de altura?",
+          "origem": "modelo"
+        }
+      ]
+    },
+    {
+      "tipo": "fala",
+      "enviado": "sem defeito nenhum",
+      "saida": {
+        "thread_id": "V-036:29_vendedor_rejeita",
+        "agente": "anuncio",
+        "tipo": "aguardando_aprovacao",
+        "resultado": "Confere antes de publicar? O anúncio \"Cadeira de escritório em Santo Amaro\" por R$ 80.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois. Você pode aprovar, editar algum campo ou desistir.",
+        "dados": {
+          "pendencia": {
+            "tipo": "aprovacao_vendedor",
+            "perfil": "vendedor",
+            "responsavel": "V-036",
+            "acao": "publicar_anuncio",
+            "argumentos": {
+              "titulo": "Cadeira de escritório em Santo Amaro",
+              "categoria": "cadeira",
+              "descricao": "Cadeira de escritório à venda em Santo Amaro, sem defeitos declarados pelo vendedor.",
+              "preco": 80.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "bom_estado",
+              "avarias_declaradas": []
+            },
+            "consequencia": "O anúncio \"Cadeira de escritório em Santo Amaro\" por R$ 80.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois.",
+            "opcoes": {
+              "aprovar": {},
+              "editar": {
+                "campos": [
+                  "descricao",
+                  "estado_conservacao",
+                  "preco",
+                  "titulo"
+                ]
+              },
+              "rejeitar": {
+                "motivo": "texto livre"
+              }
+            },
+            "expira_em": "2026-11-06T20:13:24",
+            "se_ninguem_responder": "o anúncio NÃO é publicado; o rascunho fica salvo nesta conversa"
+          }
+        },
+        "fontes": [
+          {
+            "tipo": "ferramenta",
+            "ref": "publicar_anuncio",
+            "trecho": null
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "o sistema tem o que precisa; a decisão é de uma pessoa",
+          "faltando": [
+            "decisão do vendedor"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_humano",
+        "motivo_termino": "interrupt: aprovacao_vendedor"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "sem defeito nenhum",
+          "conversa_aberta": "anuncio"
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1061,
+          "segundos": 9.23,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "Já temos o produto, preço, bairro e o vendedor respondeu sobre defeitos, agora é hora de consultar o preço de mercado.",
+            "acao": "consultar_preco",
+            "pergunta": null,
+            "categoria": "cadeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "984d0fb3dbc2"
+        },
+        {
+          "etapa": "ferramenta_preco",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "cadeira",
+            "bairro": "Santo Amaro"
+          },
+          "resultado": {
+            "erro": "sem_comparaveis",
+            "categoria": "cadeira",
+            "bairro": "Santo Amaro",
+            "dica": "não há preço de referência; siga com o preço do vendedor e registre isso"
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1127,
+          "segundos": 1.15,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor informou o produto, preço, bairro e garantiu que não há defeitos, faltando apenas consultar o preço no mercado local antes de gerar o rascunho.",
+            "acao": "consultar_preco",
+            "pergunta": null,
+            "categoria": "cadeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "984d0fb3dbc2"
+        },
+        {
+          "etapa": "ferramenta_preco",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "cadeira",
+            "bairro": "Santo Amaro"
+          },
+          "repetida": true,
+          "acao_do_codigo": "nenhuma: o resultado anterior continua valendo"
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1224,
+          "segundos": 4.13,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O essencial foi coletado, a avaria foi questionada e negada, e não há comparáveis de preço; vou prosseguir com a montagem do rascunho.",
+            "acao": "preencher_rascunho",
+            "pergunta": null,
+            "categoria": "cadeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": {
+              "titulo": "Cadeira de escritório em Santo Amaro",
+              "categoria": "cadeira",
+              "descricao": "Cadeira de escritório à venda em Santo Amaro, sem defeitos declarados pelo vendedor.",
+              "preco": 80.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "bom_estado",
+              "avarias_declaradas": []
+            },
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "26f3ea77f47a"
+        },
+        {
+          "etapa": "portao_avaria",
+          "decide": "codigo",
+          "passou": true,
+          "avaria": {
+            "perguntada": true,
+            "negou_defeito": true,
+            "mencionada": false,
+            "falas": [],
+            "tratada": true
+          }
+        },
+        {
+          "etapa": "avaliador",
+          "decide": "modelo",
+          "prompt": "avaliador-anuncio-v4.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 589,
+          "segundos": 3.73,
+          "tentativas": 1,
+          "saida": {
+            "tem_titulo": true,
+            "tem_categoria": true,
+            "tem_descricao": true,
+            "estado_coerente": true,
+            "sem_invencao": true,
+            "aprovado": true,
+            "faltando": []
+          }
+        },
+        {
+          "etapa": "avaliador_conferencia",
+          "decide": "codigo",
+          "aprovado_final": true,
+          "checagens_codigo": {
+            "preco": null,
+            "avaria": {
+              "perguntada": true,
+              "negou_defeito": true,
+              "mencionada": false,
+              "falas": [],
+              "tratada": true
+            }
+          }
+        },
+        {
+          "etapa": "preparar_aprovacao",
+          "decide": "codigo",
+          "expira_em": "2026-11-06T20:13:24"
+        }
+      ]
+    },
+    {
+      "tipo": "decisao_humana",
+      "enviado": {
+        "quem": "V-036",
+        "acao": "rejeitar",
+        "motivo": "desisti de vender"
+      },
+      "saida": {
+        "thread_id": "V-036:29_vendedor_rejeita",
+        "agente": "anuncio",
+        "tipo": "anuncio_nao_publicado",
+        "resultado": "Tudo bem, não publiquei. O rascunho fica salvo nesta conversa.",
+        "dados": {
+          "anuncio": {
+            "titulo": "Cadeira de escritório em Santo Amaro",
+            "categoria": "cadeira",
+            "descricao": "Cadeira de escritório à venda em Santo Amaro, sem defeitos declarados pelo vendedor.",
+            "preco": 80.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "bom_estado",
+            "avarias_declaradas": []
+          },
+          "anuncio_id": null,
+          "indicio": null,
+          "desfecho": "rejeitado"
+        },
+        "fontes": [
+          {
+            "tipo": "ferramenta",
+            "ref": "precos_comparaveis",
+            "trecho": "{\"erro\": \"sem_comparaveis\", \"categoria\": \"cadeira\", \"bairro\": \"Santo Amaro\", \"dica\": \"não há preço de referência; siga com o preço do vendedor e registre isso\"}"
+          },
+          {
+            "tipo": "humano",
+            "ref": "V-036",
+            "trecho": "{\"acao\": \"rejeitar\", \"motivo\": \"desisti de vender\", \"quem\": \"V-036\"}"
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "rejeitado",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "rejeitado",
+        "motivo_termino": "rejeitado"
+      },
+      "trajetoria": [
+        {
+          "etapa": "aprovacao_vendedor",
+          "decide": "humano",
+          "resposta": {
+            "acao": "rejeitar",
+            "motivo": "desisti de vender",
+            "quem": "V-036"
+          }
+        },
+        {
+          "etapa": "finalizar_b",
+          "decide": "codigo",
+          "desfecho": "rejeitado",
+          "memoria_escrita": [
+            {
+              "ok": true,
+              "ja_existia": false,
+              "episodio_id": "2b1557c2f2dea58e1e103b23",
+              "tokens_resumo": 27,
+              "tokens_extracao": 264
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "anuncio_nao_publicado",
+    "termino": "rejeitado",
+    "motivo": "rejeitado",
+    "segundos": 35.7,
+    "passos": 6,
+    "tokens": 5341,
+    "custo_usd": 0.0031489,
+    "consultas_rag": 0
+  }
+}

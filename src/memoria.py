@@ -49,6 +49,31 @@ def filtrar_pii(texto: str) -> str:
     return texto
 
 
+# Texto que vai para a memória de categoria é lido no prompt de todo vendedor
+# seguinte. Por isso ele só pode descrever um defeito: curto, e sem nada que
+# pareça uma ordem ao assistente.
+TAMANHO_MAX_AVARIA = 80
+_INSTRUCAO = re.compile(
+    r"(?i)\b(assistente|agente|modelo|prompt|sistema|instru\w*|ignor\w*|regra\w*|"
+    r"(n[ãa]o )?pergunt\w*|marqu\w*|marcar|publiqu\w*|publicar|aprov\w*|"
+    r"dev(e|em|erá)|sempre|nunca|anot\w*)\b")
+
+
+def avaria_segura(texto: Any) -> str | None:
+    """Devolve o motivo da recusa, ou None se o texto pode ir para a memória de
+    categoria como descrição de defeito."""
+    if not isinstance(texto, str) or not texto.strip():
+        return "vazio ou não é texto"
+    if len(texto) > TAMANHO_MAX_AVARIA:
+        return f"mais de {TAMANHO_MAX_AVARIA} caracteres"
+    achou = _INSTRUCAO.search(texto)
+    if achou:
+        return f"parece instrução ('{achou.group(0)}')"
+    if filtrar_pii(texto) != texto:
+        return "contém dado pessoal (e-mail, CPF, CEP ou telefone)"
+    return None
+
+
 def _conectar() -> sqlite3.Connection:
     con = sqlite3.connect(config.MEMORIA_DB_PATH, timeout=5)
     con.row_factory = sqlite3.Row
@@ -85,6 +110,13 @@ def gravar_fato(entidade: str, chave: str, valor: Any, fonte: str,
     """Grava ou atualiza um fato. Se o valor mudou, o novo substitui o antigo,
     que fica guardado em `substituiu`."""
     data = data or _agora()
+    if chave == "avarias_tipicas":
+        # Fail-closed: se algum item não passa, nada é gravado.
+        recusas = {str(v): m for v in (valor if isinstance(valor, list) else [valor])
+                   if (m := avaria_segura(v))}
+        if recusas:
+            return {"ok": False, "bloqueado": "avaria_segura", "entidade": entidade,
+                    "chave": chave, "recusas": recusas}
     valor_json = json.dumps(valor, ensure_ascii=False)
     with closing(_conectar()) as con:
         atual = con.execute("SELECT * FROM memoria_semantica WHERE entidade=? AND chave=? AND condicao=?",

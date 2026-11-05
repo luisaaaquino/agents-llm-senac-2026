@@ -120,6 +120,13 @@ def conversar(entrada: Entrada) -> SaidaSistema:
     with obs.execucao(entrada.thread_id, {"santo.usuario_id": entrada.usuario_id,
                                           "santo.entrada.texto": entrada.texto[:2000],
                                           "santo.commit": _commit()}) as span:
+        if config.suspenso():
+            obs.evento_raiz("controle.sistema_suspenso", {"usuario_id": entrada.usuario_id})
+            return _fechar(span, entrada.thread_id, SaidaSistema(
+                thread_id=entrada.thread_id, agente="nenhum", tipo="recusa",
+                resultado="O assistente está temporariamente fora do ar. Tente mais tarde.",
+                suficiencia=Suficiencia(base_suficiente=False, motivo="sistema suspenso pelo operador"),
+                termino="recusou", motivo_termino="sistema_suspenso"))
         pendencia = _pendencia_aberta(entrada.thread_id)
         if pendencia:
             # Com o grafo parado, uma fala nova não passa por cima da decisão pendente.
@@ -127,6 +134,32 @@ def conversar(entrada: Entrada) -> SaidaSistema:
         return _fechar(span, entrada.thread_id, _executar(entrada.thread_id, {
             "texto_turno": entrada.texto, "thread_id": entrada.thread_id,
             "usuario_id": entrada.usuario_id, "sessao_id": entrada.sessao_id}))
+
+
+def autorizar(thread_id: str, pendencia: dict[str, Any], quem: str,
+              resposta: dict[str, Any]) -> str | None:
+    """Quem pode responder a esta pendência. Devolve o motivo da recusa, ou None.
+
+    - aprovação do vendedor: só o vendedor dono da conversa;
+    - moderação: só um id da tabela `moderadores`, ativo, e nunca o próprio
+      vendedor do anúncio;
+    - "sistema:prazo": a rotina de prazos, que só sabe responder "expirou".
+    """
+    if quem == "sistema:prazo":
+        return None if resposta.get("acao") == "expirou" else \
+            "a rotina de prazos só pode responder 'expirou'"
+    if config.suspenso():
+        return "o sistema está suspenso (SANTO_SUSPENSO=1); só a rotina de prazos responde"
+    if pendencia["perfil"] == "vendedor":
+        return None if quem == pendencia["responsavel"] else \
+            f"{quem} não pode aprovar o anúncio de {pendencia['responsavel']}"
+    if pendencia["perfil"] == "moderador":
+        if quem == thread_id.split(":", 1)[0]:
+            return f"{quem} é o vendedor do anúncio e não pode moderá-lo"
+        if not db.eh_moderador(quem):
+            return f"{quem} não está na lista de moderadores ativos"
+        return None
+    return f"perfil desconhecido: {pendencia['perfil']}"
 
 
 def responder_pendencia(thread_id: str, resposta: dict[str, Any], quem: str) -> SaidaSistema:
@@ -149,13 +182,16 @@ def responder_pendencia(thread_id: str, resposta: dict[str, Any], quem: str) -> 
                 termino="respondeu", motivo_termino="resposta repetida: sem pendência aberta"))
         span.set_attributes({"santo.humano.pendencia": pendencia["tipo"],
                              "santo.humano.aprovado": obs.texto_json(pendencia["argumentos"])})
-        perfil = pendencia["perfil"]
-        if quem != "sistema:prazo":
-            if perfil == "vendedor" and quem != pendencia["responsavel"]:
-                return _fechar(span, thread_id, _erro(
-                    thread_id, f"{quem} não pode aprovar o anúncio de {pendencia['responsavel']}"))
-            if perfil == "moderador" and not quem.startswith("M-"):
-                return _fechar(span, thread_id, _erro(thread_id, f"{quem} não tem perfil de moderador"))
+        recusa = autorizar(thread_id, pendencia, quem, resposta)
+        if recusa:
+            obs.evento_raiz("controle.autorizacao_recusada", {"quem": quem, "motivo": recusa})
+            # Recusa, e não erro: o sistema funcionou e negou o pedido.
+            return _fechar(span, thread_id, SaidaSistema(
+                thread_id=thread_id, agente="anuncio", tipo="recusa",
+                resultado="Você não tem permissão para responder a esta pendência. Nada foi alterado.",
+                suficiencia=Suficiencia(base_suficiente=False, motivo=recusa,
+                                        faltando=[f"resposta de quem pode decidir: {pendencia['perfil']}"]),
+                termino="recusou", motivo_termino=f"nao_autorizado: {recusa}"))
         if quem != "sistema:prazo" and datetime.now() > datetime.fromisoformat(pendencia["expira_em"]):
             # Resposta depois do prazo não vale: o caminho do silêncio já era o
             # declarado, e a rotina pode simplesmente não ter passado ainda.

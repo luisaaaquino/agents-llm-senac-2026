@@ -432,18 +432,58 @@ def rotear_aprovacao(estado: Estado) -> str:
     return "publicar" if acao in ("aprovar", "editar") else "finalizar_b"
 
 
+PRECO_MAX = 50_000.0
+_ESTADOS_SEM_AVARIA = {"novo", "como_novo"}
+
+
+def aplicar_edicoes(rascunho: dict[str, Any], campos: dict[str, Any]) -> tuple[dict[str, Any], dict[str, str]]:
+    """[código] Valida as edições feitas pelo vendedor na aprovação.
+
+    A edição não passa de novo pelo portão nem pelo avaliador, então as regras
+    ficam aqui: estado de conservação da lista fechada, preço positivo e com
+    teto, e o defeito declarado na conversa não sai do anúncio. Edição que não
+    passa é ignorada (o campo fica como estava) e o motivo é registrado."""
+    final, ignoradas = dict(rascunho), {}
+    avarias = [a for a in (rascunho.get("avarias_declaradas") or []) if a]
+    for campo, valor in campos.items():
+        if campo not in CAMPOS_EDITAVEIS or valor in (None, ""):
+            ignoradas[campo] = "campo não editável ou vazio"
+        elif campo == "preco":
+            try:
+                preco = float(valor)
+            except (TypeError, ValueError):
+                ignoradas[campo] = f"preço inválido: {valor!r}"
+                continue
+            if not 0 < preco <= PRECO_MAX:
+                ignoradas[campo] = f"preço fora de (0, {PRECO_MAX:.0f}]: {preco}"
+            else:
+                final["preco"] = preco
+        elif campo == "estado_conservacao":
+            if valor not in db.ESTADOS_CONSERVACAO:
+                ignoradas[campo] = f"estado fora da lista: {valor!r}"
+            elif avarias and valor in _ESTADOS_SEM_AVARIA:
+                ignoradas[campo] = f"'{valor}' não combina com o defeito declarado: {avarias}"
+            else:
+                final["estado_conservacao"] = valor
+        else:
+            final[campo] = str(valor)
+    # O defeito declarado fica no anúncio, mesmo que a descrição editada o apague.
+    # Sem edição da descrição, ela é a que o avaliador já conferiu.
+    editou = "descricao" in campos and "descricao" not in ignoradas
+    faltam = [a for a in avarias if a.lower() not in final.get("descricao", "").lower()] if editou else []
+    if faltam:
+        final["descricao"] = f"{final.get('descricao', '').rstrip()} Defeito declarado: {'; '.join(faltam)}."
+    final["estado_declarado"] = True
+    return final, ignoradas
+
+
 def publicar(estado: Estado) -> dict[str, Any]:
     """[código] Escrita. Aplica as edições do vendedor e publica.
     Idempotente: uma segunda aprovação não cria outro anúncio."""
     decisao = estado["decisao_humana"]
-    rascunho = dict(estado["rascunho"])
-    ignoradas = {}
-    for campo, valor in (decisao.get("campos") or {}).items():
-        if campo in CAMPOS_EDITAVEIS and valor not in (None, ""):
-            rascunho[campo] = float(valor) if campo == "preco" else valor
-        else:
-            ignoradas[campo] = valor
-    rascunho["estado_declarado"] = True
+    rascunho, ignoradas = aplicar_edicoes(estado["rascunho"], decisao.get("campos") or {})
+    if ignoradas:
+        obs.evento_raiz("controle.edicao_recusada", ignoradas)
     with obs.ferramenta("publicar_anuncio", {"vendedor_id": estado["usuario_id"], "rascunho": rascunho,
                                              "edicoes_ignoradas": ignoradas}) as registrar:
         r = db.publicar_anuncio(estado["usuario_id"], rascunho, estado["thread_id"])
@@ -605,14 +645,20 @@ def _escrever_memoria(estado: Estado, desfecho: str) -> list[dict[str, Any]]:
             escritas.append(memoria.gravar_fato(f"vendedor:{vendedor}", "aceita_sugestao_preco",
                                                 float(r["preco"]) <= faixa["faixa_max"],
                                                 fonte=f"anuncio:{estado['escritas']['anuncio_id']}"))
-    if desfecho in ("moderacao_publicou_com_aviso", "moderacao_rejeitou") and r and estado.get("indicio"):
+    if desfecho == "moderacao_publicou_com_aviso" and r and estado.get("indicio"):
+        # Só entra na memória da categoria o defeito que o moderador confirmou,
+        # com o texto que ele escreveu no aviso. O texto do indício, escrito
+        # pelo modelo a partir da fala do vendedor, não entra.
         atuais = next((f["valor"] for f in memoria.ler_fatos(f"categoria:{r['categoria']}")
                        if f["chave"] == "avarias_tipicas"), [])
-        nova = estado["indicio"]["texto"]
-        if nova not in atuais:
-            escritas.append(memoria.gravar_fato(f"categoria:{r['categoria']}", "avarias_tipicas",
-                                                atuais + [nova],
-                                                fonte=f"moderacao:indicio:{estado['indicio']['id']}"))
+        nova = (estado.get("decisao_humana") or {}).get("aviso")
+        if nova and nova not in atuais:
+            gravacao = memoria.gravar_fato(f"categoria:{r['categoria']}", "avarias_tipicas",
+                                           atuais + [nova],
+                                           fonte=f"moderacao:indicio:{estado['indicio']['id']}")
+            if gravacao.get("bloqueado"):
+                obs.evento_raiz("controle.memoria_bloqueou", gravacao)
+            escritas.append(gravacao)
     # Origem do episódio: o anúncio gravado (repetições do mesmo anúncio têm
     # o mesmo id) ou, sem anúncio, a conversa. Se o episódio já existe, a
     # extração nem é chamada.

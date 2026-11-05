@@ -1,0 +1,449 @@
+{
+  "caso": "01_simples",
+  "prova": "o caminho feliz do Agente B: sem ele, nenhuma outra falha tem referência",
+  "esperado": "{\"tipo\": \"anuncio_publicado\", \"termino\": \"respondeu\", \"trajetoria\": {\"chama\": [\"consultar_preco\", \"publicar_anuncio\"], \"max\": {\"publicar_anuncio\": 1}}, \"resultado\": {\"anuncios_ativos\": 1, \"anuncios_total\": 1, \"indicios\": 0}, \"juiz\": true}",
+  "carimbo": {
+    "data": "2026-11-05T19:59:13",
+    "versao_sistema": "2.1.0",
+    "commit": "2716d5e",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {},
+    "memoria": {
+      "semantica_fatos": 0,
+      "episodios": 0,
+      "episodios_hash": "cf1cbb66a638",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "V-017:01_simples",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "quero vender minha geladeira consul duplex, uns 350 reais, bairro Santo Amaro",
+      "saida": {
+        "thread_id": "V-017:01_simples",
+        "agente": "anuncio",
+        "tipo": "pergunta",
+        "resultado": "Para montar o anúncio direitinho, a geladeira está gelando bem e tem alguma avaria, como ferrugem, amassado ou borrachas rasgadas?",
+        "dados": {
+          "rascunho": null
+        },
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "falta informação essencial para o anúncio",
+          "faltando": [
+            "resposta do vendedor: Para montar o anúncio direitinho, a geladeira está gelando bem e tem alguma avaria, como ferrugem, amassado ou borrachas"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_usuario",
+        "motivo_termino": "falta informação essencial para o anúncio"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "quero vender minha geladeira consul duplex, uns 350 reais, bairro Santo Amaro",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 337,
+          "segundos": 4.98,
+          "tentativas": 2,
+          "saida": {
+            "rota": "vender",
+            "leituras": [
+              "vender"
+            ],
+            "categoria": "geladeira",
+            "motivo": "O usuário informa claramente que quer vender um produto específico (geladeira) e define o preço e o bairro."
+          }
+        },
+        {
+          "etapa": "iniciar_b",
+          "decide": "codigo",
+          "memoria_recuperada": {
+            "fatos_vendedor": [],
+            "fatos_categoria": [],
+            "episodios": []
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1020,
+          "segundos": 4.67,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor informou produto, preço e bairro, mas ainda preciso perguntar sobre o estado e avarias da geladeira antes de prosseguir.",
+            "acao": "perguntar",
+            "pergunta": "Para montar o anúncio direitinho, a geladeira está gelando bem e tem alguma avaria, como ferrugem, amassado ou borrachas rasgadas?",
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "f6a0d16794a0"
+        },
+        {
+          "etapa": "perguntar_b",
+          "decide": "codigo",
+          "pergunta": "Para montar o anúncio direitinho, a geladeira está gelando bem e tem alguma avaria, como ferrugem, amassado ou borrachas rasgadas?",
+          "origem": "modelo"
+        }
+      ]
+    },
+    {
+      "tipo": "fala",
+      "enviado": "5 anos de uso, funciona bem, sem defeito",
+      "saida": {
+        "thread_id": "V-017:01_simples",
+        "agente": "anuncio",
+        "tipo": "aguardando_aprovacao",
+        "resultado": "Confere antes de publicar? O anúncio \"Geladeira Consul Duplex\" por R$ 350.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois. Você pode aprovar, editar algum campo ou desistir.",
+        "dados": {
+          "pendencia": {
+            "tipo": "aprovacao_vendedor",
+            "perfil": "vendedor",
+            "responsavel": "V-017",
+            "acao": "publicar_anuncio",
+            "argumentos": {
+              "titulo": "Geladeira Consul Duplex",
+              "categoria": "geladeira",
+              "descricao": "Geladeira Consul Duplex com 5 anos de uso, funcionando bem.",
+              "preco": 350.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "bom_estado",
+              "avarias_declaradas": []
+            },
+            "consequencia": "O anúncio \"Geladeira Consul Duplex\" por R$ 350.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois.",
+            "opcoes": {
+              "aprovar": {},
+              "editar": {
+                "campos": [
+                  "descricao",
+                  "estado_conservacao",
+                  "preco",
+                  "titulo"
+                ]
+              },
+              "rejeitar": {
+                "motivo": "texto livre"
+              }
+            },
+            "expira_em": "2026-11-06T19:59:38",
+            "se_ninguem_responder": "o anúncio NÃO é publicado; o rascunho fica salvo nesta conversa"
+          }
+        },
+        "fontes": [
+          {
+            "tipo": "ferramenta",
+            "ref": "publicar_anuncio",
+            "trecho": null
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "o sistema tem o que precisa; a decisão é de uma pessoa",
+          "faltando": [
+            "decisão do vendedor"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_humano",
+        "motivo_termino": "interrupt: aprovacao_vendedor"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "5 anos de uso, funciona bem, sem defeito",
+          "conversa_aberta": "anuncio"
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1079,
+          "segundos": 3.87,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "Já temos produto, preço, bairro e a resposta sobre defeitos, então podemos consultar o preço de mercado.",
+            "acao": "consultar_preco",
+            "pergunta": null,
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "290a3d88a8e8"
+        },
+        {
+          "etapa": "ferramenta_preco",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro"
+          },
+          "resultado": {
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "n": 4,
+            "faixa_min": 300.0,
+            "faixa_max": 380.0,
+            "ref": "precos_comparaveis[geladeira/Santo Amaro]"
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1162,
+          "segundos": 3.51,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "Já temos produto, preço, bairro e o vendedor respondeu sobre defeitos; o próximo passo é consultar o preço de mercado.",
+            "acao": "consultar_preco",
+            "pergunta": null,
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "290a3d88a8e8"
+        },
+        {
+          "etapa": "ferramenta_preco",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro"
+          },
+          "repetida": true,
+          "acao_do_codigo": "nenhuma: o resultado anterior continua valendo"
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1240,
+          "segundos": 4.1,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O essencial foi coletado e o preço já tem referência no bairro, posso montar o rascunho.",
+            "acao": "preencher_rascunho",
+            "pergunta": null,
+            "categoria": "geladeira",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": {
+              "titulo": "Geladeira Consul Duplex",
+              "categoria": "geladeira",
+              "descricao": "Geladeira Consul Duplex com 5 anos de uso, funcionando bem.",
+              "preco": 350.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "bom_estado",
+              "avarias_declaradas": []
+            },
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "bfab569d03d2"
+        },
+        {
+          "etapa": "portao_avaria",
+          "decide": "codigo",
+          "passou": true,
+          "avaria": {
+            "perguntada": true,
+            "negou_defeito": true,
+            "mencionada": false,
+            "falas": [],
+            "tratada": true
+          }
+        },
+        {
+          "etapa": "avaliador",
+          "decide": "modelo",
+          "prompt": "avaliador-anuncio-v4.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 606,
+          "segundos": 3.83,
+          "tentativas": 1,
+          "saida": {
+            "tem_titulo": true,
+            "tem_categoria": true,
+            "tem_descricao": true,
+            "estado_coerente": true,
+            "sem_invencao": true,
+            "aprovado": true,
+            "faltando": []
+          }
+        },
+        {
+          "etapa": "avaliador_conferencia",
+          "decide": "codigo",
+          "aprovado_final": true,
+          "checagens_codigo": {
+            "preco": null,
+            "avaria": {
+              "perguntada": true,
+              "negou_defeito": true,
+              "mencionada": false,
+              "falas": [],
+              "tratada": true
+            }
+          }
+        },
+        {
+          "etapa": "preparar_aprovacao",
+          "decide": "codigo",
+          "expira_em": "2026-11-06T19:59:38"
+        }
+      ]
+    },
+    {
+      "tipo": "decisao_humana",
+      "enviado": {
+        "quem": "V-017",
+        "acao": "aprovar"
+      },
+      "saida": {
+        "thread_id": "V-017:01_simples",
+        "agente": "anuncio",
+        "tipo": "anuncio_publicado",
+        "resultado": "Pronto! \"Geladeira Consul Duplex\" está no ar por R$ 350.00.",
+        "dados": {
+          "anuncio": {
+            "titulo": "Geladeira Consul Duplex",
+            "categoria": "geladeira",
+            "descricao": "Geladeira Consul Duplex com 5 anos de uso, funcionando bem.",
+            "preco": 350.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "bom_estado",
+            "avarias_declaradas": [],
+            "estado_declarado": true
+          },
+          "anuncio_id": 17,
+          "indicio": null,
+          "desfecho": "publicado"
+        },
+        "fontes": [
+          {
+            "tipo": "banco",
+            "ref": "precos_comparaveis[geladeira/Santo Amaro]",
+            "trecho": "{\"categoria\": \"geladeira\", \"bairro\": \"Santo Amaro\", \"n\": 4, \"faixa_min\": 300.0, \"faixa_max\": 380.0, \"ref\": \"precos_comparaveis[geladeira/Santo Amaro]\"}"
+          },
+          {
+            "tipo": "banco",
+            "ref": "anuncios[17]",
+            "trecho": null
+          },
+          {
+            "tipo": "humano",
+            "ref": "V-017",
+            "trecho": "{\"acao\": \"aprovar\", \"quem\": \"V-017\"}"
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "publicado",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "respondeu",
+        "motivo_termino": "publicado"
+      },
+      "trajetoria": [
+        {
+          "etapa": "aprovacao_vendedor",
+          "decide": "humano",
+          "resposta": {
+            "acao": "aprovar",
+            "quem": "V-017"
+          }
+        },
+        {
+          "etapa": "publicar",
+          "decide": "codigo",
+          "argumentos": {
+            "titulo": "Geladeira Consul Duplex",
+            "categoria": "geladeira",
+            "descricao": "Geladeira Consul Duplex com 5 anos de uso, funcionando bem.",
+            "preco": 350.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "bom_estado",
+            "avarias_declaradas": [],
+            "estado_declarado": true
+          },
+          "edicoes_ignoradas": {},
+          "resultado": {
+            "ok": true,
+            "ja_existia": false,
+            "anuncio_id": 17,
+            "status": "ativo",
+            "chave": "2e61cddd98a5c321dd1cbe5c"
+          }
+        },
+        {
+          "etapa": "finalizar_b",
+          "decide": "codigo",
+          "desfecho": "publicado",
+          "memoria_escrita": [
+            {
+              "ok": true,
+              "ja_existia": false,
+              "entidade": "vendedor:V-017",
+              "chave": "bairro_retirada",
+              "substituiu": null
+            },
+            {
+              "ok": true,
+              "ja_existia": false,
+              "episodio_id": "4fb773462ec3a2cb1932c997",
+              "tokens_resumo": 29,
+              "tokens_extracao": 291
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "anuncio_publicado",
+    "termino": "respondeu",
+    "motivo": "publicado",
+    "segundos": 32.4,
+    "passos": 6,
+    "tokens": 5444,
+    "custo_usd": 0.0030962000000000003,
+    "consultas_rag": 0
+  }
+}

@@ -17,7 +17,13 @@ load_dotenv(ROOT / ".env")
 
 # Versão do sistema: vai em todo trace e em toda rodada da avaliação, para os
 # números poderem ser comparados entre versões (histórico em docs/mudancas.md).
-VERSAO_SISTEMA = "2.1.0"
+VERSAO_SISTEMA = "3.0.0"
+
+# Suspensão do agente: com SANTO_SUSPENSO=1 no ambiente (ou no .env), o sistema
+# recusa conversas e decisões; só a rotina de prazos continua expirando
+# pendências. Quem pode suspender é quem opera o servidor.
+def suspenso() -> bool:
+    return os.environ.get("SANTO_SUSPENSO", "").strip() == "1"
 
 # --- Caminhos ---------------------------------------------------------------
 DADOS_DIR = ROOT / "dados"

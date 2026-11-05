@@ -221,6 +221,17 @@ def pendencias(status: str = "aberta") -> list[dict[str, Any]]:
             "SELECT * FROM pendencias_humanas WHERE status = ? ORDER BY expira_em", (status,))]
 
 
+def eh_moderador(quem: str) -> bool:
+    """True só se `quem` está na tabela de moderadores e ativo. Qualquer falha na
+    consulta conta como não (o controle falha fechado)."""
+    try:
+        with closing(conectar()) as con:
+            r = con.execute("SELECT ativo FROM moderadores WHERE id = ?", (quem,)).fetchone()
+    except sqlite3.Error:
+        return False
+    return bool(r and r["ativo"])
+
+
 def decidir_indicio(indicio_id: int, status: str, decidido_por: str) -> dict[str, Any]:
     with closing(conectar()) as con:
         atual = con.execute("SELECT status FROM indicios_moderacao WHERE id = ?",

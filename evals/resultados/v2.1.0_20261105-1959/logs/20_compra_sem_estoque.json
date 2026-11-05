@@ -1,0 +1,175 @@
+{
+  "caso": "20_compra_sem_estoque",
+  "prova": "não há item que caiba (a única bicicleta custa R$ 650): o sistema tem de recusar, não sugerir algo fora do teto",
+  "esperado": "{\"tipo\": \"recusa\", \"termino\": \"recusou\", \"base_suficiente\": false}",
+  "carimbo": {
+    "data": "2026-11-05T20:08:40",
+    "versao_sistema": "2.1.0",
+    "commit": "2716d5e",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "resposta-regras-v1.md": "02ff466cea45",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 8,
+      "episodios": 7,
+      "episodios_hash": "60392305f24a",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "C-010:20_compra_sem_estoque",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "procuro uma bicicleta até 300 reais",
+      "saida": {
+        "thread_id": "C-010:20_compra_sem_estoque",
+        "agente": "compra",
+        "tipo": "recusa",
+        "resultado": "Procurei bicicleta ativos até R$ 300 e não há nenhum anúncio assim agora. Itens usados somem rápido: vale aumentar o orçamento ou voltar em alguns dias.",
+        "dados": {
+          "pedido": {
+            "intencao": "comprar uma bicicleta barata para transporte ou lazer",
+            "categorias": [
+              "bicicleta"
+            ],
+            "orcamento_total": null,
+            "preco_max_item": 300.0,
+            "bairro": null,
+            "faltando": [],
+            "ambiguidade": null,
+            "escolha": null
+          }
+        },
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "nenhum item ativo nas categorias e faixa pedidas",
+          "faltando": [
+            "itens ativos de bicicleta"
+          ]
+        },
+        "escolha_declarada": "você não disse o bairro; ordenei por preço, sem distância",
+        "termino": "recusou",
+        "motivo_termino": "nenhum item ativo nas categorias e faixa pedidas"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "procuro uma bicicleta até 300 reais",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 325,
+          "segundos": 3.92,
+          "tentativas": 1,
+          "saida": {
+            "rota": "comprar",
+            "leituras": [
+              "comprar"
+            ],
+            "categoria": "bicicleta",
+            "motivo": "O usuário está procurando um produto específico para comprar (bicicleta) com um limite de preço."
+          }
+        },
+        {
+          "etapa": "iniciar_a",
+          "decide": "codigo",
+          "refinando": false
+        },
+        {
+          "etapa": "interpretar_compra",
+          "decide": "modelo",
+          "prompt": "compra-interpretar-v1.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 366,
+          "segundos": 4.05,
+          "tentativas": 1,
+          "saida": {
+            "intencao": "comprar uma bicicleta barata para transporte ou lazer",
+            "categorias": [
+              "bicicleta"
+            ],
+            "orcamento_total": null,
+            "preco_max_item": 300.0,
+            "bairro": null,
+            "faltando": [],
+            "ambiguidade": null,
+            "escolha": null
+          }
+        },
+        {
+          "etapa": "completar_pedido",
+          "decide": "codigo",
+          "pedido": {
+            "intencao": "comprar uma bicicleta barata para transporte ou lazer",
+            "categorias": [
+              "bicicleta"
+            ],
+            "orcamento_total": null,
+            "preco_max_item": 300.0,
+            "bairro": null,
+            "faltando": [],
+            "ambiguidade": null,
+            "escolha": null
+          },
+          "escolhas": [
+            "você não disse o bairro; ordenei por preço, sem distância"
+          ]
+        },
+        {
+          "etapa": "buscar_categoria",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "bicicleta",
+            "preco_max": 300.0,
+            "bairro": null,
+            "usuario_id": "C-010"
+          },
+          "n": 0,
+          "erro": "sem_itens_ativos"
+        },
+        {
+          "etapa": "montar_sugestao",
+          "decide": "codigo",
+          "sem_candidatos": [
+            "bicicleta"
+          ]
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "recusa",
+    "termino": "recusou",
+    "motivo": "nenhum item ativo nas categorias e faixa pedidas",
+    "segundos": 8.8,
+    "passos": 2,
+    "tokens": 691,
+    "custo_usd": 0.00048670000000000007,
+    "consultas_rag": 0
+  }
+}

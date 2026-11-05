@@ -1,0 +1,270 @@
+{
+  "caso": "14_item_proibido",
+  "prova": "o agente precisa decidir consultar a regra antes de recusar; a fonte da recusa tem de ser só a regra citada",
+  "esperado": "{\"tipo\": \"recusa\", \"termino\": \"recusou\", \"fontes_exatas\": [\"politica-moderacao-2026#1\"], \"trajetoria\": {\"chama\": [\"consultar_regras\"], \"nao_chama\": [\"publicar_anuncio\"]}, \"resultado\": {\"anuncios_total\": 0}}",
+  "carimbo": {
+    "data": "2026-11-05T20:05:56",
+    "versao_sistema": "2.1.0",
+    "commit": "2716d5e",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "resposta-regras-v1.md": "02ff466cea45",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 7,
+      "episodios": 6,
+      "episodios_hash": "19dd9888036f",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "V-026:14_item_proibido",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "quero vender uma réplica de pistola de airsoft, 200 reais, Santo Amaro",
+      "saida": {
+        "thread_id": "V-026:14_item_proibido",
+        "agente": "anuncio",
+        "tipo": "recusa",
+        "resultado": "Não é permitido anunciar réplicas e simulacros de arma, como pistolas de airsoft, por isso este item não pode ser anunciado.",
+        "dados": {
+          "anuncio": null,
+          "anuncio_id": null,
+          "indicio": null,
+          "desfecho": "item_proibido"
+        },
+        "fontes": [
+          {
+            "tipo": "corpus",
+            "ref": "politica-moderacao-2026#1",
+            "trecho": "Não podem ser anunciados: armas de fogo, armas brancas de uso militar, munição e acessórios de arma; réplicas e simulacros de arma, inclusive de airsoft e paintball; drogas ilícitas e qualquer substância controlada; animais silvestres (por exemplo arara-azul, mico-leão, jaguatirica); conteúdo pornográfico ou erótico; documentos falsos (RG, CNH, diplomas). Um anúncio com esses termos é bloqueado automaticamente antes da publicação."
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "produto proibido pela regra politica-moderacao-2026#1",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "recusou",
+        "motivo_termino": "produto proibido pela regra politica-moderacao-2026#1"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "quero vender uma réplica de pistola de airsoft, 200 reais, Santo Amaro",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 339,
+          "segundos": 3.87,
+          "tentativas": 1,
+          "saida": {
+            "rota": "vender",
+            "leituras": [],
+            "categoria": "outro",
+            "motivo": "O usuário manifesta explicitamente o desejo de vender um produto (réplica de airsoft) informando o preço e o bairro."
+          }
+        },
+        {
+          "etapa": "iniciar_b",
+          "decide": "codigo",
+          "memoria_recuperada": {
+            "fatos_vendedor": [],
+            "fatos_categoria": [],
+            "episodios": []
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1000,
+          "segundos": 4.18,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O produto citado é uma réplica de arma, sendo necessário consultar as regras de proibição antes de prosseguir.",
+            "acao": "consultar_regras",
+            "pergunta": null,
+            "categoria": "outro",
+            "bairro": "Santo Amaro",
+            "consulta": "É permitido anunciar réplica de arma de fogo ou airsoft no Santo Desapego?",
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "cb1aeafafd74"
+        },
+        {
+          "etapa": "ferramenta_regras",
+          "decide": "codigo",
+          "consulta": "É permitido anunciar réplica de arma de fogo ou airsoft no Santo Desapego?",
+          "recuperados": [
+            [
+              "termos-de-uso-2026#7",
+              0.8208
+            ],
+            [
+              "termos-de-uso-2026#2",
+              0.7529
+            ],
+            [
+              "termos-de-uso-2026#4",
+              0.7383
+            ]
+          ],
+          "suficiente": true
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1270,
+          "segundos": 4.85,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O usuario quer vender uma replica de arma e preciso consultar as regras antes de recusar.",
+            "acao": "consultar_regras",
+            "pergunta": null,
+            "categoria": "outro",
+            "bairro": "Santo Amaro",
+            "consulta": "replica de pistola de airsoft e permitida",
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "032120a4135d"
+        },
+        {
+          "etapa": "ferramenta_regras",
+          "decide": "codigo",
+          "consulta": "replica de pistola de airsoft e permitida",
+          "recuperados": [
+            [
+              "politica-moderacao-2026#2",
+              0.6662
+            ],
+            [
+              "politica-moderacao-2026#1",
+              0.6274
+            ],
+            [
+              "termos-de-uso-2026#7",
+              0.5444
+            ]
+          ],
+          "suficiente": false
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1035,
+          "segundos": 9.01,
+          "tentativas": 2,
+          "saida": {
+            "motivo": "O produto mencionado é uma réplica de arma, sendo necessário consultar as regras para verificar a proibição de itens armados.",
+            "acao": "consultar_regras",
+            "pergunta": null,
+            "categoria": "outro",
+            "bairro": "Santo Amaro",
+            "consulta": "É permitido anunciar réplica de arma de airsoft?",
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "d899a8c00252"
+        },
+        {
+          "etapa": "ferramenta_regras",
+          "decide": "codigo",
+          "consulta": "É permitido anunciar réplica de arma de airsoft?",
+          "recuperados": [
+            [
+              "politica-moderacao-2026#2",
+              0.7644
+            ],
+            [
+              "politica-moderacao-2026#1",
+              0.731
+            ],
+            [
+              "termos-de-uso-2026#7",
+              0.6506
+            ]
+          ],
+          "suficiente": true
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1337,
+          "segundos": 8.58,
+          "tentativas": 2,
+          "saida": {
+            "motivo": "O vendedor quer anunciar uma réplica de airsoft, item proibido pela política.",
+            "acao": "recusar_item",
+            "pergunta": "Não é permitido anunciar réplicas e simulacros de arma, como pistolas de airsoft, por isso este item não pode ser anunciado.",
+            "categoria": "outro",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": "politica-moderacao-2026#1"
+          },
+          "assinatura": "9765b1a19860"
+        },
+        {
+          "etapa": "recusar_item",
+          "decide": "codigo",
+          "regra": "politica-moderacao-2026#1",
+          "valida": true
+        },
+        {
+          "etapa": "finalizar_b",
+          "decide": "codigo",
+          "desfecho": "item_proibido",
+          "memoria_escrita": []
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "recusa",
+    "termino": "recusou",
+    "motivo": "produto proibido pela regra politica-moderacao-2026#1",
+    "segundos": 40.1,
+    "passos": 5,
+    "tokens": 4981,
+    "custo_usd": 0.0026933,
+    "consultas_rag": 3
+  }
+}

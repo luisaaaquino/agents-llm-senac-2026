@@ -1,0 +1,202 @@
+{
+  "caso": "19_compra_microondas",
+  "prova": "busca de uma categoria só, com teto por item: pega item acima do teto ou de outra categoria",
+  "esperado": "{\"tipo\": \"sugestao\", \"termino\": \"respondeu\", \"compra\": {\"preco_max_item\": 140, \"categoria\": \"micro-ondas\", \"min_itens\": 1}}",
+  "carimbo": {
+    "data": "2026-11-05T20:08:18",
+    "versao_sistema": "2.1.0",
+    "commit": "2716d5e",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "resposta-regras-v1.md": "02ff466cea45",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 8,
+      "episodios": 7,
+      "episodios_hash": "60392305f24a",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "C-009:19_compra_microondas",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "queria um micro-ondas até 140 reais, moro no brooklin",
+      "saida": {
+        "thread_id": "C-009:19_compra_microondas",
+        "agente": "compra",
+        "tipo": "sugestao",
+        "resultado": "Escolhi o Micro-ondas Consul 20L pois ele atende ao seu pedido de ser barato e está no mesmo bairro, sendo mais econômico que a outra opção.\n- Micro-ondas Consul 20L — R$ 110, Brooklin (0.0 km)",
+        "dados": {
+          "pedido": {
+            "intencao": "comprar um micro-ondas barato",
+            "categorias": [
+              "micro-ondas"
+            ],
+            "orcamento_total": null,
+            "preco_max_item": 140.0,
+            "bairro": "Brooklin",
+            "faltando": [],
+            "ambiguidade": null,
+            "escolha": null
+          },
+          "itens": [
+            {
+              "id": 14,
+              "titulo": "Micro-ondas Consul 20L",
+              "categoria": "micro-ondas",
+              "preco": 110.0,
+              "bairro": "Brooklin",
+              "estado_conservacao": "bom_estado",
+              "dist_km": 0.0
+            }
+          ],
+          "correcoes": [],
+          "soma": 110.0
+        },
+        "fontes": [
+          {
+            "tipo": "banco",
+            "ref": "anuncios[14]",
+            "trecho": "Micro-ondas Consul 20L · R$ 110 · Brooklin · status ativo"
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "itens ativos encontrados no catálogo",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "respondeu",
+        "motivo_termino": "itens ativos encontrados no catálogo"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "queria um micro-ondas até 140 reais, moro no brooklin",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 327,
+          "segundos": 4.86,
+          "tentativas": 2,
+          "saida": {
+            "rota": "comprar",
+            "leituras": [],
+            "categoria": "micro-ondas",
+            "motivo": "O usuário está procurando um micro-ondas para comprar com um limite de preço."
+          }
+        },
+        {
+          "etapa": "iniciar_a",
+          "decide": "codigo",
+          "refinando": false
+        },
+        {
+          "etapa": "interpretar_compra",
+          "decide": "modelo",
+          "prompt": "compra-interpretar-v1.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 373,
+          "segundos": 13.15,
+          "tentativas": 3,
+          "saida": {
+            "intencao": "comprar um micro-ondas barato",
+            "categorias": [
+              "micro-ondas"
+            ],
+            "orcamento_total": null,
+            "preco_max_item": 140.0,
+            "bairro": "Brooklin",
+            "faltando": [],
+            "ambiguidade": null,
+            "escolha": null
+          }
+        },
+        {
+          "etapa": "completar_pedido",
+          "decide": "codigo",
+          "pedido": {
+            "intencao": "comprar um micro-ondas barato",
+            "categorias": [
+              "micro-ondas"
+            ],
+            "orcamento_total": null,
+            "preco_max_item": 140.0,
+            "bairro": "Brooklin",
+            "faltando": [],
+            "ambiguidade": null,
+            "escolha": null
+          },
+          "escolhas": []
+        },
+        {
+          "etapa": "buscar_categoria",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "micro-ondas",
+            "preco_max": 140.0,
+            "bairro": "Brooklin",
+            "usuario_id": "C-009"
+          },
+          "n": 2,
+          "erro": null
+        },
+        {
+          "etapa": "montar_sugestao",
+          "decide": "modelo",
+          "prompt": "compra-sugestao-v1.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 518,
+          "segundos": 3.81,
+          "tentativas": 1,
+          "saida": {
+            "itens_ids": [
+              14
+            ],
+            "justificativa": "Escolhi o Micro-ondas Consul 20L pois ele atende ao seu pedido de ser barato e está no mesmo bairro, sendo mais econômico que a outra opção.",
+            "categorias_de_fora": []
+          }
+        },
+        {
+          "etapa": "conferir_sugestao",
+          "decide": "codigo",
+          "correcoes": []
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "sugestao",
+    "termino": "respondeu",
+    "motivo": "itens ativos encontrados no catálogo",
+    "segundos": 22.0,
+    "passos": 3,
+    "tokens": 1218,
+    "custo_usd": 0.0007922000000000001,
+    "consultas_rag": 0
+  }
+}
