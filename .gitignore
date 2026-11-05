@@ -10,3 +10,6 @@ atividade.md
 .pytest_cache/
 
 dados/checkpoints.db*
+
+# traces de uso manual (os das rodadas ficam em evals/resultados/)
+logs/traces/

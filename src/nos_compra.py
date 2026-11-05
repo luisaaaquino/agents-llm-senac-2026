@@ -17,6 +17,7 @@ from typing import Any
 from langgraph.types import Send
 
 from . import config, db
+from . import observabilidade as obs
 from .contrato import Fonte
 from .esquemas import PedidoCompra, Sugestao
 from .estado import Estado
@@ -73,7 +74,10 @@ def rotear_pedido(estado: Estado) -> list[Send] | str:
 
 def buscar_categoria(ramo: dict[str, Any]) -> dict[str, Any]:
     """[código] Um ramo paralelo: itens ativos da categoria, de outros vendedores."""
-    r = db.buscar_catalogo(ramo["categoria"], ramo["preco_max"], ramo["bairro"], ramo["usuario_id"])
+    with obs.ferramenta("buscar_catalogo", ramo) as registrar:
+        r = db.buscar_catalogo(ramo["categoria"], ramo["preco_max"], ramo["bairro"], ramo["usuario_id"])
+        # catálogo vazio é resultado válido, não falha da ferramenta
+        registrar({"ids": [i["id"] for i in r["itens"]], "sem_itens": bool(r.get("erro"))})
     return {"candidatos": r["itens"] or [{"categoria": ramo["categoria"], "erro": r.get("erro")}],
             "trajetoria": [passo_codigo("buscar_categoria", argumentos=ramo,
                                         n=len(r["itens"]), erro=r.get("erro"))]}

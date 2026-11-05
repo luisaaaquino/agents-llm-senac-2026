@@ -119,7 +119,8 @@ def rodar_caso(caso: Caso, destino=None) -> dict:
     destino = destino or config.LOGS_DIR / f"{caso.nome}.json"
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"  == {s.tipo} / {s.termino} · {log['final']} · log: {destino.relative_to(config.ROOT)}")
+    caminho = destino.relative_to(config.ROOT) if destino.is_relative_to(config.ROOT) else destino
+    print(f"  == {s.tipo} / {s.termino} · {log['final']} · log: {caminho}")
     return log
 
 

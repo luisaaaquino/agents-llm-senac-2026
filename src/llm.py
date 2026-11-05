@@ -19,6 +19,7 @@ from openai import OpenAI
 from pydantic import BaseModel, ValidationError
 
 from . import config
+from . import observabilidade as obs
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -101,8 +102,10 @@ def _classificar(erro: Exception) -> str:
 
 
 def chamada_estruturada(sistema: str, usuario: str, schema: type[T], *,
-                        modelo: str | None = None, max_tokens: int = 800) -> tuple[T, Uso]:
-    """Uma chamada ao modelo com saída validada por Pydantic.
+                        modelo: str | None = None, max_tokens: int = 800,
+                        etapa: str | None = None, prompt: str | None = None) -> tuple[T, Uso]:
+    """Uma chamada ao modelo com saída validada por Pydantic. Abre um span
+    `chat <modelo>`; `etapa` e `prompt` só servem para identificar o span.
 
     `usuario` é obrigatório: o Gemini recusa requisição só com mensagem de
     sistema ("contents is not specified")."""
@@ -110,48 +113,62 @@ def chamada_estruturada(sistema: str, usuario: str, schema: type[T], *,
     uso = Uso(modelo=modelo)
     inicio = time.monotonic()
     ultimo_erro: Exception | None = None
+    modelo_resposta = None
 
-    for tentativa in range(1, config.LLM_RETRIES_RECUPERAVEIS + 2):
-        uso.tentativas = tentativa
-        _aguardar_vez()
-        try:
-            resposta = _client.beta.chat.completions.parse(
-                model=modelo,
-                temperature=config.TEMPERATURA,
-                max_tokens=max_tokens,
-                messages=[{"role": "system", "content": sistema},
-                          {"role": "user", "content": usuario}],
-                response_format=schema,
-            )
-            if resposta.usage:
-                uso.tokens_entrada += resposta.usage.prompt_tokens or 0
-                uso.tokens_saida += resposta.usage.completion_tokens or 0
-            objeto = resposta.choices[0].message.parsed
-            if objeto is None:
-                raise ValueError("resposta sem objeto estruturado")
-            uso.segundos = time.monotonic() - inicio
-            return objeto, uso
-        except Exception as erro:  # noqa: BLE001 — classificado logo abaixo
-            ultimo_erro = erro
-            if _classificar(erro) == "fatal":
-                raise ErroLLMFatal(f"{type(erro).__name__}: {erro}") from erro
-            time.sleep(min(2 ** tentativa, 20))
+    with obs.chat(modelo, etapa, prompt, config.TEMPERATURA, max_tokens) as span:
+        for tentativa in range(1, config.LLM_RETRIES_RECUPERAVEIS + 2):
+            uso.tentativas = tentativa
+            _aguardar_vez()
+            try:
+                resposta = _client.beta.chat.completions.parse(
+                    model=modelo,
+                    temperature=config.TEMPERATURA,
+                    max_tokens=max_tokens,
+                    messages=[{"role": "system", "content": sistema},
+                              {"role": "user", "content": usuario}],
+                    response_format=schema,
+                )
+                modelo_resposta = resposta.model
+                if resposta.usage:
+                    uso.tokens_entrada += resposta.usage.prompt_tokens or 0
+                    uso.tokens_saida += resposta.usage.completion_tokens or 0
+                objeto = resposta.choices[0].message.parsed
+                if objeto is None:
+                    raise ValueError("resposta sem objeto estruturado")
+                uso.segundos = time.monotonic() - inicio
+                obs.uso_chat(span, modelo_resposta, uso.tokens_entrada, uso.tokens_saida,
+                             uso.tentativas, uso.custo_usd)
+                return objeto, uso
+            except Exception as erro:  # noqa: BLE001 — classificado logo abaixo
+                ultimo_erro = erro
+                if _classificar(erro) == "fatal":
+                    obs.uso_chat(span, modelo_resposta, uso.tokens_entrada, uso.tokens_saida,
+                                 uso.tentativas, uso.custo_usd)
+                    obs.erro(span, type(erro).__name__, str(erro))
+                    raise ErroLLMFatal(f"{type(erro).__name__}: {erro}") from erro
+                time.sleep(min(2 ** tentativa, 20))
 
-    raise ErroLLMRecuperavelEsgotado(f"{type(ultimo_erro).__name__}: {ultimo_erro}")
+        obs.uso_chat(span, modelo_resposta, uso.tokens_entrada, uso.tokens_saida,
+                     uso.tentativas, uso.custo_usd)
+        obs.erro(span, "ErroLLMRecuperavelEsgotado", str(ultimo_erro))
+        raise ErroLLMRecuperavelEsgotado(f"{type(ultimo_erro).__name__}: {ultimo_erro}")
 
 
 def embeddings(textos: list[str]) -> list[list[float]]:
     """Embeddings em lote, com as mesmas regras de repetição."""
     ultimo_erro: Exception | None = None
-    for tentativa in range(1, config.LLM_RETRIES_RECUPERAVEIS + 2):
-        _aguardar_vez()
-        try:
-            r = _client.embeddings.create(model=config.MODELO_EMBEDDING, input=textos,
-                                          dimensions=config.EMBEDDING_DIMENSOES)
-            return [d.embedding for d in r.data]
-        except Exception as erro:  # noqa: BLE001
-            ultimo_erro = erro
-            if _classificar(erro) == "fatal":
-                raise ErroLLMFatal(f"{type(erro).__name__}: {erro}") from erro
-            time.sleep(min(2 ** tentativa, 20))
-    raise ErroLLMRecuperavelEsgotado(f"{type(ultimo_erro).__name__}: {ultimo_erro}")
+    with obs.embeddings(config.MODELO_EMBEDDING, len(textos)) as span:
+        for tentativa in range(1, config.LLM_RETRIES_RECUPERAVEIS + 2):
+            _aguardar_vez()
+            try:
+                r = _client.embeddings.create(model=config.MODELO_EMBEDDING, input=textos,
+                                              dimensions=config.EMBEDDING_DIMENSOES)
+                return [d.embedding for d in r.data]
+            except Exception as erro:  # noqa: BLE001
+                ultimo_erro = erro
+                if _classificar(erro) == "fatal":
+                    obs.erro(span, type(erro).__name__, str(erro))
+                    raise ErroLLMFatal(f"{type(erro).__name__}: {erro}") from erro
+                time.sleep(min(2 ** tentativa, 20))
+        obs.erro(span, "ErroLLMRecuperavelEsgotado", str(ultimo_erro))
+        raise ErroLLMRecuperavelEsgotado(f"{type(ultimo_erro).__name__}: {ultimo_erro}")

@@ -16,6 +16,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from . import config, llm, rag
+from . import observabilidade as obs
 from .contrato import Fonte, SaidaSistema, Suficiencia
 from .esquemas import RespostaRegras, Triagem
 from .estado import Estado
@@ -29,7 +30,7 @@ def chamar_modelo(etapa: str, prompt: str, usuario: str, schema: type[BaseModel]
     """Chama o modelo e devolve (objeto, incrementos de estado)."""
     sistema = llm.carregar_prompt(prompt) + (f"\n\n{extra_sistema}" if extra_sistema else "")
     objeto, uso = llm.chamada_estruturada(sistema, usuario, schema, modelo=modelo,
-                                          max_tokens=max_tokens)
+                                          max_tokens=max_tokens, etapa=etapa, prompt=prompt)
     passo = {"etapa": etapa, "decide": "modelo", "prompt": prompt, "modelo": uso.modelo,
              "tokens": uso.total, "segundos": round(uso.segundos, 2),
              "tentativas": uso.tentativas, "saida": objeto.model_dump()}
@@ -63,6 +64,12 @@ def saida(estado: Estado, *, agente: str, tipo: str, resultado: str, termino: st
 def fontes_rag(trechos: list[dict[str, Any]], citados: list[str]) -> list[Fonte]:
     por_id = {t["id"]: t for t in trechos}
     return [Fonte(tipo="corpus", ref=c, trecho=por_id[c]["texto"]) for c in citados if c in por_id]
+
+
+def resumo_busca(r: dict[str, Any]) -> dict[str, Any]:
+    """O que vai para o trace de uma busca no corpus: os ids, não o texto inteiro."""
+    return {"trechos": [(t["id"], round(t["similaridade"], 3)) for t in r["trechos"]],
+            "melhor": round(r["melhor_similaridade"], 3), "suficiente": r["suficiente"]}
 
 
 def turno_estourou(estado: Estado, max_segundos: float) -> bool:
@@ -140,7 +147,9 @@ def fora_escopo(estado: Estado) -> dict[str, Any]:
 
 def buscar_regras(estado: Estado) -> dict[str, Any]:
     """[código] Busca vetorial no corpus de regras e confere se há base."""
-    r = rag.buscar(estado["texto_turno"])
+    with obs.ferramenta("consultar_regras", {"consulta": estado["texto_turno"]}) as registrar:
+        r = rag.buscar(estado["texto_turno"])
+        registrar(resumo_busca(r))
     portao = {"melhor": r["melhor_similaridade"], "limiar": r["limiar"], "suficiente": r["suficiente"]}
     return {"trechos_rag": r["trechos"], "rag_portao": portao, "consultas_rag": 1,
             "trajetoria": [passo_codigo("buscar_regras", consulta=r["pergunta"], k=r["k"],

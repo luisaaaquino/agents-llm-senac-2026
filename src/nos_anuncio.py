@@ -29,7 +29,8 @@ from . import config, db, llm, memoria, rag
 from .contrato import Fonte
 from .esquemas import Avaliacao, DecisaoAnuncio, ResumoEpisodio
 from .estado import Estado
-from .nos_comuns import chamar_modelo, passo_codigo, saida, turno_estourou
+from . import observabilidade as obs
+from .nos_comuns import chamar_modelo, passo_codigo, resumo_busca, saida, turno_estourou
 
 # --- o que a conversa diz sobre avaria (recalculado, não guardado) -----------
 _NEGA = re.compile(r"\b(sem (nenhum )?(defeito|problema|avaria)s?|nenhum (defeito|problema)|"
@@ -203,13 +204,20 @@ def perguntar_b(estado: Estado) -> dict[str, Any]:
     """[código] Encerra o turno com uma pergunta ao vendedor."""
     pergunta = estado.get("pergunta_portao") or (estado.get("decisao_b") or {}).get("pergunta") \
         or "Pode me contar um pouco mais sobre o produto?"
+    # o que falta, dito no campo `faltando` e não só implícito na pergunta
+    if estado.get("pergunta_portao") and "R$" in pergunta:
+        faltando = ["se o vendedor mantém o preço pedido ou ajusta para a faixa do mercado"]
+    elif estado.get("pergunta_portao"):
+        faltando = ["se o produto tem algum defeito ou avaria"]
+    else:
+        faltando = [f"resposta do vendedor: {pergunta[:120]}"]
     return {"mensagens": [{"quem": "agente", "texto": pergunta}], "conversa_aberta": "anuncio",
             "pergunta_portao": None,
             "trajetoria": [passo_codigo("perguntar_b", pergunta=pergunta,
                                         origem="portao" if estado.get("pergunta_portao") else "modelo")],
             **saida(estado, agente="anuncio", tipo="pergunta", resultado=pergunta,
                     termino="aguardando_usuario", suficiente=False,
-                    motivo="falta informação essencial para o anúncio",
+                    motivo="falta informação essencial para o anúncio", faltando=faltando,
                     dados={"rascunho": estado.get("rascunho")})}
 
 
@@ -241,7 +249,9 @@ def ferramenta_preco(estado: Estado) -> dict[str, Any]:
                 acao_do_codigo="avisar a faixa ao vendedor (preço fora da faixa, ainda não avisado)")]}
         return {"trajetoria": [passo_codigo("ferramenta_preco", argumentos=argumentos, repetida=True,
                                             acao_do_codigo="nenhuma: o resultado anterior continua valendo")]}
-    r = db.consultar_preco_comparaveis(argumentos["categoria"] or "outro", argumentos["bairro"] or "")
+    with obs.ferramenta("consultar_preco", argumentos) as registrar:
+        r = db.consultar_preco_comparaveis(argumentos["categoria"] or "outro", argumentos["bairro"] or "")
+        registrar(r)
     return {"faixa_preco": r, "trajetoria": [passo_codigo(
         "ferramenta_preco", argumentos=argumentos, resultado=r)]}
 
@@ -253,7 +263,9 @@ def rotear_preco(estado: Estado) -> str:
 def ferramenta_regras(estado: Estado) -> dict[str, Any]:
     """[código] Busca no corpus de regras; só roda quando o modelo pede."""
     consulta = estado["decisao_b"].get("consulta") or estado["texto_turno"]
-    r = rag.buscar(consulta)
+    with obs.ferramenta("consultar_regras", {"consulta": consulta}) as registrar:
+        r = rag.buscar(consulta)
+        registrar(resumo_busca(r))
     regras = ([{"id": t["id"], "texto": t["texto"]} for t in r["trechos"]] if r["suficiente"]
               else [{"id": None, "texto": "nenhuma regra do corpus responde esta dúvida"}])
     return {"regras_consultadas": regras, "trechos_rag": r["trechos"] if r["suficiente"] else [],
@@ -432,7 +444,10 @@ def publicar(estado: Estado) -> dict[str, Any]:
         else:
             ignoradas[campo] = valor
     rascunho["estado_declarado"] = True
-    r = db.publicar_anuncio(estado["usuario_id"], rascunho, estado["thread_id"])
+    with obs.ferramenta("publicar_anuncio", {"vendedor_id": estado["usuario_id"], "rascunho": rascunho,
+                                             "edicoes_ignoradas": ignoradas}) as registrar:
+        r = db.publicar_anuncio(estado["usuario_id"], rascunho, estado["thread_id"])
+        registrar(r)
     db.fechar_pendencia(estado["thread_id"])
     return {"rascunho": rascunho, "desfecho": "publicado",
             "escritas": {"anuncio_id": r["anuncio_id"], "anuncio_ja_existia": r["ja_existia"]},
@@ -457,8 +472,10 @@ def registrar_indicio(estado: Estado) -> dict[str, Any]:
                     "defeito; a memória de categoria descreve OUTROS anúncios, não este vendedor"]},
                 "trajetoria": [passo_codigo("registrar_indicio", argumentos={"indicio": texto},
                                             recusado="sem fala do vendedor que mencione defeito")]}
-    r = db.registrar_indicio(estado["usuario_id"], estado["thread_id"], texto,
-                             falas[-1] if falas else None, anuncio_id=None)
+    with obs.ferramenta("registrar_indicio", {"indicio": texto, "fala_literal": falas[-1]}) as registrar:
+        r = db.registrar_indicio(estado["usuario_id"], estado["thread_id"], texto,
+                                 falas[-1] if falas else None, anuncio_id=None)
+        registrar(r)
     return {"indicio": {"id": r["indicio_id"], "texto": texto, "fala_literal": falas[-1] if falas else None},
             "escritas": {"indicio_id": r["indicio_id"], "indicio_ja_existia": r["ja_existia"]},
             "trajetoria": [passo_codigo("registrar_indicio", argumentos={"indicio": texto}, resultado=r)]}
@@ -467,8 +484,12 @@ def registrar_indicio(estado: Estado) -> dict[str, Any]:
 def preparar_moderacao(estado: Estado) -> dict[str, Any]:
     """[código] Grava o anúncio como `aguardando_moderacao` (não aparece nas
     buscas), liga o indício a ele e abre a pendência de 48 h."""
-    r = db.publicar_anuncio(estado["usuario_id"], estado["rascunho"], estado["thread_id"],
-                            status="aguardando_moderacao")
+    with obs.ferramenta("publicar_anuncio", {"vendedor_id": estado["usuario_id"],
+                                             "rascunho": estado["rascunho"],
+                                             "status": "aguardando_moderacao"}) as registrar:
+        r = db.publicar_anuncio(estado["usuario_id"], estado["rascunho"], estado["thread_id"],
+                                status="aguardando_moderacao")
+        registrar(r)
     db.vincular_indicio(estado["indicio"]["id"], r["anuncio_id"])
     expira = _expira(config.PRAZO_MODERACAO_H)
     pendencia = {
@@ -505,6 +526,17 @@ def aplicar_moderacao(estado: Estado) -> dict[str, Any]:
     acao = d.get("acao")
     anuncio_id, indicio_id = estado["escritas"]["anuncio_id"], estado["indicio"]["id"]
     quem = d.get("quem", "desconhecido")
+    with obs.ferramenta("aplicar_moderacao", {"anuncio_id": anuncio_id, "indicio_id": indicio_id,
+                                              "acao": acao, "quem": quem}) as registrar:
+        desfecho, resultados = _aplicar_moderacao(d, acao, anuncio_id, indicio_id, quem, estado)
+        registrar({"resultados": resultados})
+    db.fechar_pendencia(estado["thread_id"], "expirada" if acao == "expirou" else "resolvida")
+    return {"desfecho": desfecho,
+            "trajetoria": [passo_codigo("aplicar_moderacao", acao=acao, resultados=resultados)]}
+
+
+def _aplicar_moderacao(d: dict[str, Any], acao: str, anuncio_id: int, indicio_id: int, quem: str,
+                       estado: Estado) -> tuple[str, list[dict[str, Any]]]:
     if acao == "publicar":
         resultados = [db.atualizar_status_anuncio(anuncio_id, "ativo"),
                       db.decidir_indicio(indicio_id, "descartado", quem)]
@@ -523,9 +555,7 @@ def aplicar_moderacao(estado: Estado) -> dict[str, Any]:
         resultados = [db.atualizar_status_anuncio(anuncio_id, "rejeitado"),
                       db.decidir_indicio(indicio_id, "confirmado", quem)]
         desfecho = "moderacao_rejeitou"
-    db.fechar_pendencia(estado["thread_id"], "expirada" if acao == "expirou" else "resolvida")
-    return {"desfecho": desfecho,
-            "trajetoria": [passo_codigo("aplicar_moderacao", acao=acao, resultados=resultados)]}
+    return desfecho, resultados
 
 
 # --- fim: memória de longo prazo + saída ----------------------------------------------
@@ -600,7 +630,8 @@ def _escrever_memoria(estado: Estado, desfecho: str) -> list[dict[str, Any]]:
                   "preco_final": r.get("preco"), "avaria": avaria, "desfecho": desfecho}
         resumo, uso = llm.chamada_estruturada(llm.carregar_prompt("extracao-memoria-v1.md"),
                                               json.dumps(campos, ensure_ascii=False), ResumoEpisodio,
-                                              max_tokens=150)
+                                              max_tokens=150, etapa="extracao_memoria",
+                                              prompt="extracao-memoria-v1.md")
         escritas.append({**memoria.gravar_episodio(vendedor, r["categoria"], r.get("bairro"),
                                                    desfecho, avaria, resumo.resumo, origem=origem),
                          "tokens_extracao": uso.total})
@@ -627,8 +658,11 @@ def finalizar_b(estado: Estado) -> dict[str, Any]:
         fontes.append(Fonte(tipo="banco" if "erro" not in faixa else "ferramenta",
                             ref=faixa.get("ref", "precos_comparaveis"),
                             trecho=json.dumps(faixa, ensure_ascii=False)))
+    citada = (estado.get("decisao_b") or {}).get("regra_citada")
     for t in estado.get("regras_consultadas") or []:
-        if t.get("id"):
+        # na recusa do item, a fonte é só a regra citada; as outras consultadas
+        # não sustentam a recusa
+        if t.get("id") and (desfecho != "item_proibido" or t["id"] == citada):
             fontes.append(Fonte(tipo="corpus", ref=t["id"], trecho=t["texto"]))
     if estado.get("escritas", {}).get("anuncio_id"):
         fontes.append(Fonte(tipo="banco", ref=f"anuncios[{estado['escritas']['anuncio_id']}]"))

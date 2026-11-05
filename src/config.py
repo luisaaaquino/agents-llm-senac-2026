@@ -15,6 +15,10 @@ from dotenv import load_dotenv
 ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(ROOT / ".env")
 
+# Versão do sistema: vai em todo trace e em toda rodada da avaliação, para os
+# números poderem ser comparados entre versões (histórico em docs/mudancas.md).
+VERSAO_SISTEMA = "2.1.0"
+
 # --- Caminhos ---------------------------------------------------------------
 DADOS_DIR = ROOT / "dados"
 CORPUS_DIR = DADOS_DIR / "corpus"
@@ -25,6 +29,7 @@ MEMORIA_DB_PATH = DADOS_DIR / "memoria.db"           # memória de longo prazo
 INDICE_DB_PATH = DADOS_DIR / "indice_rag.db"         # índice vetorial do corpus
 CHECKPOINT_DB_PATH = DADOS_DIR / "checkpoints.db"    # checkpointer do LangGraph
 SEED_PATH = DADOS_DIR / "seed.sql"
+TRACES_PATH = LOGS_DIR / "traces" / "traces.jsonl"   # destino dos traces (OpenTelemetry)
 
 # --- Modelo -------------------------------------------------------------------
 # Provedor compatível com a API da OpenAI (aqui, o Gemini).

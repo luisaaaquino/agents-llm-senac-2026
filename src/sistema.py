@@ -12,11 +12,13 @@ from __future__ import annotations
 
 import subprocess
 from datetime import datetime
+from functools import lru_cache
 from typing import Any
 
 from langgraph.types import Command
 
 from . import config, db, llm, memoria
+from . import observabilidade as obs
 from .contrato import Entrada, Fonte, SaidaSistema, Suficiencia
 from .grafo import GRAFO
 
@@ -28,8 +30,8 @@ def _cfg(thread_id: str) -> dict[str, Any]:
     return {"configurable": {"thread_id": thread_id}, "recursion_limit": config.RECURSION_LIMIT}
 
 
-def carimbo() -> dict[str, Any]:
-    """Versões dos prompts e estado da memória, registrados no início de cada execução."""
+@lru_cache(maxsize=1)
+def _git() -> tuple[str, bool]:
     try:
         commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True,
                                 text=True, cwd=config.ROOT).stdout.strip()
@@ -37,7 +39,19 @@ def carimbo() -> dict[str, Any]:
                                    capture_output=True, text=True, cwd=config.ROOT).stdout.strip())
     except OSError:
         commit, sujo = "desconhecido", True
-    return {"data": datetime.now().isoformat(timespec="seconds"), "commit": commit,
+    return commit, sujo
+
+
+def _commit() -> str:
+    commit, sujo = _git()
+    return commit + ("+alteracoes" if sujo else "")
+
+
+def carimbo() -> dict[str, Any]:
+    """Versões dos prompts e estado da memória, registrados no início de cada execução."""
+    commit, sujo = _git()
+    return {"data": datetime.now().isoformat(timespec="seconds"),
+            "versao_sistema": config.VERSAO_SISTEMA, "commit": commit,
             "codigo_com_alteracao_nao_commitada": sujo,
             "modelo": config.MODELO, "modelo_avaliador": config.MODELO_AVALIADOR,
             "modelo_embedding": config.MODELO_EMBEDDING, "temperatura": config.TEMPERATURA,
@@ -86,20 +100,33 @@ def _executar(thread_id: str, entrada_grafo: Any) -> SaidaSistema:
         resultado = GRAFO.invoke(entrada_grafo, _cfg(thread_id))
     except (llm.ErroLLMFatal, llm.ErroLLMRecuperavelEsgotado) as erro:
         return _erro(thread_id, f"{type(erro).__name__}: {erro}")
+    except Exception as erro:  # noqa: BLE001
+        # Falha de ferramenta (banco travado, índice ausente) também vira saída
+        # de erro, em vez de derrubar o turno sem resposta.
+        return _erro(thread_id, f"erro_ferramenta: {type(erro).__name__}: {erro}")
     if resultado.get("__interrupt__"):
         return _saida_pendencia(thread_id, resultado["__interrupt__"][0].value)
     return SaidaSistema(**resultado["saida"])
 
 
+def _fechar(span: Any, thread_id: str, saida: SaidaSistema) -> SaidaSistema:
+    estado = GRAFO.get_state(_cfg(thread_id)).values
+    obs.fechar_execucao(span, saida, estado, llm.prompts_em_uso())
+    return saida
+
+
 def conversar(entrada: Entrada) -> SaidaSistema:
     """Um turno: a pessoa digitou `entrada.texto`."""
-    pendencia = _pendencia_aberta(entrada.thread_id)
-    if pendencia:
-        # Com o grafo parado, uma fala nova não passa por cima da decisão pendente.
-        return _saida_pendencia(entrada.thread_id, pendencia)
-    return _executar(entrada.thread_id, {
-        "texto_turno": entrada.texto, "thread_id": entrada.thread_id,
-        "usuario_id": entrada.usuario_id, "sessao_id": entrada.sessao_id})
+    with obs.execucao(entrada.thread_id, {"santo.usuario_id": entrada.usuario_id,
+                                          "santo.entrada.texto": entrada.texto[:2000],
+                                          "santo.commit": _commit()}) as span:
+        pendencia = _pendencia_aberta(entrada.thread_id)
+        if pendencia:
+            # Com o grafo parado, uma fala nova não passa por cima da decisão pendente.
+            return _fechar(span, entrada.thread_id, _saida_pendencia(entrada.thread_id, pendencia))
+        return _fechar(span, entrada.thread_id, _executar(entrada.thread_id, {
+            "texto_turno": entrada.texto, "thread_id": entrada.thread_id,
+            "usuario_id": entrada.usuario_id, "sessao_id": entrada.sessao_id}))
 
 
 def responder_pendencia(thread_id: str, resposta: dict[str, Any], quem: str) -> SaidaSistema:
@@ -109,28 +136,36 @@ def responder_pendencia(thread_id: str, resposta: dict[str, Any], quem: str) -> 
     Se a pendência já foi resolvida, uma segunda resposta não retoma nada. E
     as escritas têm chave de idempotência, para o caso de o nó de escrita
     rodar de novo."""
-    pendencia = _pendencia_aberta(thread_id)
-    if pendencia is None:
-        return SaidaSistema(
-            thread_id=thread_id, agente="anuncio", tipo="erro",
-            resultado="Essa decisão já foi registrada; nada foi feito de novo.",
-            suficiencia=Suficiencia(base_suficiente=True, motivo="não há pendência aberta nesta conversa"),
-            termino="respondeu", motivo_termino="resposta repetida: sem pendência aberta")
-    perfil = pendencia["perfil"]
-    if quem != "sistema:prazo":
-        if perfil == "vendedor" and quem != pendencia["responsavel"]:
-            return _erro(thread_id, f"{quem} não pode aprovar o anúncio de {pendencia['responsavel']}")
-        if perfil == "moderador" and not quem.startswith("M-"):
-            return _erro(thread_id, f"{quem} não tem perfil de moderador")
-    if quem != "sistema:prazo" and datetime.now() > datetime.fromisoformat(pendencia["expira_em"]):
-        # Resposta depois do prazo não vale: o caminho do silêncio já era o
-        # declarado, e a rotina pode simplesmente não ter passado ainda.
-        resposta = {"acao": "expirou", "resposta_tardia": resposta, "quem_respondeu_tarde": quem}
-        quem = "sistema:prazo"
-    validas = set(pendencia["opcoes"]) | {"expirou"}
-    if resposta.get("acao") not in validas:
-        return _erro(thread_id, f"resposta inválida: {resposta.get('acao')} (válidas: {sorted(validas)})")
-    return _executar(thread_id, Command(resume={**resposta, "quem": quem}))
+    with obs.execucao(thread_id, {"santo.humano.quem": quem,
+                                  "santo.humano.resposta": resposta,
+                                  "santo.humano.quando": datetime.now().isoformat(timespec="seconds"),
+                                  "santo.commit": _commit()}) as span:
+        pendencia = _pendencia_aberta(thread_id)
+        if pendencia is None:
+            return _fechar(span, thread_id, SaidaSistema(
+                thread_id=thread_id, agente="anuncio", tipo="erro",
+                resultado="Essa decisão já foi registrada; nada foi feito de novo.",
+                suficiencia=Suficiencia(base_suficiente=True, motivo="não há pendência aberta nesta conversa"),
+                termino="respondeu", motivo_termino="resposta repetida: sem pendência aberta"))
+        span.set_attributes({"santo.humano.pendencia": pendencia["tipo"],
+                             "santo.humano.aprovado": obs.texto_json(pendencia["argumentos"])})
+        perfil = pendencia["perfil"]
+        if quem != "sistema:prazo":
+            if perfil == "vendedor" and quem != pendencia["responsavel"]:
+                return _fechar(span, thread_id, _erro(
+                    thread_id, f"{quem} não pode aprovar o anúncio de {pendencia['responsavel']}"))
+            if perfil == "moderador" and not quem.startswith("M-"):
+                return _fechar(span, thread_id, _erro(thread_id, f"{quem} não tem perfil de moderador"))
+        if quem != "sistema:prazo" and datetime.now() > datetime.fromisoformat(pendencia["expira_em"]):
+            # Resposta depois do prazo não vale: o caminho do silêncio já era o
+            # declarado, e a rotina pode simplesmente não ter passado ainda.
+            resposta = {"acao": "expirou", "resposta_tardia": resposta, "quem_respondeu_tarde": quem}
+            quem = "sistema:prazo"
+        validas = set(pendencia["opcoes"]) | {"expirou"}
+        if resposta.get("acao") not in validas:
+            return _fechar(span, thread_id, _erro(
+                thread_id, f"resposta inválida: {resposta.get('acao')} (válidas: {sorted(validas)})"))
+        return _fechar(span, thread_id, _executar(thread_id, Command(resume={**resposta, "quem": quem})))
 
 
 def rotina_prazos(agora: datetime | None = None) -> list[dict[str, Any]]:
