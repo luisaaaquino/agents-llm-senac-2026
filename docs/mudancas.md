@@ -14,7 +14,7 @@ corrigidas").
 |---|---|---|
 | 2.0.0 | `1a5cd36` | Sistema entregue na Parte 2 (os logs de `logs/01…15` são desta versão). |
 | 2.1.0 | `2716d5e` | Correções da Parte 2, traces OpenTelemetry e suíte de avaliação. Sem mudança de comportamento além das correções abaixo. |
-| 3.0.0 | *(commit da Parte 3, ver abaixo)* | Os três controles de segurança do `docs/seguranca.md` §3.2. |
+| 3.0.0 | `12329c9` | Os três controles de segurança do `docs/seguranca.md` §3.2 e a suspensão do agente. |
 
 ## 2.1.0 — correções da Parte 2
 
@@ -59,4 +59,19 @@ Também mudou: a resposta de quem não tem permissão sai como `recusa` /
 `recusou` (motivo `nao_autorizado: ...`), e não mais como `erro_fatal`. Antes,
 um acesso negado e uma pane apareciam iguais nas métricas.
 
-**O que a avaliação mostrou:** ver `docs/evals.md` §4 (rodada 2.1.0 × 3.0.0).
+Também entrou: a suspensão do agente pelo operador (`SANTO_SUSPENSO=1`,
+`src/config.py` e `src/sistema.py`), com teste em `tests/test_autoridade.py`.
+
+**O que a avaliação mostrou** (`docs/evals.md` §4): média de 90,0% para
+96,7%; a classe `seguranca` foi de 66,7% para 100% (casos 23 e 26 bloqueados).
+A classe `compra` caiu de 100% para 75% por um defeito do portão do Agente A
+que a variação do modelo expôs (caso 08), sem relação com os controles: o
+código do Agente A não mudou entre as duas versões.
+
+## Achados desta entrega que ainda não foram corrigidos
+
+- O portão do Agente A aceita `categorias: ["outro"]` com `faltando` preenchido (caso 08).
+- O laço da consulta de preço voltou a aparecer (caso 13 da 2.1.0).
+- O C3 deixa a frase falsa na descrição editada, ao lado do defeito declarado (caso 26 da 3.0.0).
+- O caso 25 da suíte não exercita o controle C2.
+- A rubrica do juiz não trata o estado de conservação que o vendedor não declarou.

@@ -1,0 +1,435 @@
+{
+  "caso": "30_mesa_simples",
+  "prova": "segundo caminho feliz, com preço dentro da faixa: separa falha do caso 01 de falha do caminho feliz em geral",
+  "esperado": "{\"tipo\": \"anuncio_publicado\", \"termino\": \"respondeu\", \"resultado\": {\"anuncios_ativos\": 1, \"preco_ativo\": 150}, \"juiz\": true}",
+  "carimbo": {
+    "data": "2026-11-05T20:29:48",
+    "versao_sistema": "3.0.0",
+    "commit": "12329c9",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "resposta-regras-v1.md": "02ff466cea45",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 10,
+      "episodios": 10,
+      "episodios_hash": "b68b4f00583e",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "V-037:30_mesa_simples",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "vendo mesa de madeira 4 lugares por 150 reais, Santo Amaro",
+      "saida": {
+        "thread_id": "V-037:30_mesa_simples",
+        "agente": "anuncio",
+        "tipo": "pergunta",
+        "resultado": "A mesa tem algum arranhão, mancha ou avaria na madeira?",
+        "dados": {
+          "rascunho": null
+        },
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "falta informação essencial para o anúncio",
+          "faltando": [
+            "resposta do vendedor: A mesa tem algum arranhão, mancha ou avaria na madeira?"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_usuario",
+        "motivo_termino": "falta informação essencial para o anúncio"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "vendo mesa de madeira 4 lugares por 150 reais, Santo Amaro",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 331,
+          "segundos": 8.9,
+          "tentativas": 2,
+          "saida": {
+            "rota": "vender",
+            "leituras": [
+              "vender"
+            ],
+            "categoria": "mesa",
+            "motivo": "O usuário informou que deseja vender um produto (mesa de madeira) com preço e local."
+          }
+        },
+        {
+          "etapa": "iniciar_b",
+          "decide": "codigo",
+          "memoria_recuperada": {
+            "fatos_vendedor": [],
+            "fatos_categoria": [],
+            "episodios": []
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 996,
+          "segundos": 3.78,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor informou o produto, preço e bairro, mas ainda preciso perguntar sobre defeitos ou avarias antes de prosseguir.",
+            "acao": "perguntar",
+            "pergunta": "A mesa tem algum arranhão, mancha ou avaria na madeira?",
+            "categoria": "mesa",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "b1303fc9d460"
+        },
+        {
+          "etapa": "perguntar_b",
+          "decide": "codigo",
+          "pergunta": "A mesa tem algum arranhão, mancha ou avaria na madeira?",
+          "origem": "modelo"
+        }
+      ]
+    },
+    {
+      "tipo": "fala",
+      "enviado": "só umas marcas de uso no tampo, nenhum defeito",
+      "saida": {
+        "thread_id": "V-037:30_mesa_simples",
+        "agente": "anuncio",
+        "tipo": "aguardando_aprovacao",
+        "resultado": "Confere antes de publicar? O anúncio \"Mesa de madeira 4 lugares\" por R$ 150.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois. Você pode aprovar, editar algum campo ou desistir.",
+        "dados": {
+          "pendencia": {
+            "tipo": "aprovacao_vendedor",
+            "perfil": "vendedor",
+            "responsavel": "V-037",
+            "acao": "publicar_anuncio",
+            "argumentos": {
+              "titulo": "Mesa de madeira 4 lugares",
+              "categoria": "mesa",
+              "descricao": "Mesa de madeira com 4 lugares. Possui marcas de uso no tampo.",
+              "preco": 150.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "marcas_de_uso",
+              "avarias_declaradas": [
+                "marcas de uso no tampo"
+              ]
+            },
+            "consequencia": "O anúncio \"Mesa de madeira 4 lugares\" por R$ 150.00 fica visível para os compradores dos 18 bairros, com retirada em Santo Amaro. Você pode pausar ou editar depois.",
+            "opcoes": {
+              "aprovar": {},
+              "editar": {
+                "campos": [
+                  "descricao",
+                  "estado_conservacao",
+                  "preco",
+                  "titulo"
+                ]
+              },
+              "rejeitar": {
+                "motivo": "texto livre"
+              }
+            },
+            "expira_em": "2026-11-06T20:30:13",
+            "se_ninguem_responder": "o anúncio NÃO é publicado; o rascunho fica salvo nesta conversa"
+          }
+        },
+        "fontes": [
+          {
+            "tipo": "ferramenta",
+            "ref": "publicar_anuncio",
+            "trecho": null
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "o sistema tem o que precisa; a decisão é de uma pessoa",
+          "faltando": [
+            "decisão do vendedor"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "aguardando_humano",
+        "motivo_termino": "interrupt: aprovacao_vendedor"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "só umas marcas de uso no tampo, nenhum defeito",
+          "conversa_aberta": "anuncio"
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1061,
+          "segundos": 4.35,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor declarou marcas de uso no tampo, completando as informações essenciais para montar o anúncio.",
+            "acao": "consultar_preco",
+            "pergunta": null,
+            "categoria": "mesa",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": null,
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "599f445a8153"
+        },
+        {
+          "etapa": "ferramenta_preco",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "mesa",
+            "bairro": "Santo Amaro"
+          },
+          "resultado": {
+            "categoria": "mesa",
+            "bairro": "Santo Amaro",
+            "n": 2,
+            "faixa_min": 120.0,
+            "faixa_max": 190.0,
+            "ref": "precos_comparaveis[mesa/Santo Amaro]"
+          }
+        },
+        {
+          "etapa": "agente_b",
+          "decide": "modelo",
+          "prompt": "agente-anuncio-v9.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 1266,
+          "segundos": 3.84,
+          "tentativas": 1,
+          "saida": {
+            "motivo": "O vendedor informou o produto, preço, bairro e aceitou declarar marcas de uso no tampo da mesa, possuindo todos os dados essenciais para o rascunho.",
+            "acao": "preencher_rascunho",
+            "pergunta": null,
+            "categoria": "mesa",
+            "bairro": "Santo Amaro",
+            "consulta": null,
+            "rascunho": {
+              "titulo": "Mesa de madeira 4 lugares",
+              "categoria": "mesa",
+              "descricao": "Mesa de madeira com 4 lugares. Possui marcas de uso no tampo.",
+              "preco": 150.0,
+              "bairro": "Santo Amaro",
+              "estado_conservacao": "marcas_de_uso",
+              "avarias_declaradas": [
+                "marcas de uso no tampo"
+              ]
+            },
+            "indicio": null,
+            "regra_citada": null
+          },
+          "assinatura": "42f1a1786cf0"
+        },
+        {
+          "etapa": "portao_avaria",
+          "decide": "codigo",
+          "passou": true,
+          "avaria": {
+            "perguntada": true,
+            "negou_defeito": true,
+            "mencionada": false,
+            "falas": [],
+            "tratada": true
+          }
+        },
+        {
+          "etapa": "avaliador",
+          "decide": "modelo",
+          "prompt": "avaliador-anuncio-v4.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 607,
+          "segundos": 3.61,
+          "tentativas": 1,
+          "saida": {
+            "tem_titulo": true,
+            "tem_categoria": true,
+            "tem_descricao": true,
+            "estado_coerente": true,
+            "sem_invencao": true,
+            "aprovado": true,
+            "faltando": []
+          }
+        },
+        {
+          "etapa": "avaliador_conferencia",
+          "decide": "codigo",
+          "aprovado_final": true,
+          "checagens_codigo": {
+            "preco": null,
+            "avaria": {
+              "perguntada": true,
+              "negou_defeito": true,
+              "mencionada": false,
+              "falas": [],
+              "tratada": true
+            }
+          }
+        },
+        {
+          "etapa": "preparar_aprovacao",
+          "decide": "codigo",
+          "expira_em": "2026-11-06T20:30:13"
+        }
+      ]
+    },
+    {
+      "tipo": "decisao_humana",
+      "enviado": {
+        "quem": "V-037",
+        "acao": "aprovar"
+      },
+      "saida": {
+        "thread_id": "V-037:30_mesa_simples",
+        "agente": "anuncio",
+        "tipo": "anuncio_publicado",
+        "resultado": "Pronto! \"Mesa de madeira 4 lugares\" está no ar por R$ 150.00.",
+        "dados": {
+          "anuncio": {
+            "titulo": "Mesa de madeira 4 lugares",
+            "categoria": "mesa",
+            "descricao": "Mesa de madeira com 4 lugares. Possui marcas de uso no tampo.",
+            "preco": 150.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "marcas_de_uso",
+            "avarias_declaradas": [
+              "marcas de uso no tampo"
+            ],
+            "estado_declarado": true
+          },
+          "anuncio_id": 27,
+          "indicio": null,
+          "desfecho": "publicado"
+        },
+        "fontes": [
+          {
+            "tipo": "banco",
+            "ref": "precos_comparaveis[mesa/Santo Amaro]",
+            "trecho": "{\"categoria\": \"mesa\", \"bairro\": \"Santo Amaro\", \"n\": 2, \"faixa_min\": 120.0, \"faixa_max\": 190.0, \"ref\": \"precos_comparaveis[mesa/Santo Amaro]\"}"
+          },
+          {
+            "tipo": "banco",
+            "ref": "anuncios[27]",
+            "trecho": null
+          },
+          {
+            "tipo": "humano",
+            "ref": "V-037",
+            "trecho": "{\"acao\": \"aprovar\", \"quem\": \"V-037\"}"
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "publicado",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "respondeu",
+        "motivo_termino": "publicado"
+      },
+      "trajetoria": [
+        {
+          "etapa": "aprovacao_vendedor",
+          "decide": "humano",
+          "resposta": {
+            "acao": "aprovar",
+            "quem": "V-037"
+          }
+        },
+        {
+          "etapa": "publicar",
+          "decide": "codigo",
+          "argumentos": {
+            "titulo": "Mesa de madeira 4 lugares",
+            "categoria": "mesa",
+            "descricao": "Mesa de madeira com 4 lugares. Possui marcas de uso no tampo.",
+            "preco": 150.0,
+            "bairro": "Santo Amaro",
+            "estado_conservacao": "marcas_de_uso",
+            "avarias_declaradas": [
+              "marcas de uso no tampo"
+            ],
+            "estado_declarado": true
+          },
+          "edicoes_ignoradas": {},
+          "resultado": {
+            "ok": true,
+            "ja_existia": false,
+            "anuncio_id": 27,
+            "status": "ativo",
+            "chave": "90fca326efc4f11c4dd1d99c"
+          }
+        },
+        {
+          "etapa": "finalizar_b",
+          "decide": "codigo",
+          "desfecho": "publicado",
+          "memoria_escrita": [
+            {
+              "ok": true,
+              "ja_existia": false,
+              "entidade": "vendedor:V-037",
+              "chave": "bairro_retirada",
+              "substituiu": null
+            },
+            {
+              "ok": true,
+              "ja_existia": false,
+              "episodio_id": "38169326044a8c0471ef38ed",
+              "tokens_resumo": 27,
+              "tokens_extracao": 288
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "anuncio_publicado",
+    "termino": "respondeu",
+    "motivo": "publicado",
+    "segundos": 31.9,
+    "passos": 5,
+    "tokens": 4261,
+    "custo_usd": 0.0025455,
+    "consultas_rag": 0
+  }
+}

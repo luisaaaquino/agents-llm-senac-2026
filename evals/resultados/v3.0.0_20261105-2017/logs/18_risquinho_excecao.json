@@ -1,0 +1,150 @@
+{
+  "caso": "18_risquinho_excecao",
+  "prova": "segunda pergunta cuja resposta é uma exceção (marca pequena de uso)",
+  "esperado": "{\"tipo\": \"resposta\", \"termino\": \"respondeu\", \"fontes_contem\": [\"politica-moderacao-2026#4\"]}",
+  "carimbo": {
+    "data": "2026-11-05T20:24:41",
+    "versao_sistema": "3.0.0",
+    "commit": "12329c9",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "resposta-regras-v1.md": "02ff466cea45",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 9,
+      "episodios": 8,
+      "episodios_hash": "413c643659f0",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "C-008:18_risquinho_excecao",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "preciso tirar foto de um risquinho na porta da geladeira?",
+      "saida": {
+        "thread_id": "C-008:18_risquinho_excecao",
+        "agente": "duvida",
+        "tipo": "resposta",
+        "resultado": "Não é preciso tirar foto específica para riscos superficiais. Basta descrever a marca e escolher o estado Marcas de Uso.",
+        "dados": null,
+        "fontes": [
+          {
+            "tipo": "corpus",
+            "ref": "politica-moderacao-2026#4",
+            "trecho": "Toda avaria funcional ou estrutural exige uma foto do problema, além das fotos do produto. Exceção: marcas estéticas leves — riscos superficiais, desbotamento, pequenas manchas — não exigem foto específica; basta descrevê-las e escolher o estado Marcas de Uso."
+          }
+        ],
+        "suficiencia": {
+          "base_suficiente": true,
+          "motivo": "resposta sustentada pelos trechos citados",
+          "faltando": []
+        },
+        "escolha_declarada": null,
+        "termino": "respondeu",
+        "motivo_termino": "resposta sustentada pelos trechos citados"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "preciso tirar foto de um risquinho na porta da geladeira?",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 323,
+          "segundos": 6.56,
+          "tentativas": 2,
+          "saida": {
+            "rota": "duvida",
+            "leituras": [],
+            "categoria": "geladeira",
+            "motivo": "O usuário está perguntando sobre as regras ou padrões para anunciar um produto na plataforma."
+          }
+        },
+        {
+          "etapa": "buscar_regras",
+          "decide": "codigo",
+          "consulta": "preciso tirar foto de um risquinho na porta da geladeira?",
+          "k": 3,
+          "recuperados": [
+            [
+              "politica-moderacao-2026#4",
+              0.7248
+            ],
+            [
+              "politica-moderacao-2026#3",
+              0.614
+            ],
+            [
+              "guia-estado-conservacao#4",
+              0.6054
+            ]
+          ],
+          "portao": {
+            "melhor": 0.7248,
+            "limiar": 0.67,
+            "suficiente": true
+          }
+        },
+        {
+          "etapa": "responder_regras",
+          "decide": "modelo",
+          "prompt": "resposta-regras-v1.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 583,
+          "segundos": 18.22,
+          "tentativas": 1,
+          "saida": {
+            "resposta": "Não é preciso tirar foto específica para riscos superficiais. Basta descrever a marca e escolher o estado Marcas de Uso.",
+            "citacoes": [
+              "politica-moderacao-2026#4"
+            ],
+            "base_suficiente": true
+          }
+        },
+        {
+          "etapa": "conferir_citacoes",
+          "decide": "codigo",
+          "validas": [
+            "politica-moderacao-2026#4"
+          ],
+          "invalidas": [],
+          "suficiente_final": true
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "resposta",
+    "termino": "respondeu",
+    "motivo": "resposta sustentada pelos trechos citados",
+    "segundos": 28.0,
+    "passos": 2,
+    "tokens": 906,
+    "custo_usd": 0.0005402,
+    "consultas_rag": 1
+  }
+}

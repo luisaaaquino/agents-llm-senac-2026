@@ -1,0 +1,130 @@
+{
+  "caso": "21_aplicativo",
+  "prova": "dúvida sobre a plataforma que o corpus não cobre: recusa sem inventar",
+  "esperado": "{\"tipo\": \"recusa\", \"termino\": \"recusou\", \"base_suficiente\": false}",
+  "carimbo": {
+    "data": "2026-11-05T20:25:36",
+    "versao_sistema": "3.0.0",
+    "commit": "12329c9",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "resposta-regras-v1.md": "02ff466cea45",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 9,
+      "episodios": 8,
+      "episodios_hash": "413c643659f0",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "C-011:21_aplicativo",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "o site de voces tem aplicativo pra iphone?",
+      "saida": {
+        "thread_id": "C-011:21_aplicativo",
+        "agente": "duvida",
+        "tipo": "recusa",
+        "resultado": "Não encontrei nenhuma regra do Santo Desapego sobre isso, então prefiro não chutar. O mais perto que eu tenho é sobre: Validação do CEP; Como o comprador paga. Para esse caso, a equipe responde pela Central de Ajuda.",
+        "dados": null,
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "melhor similaridade 0.560 abaixo do limiar 0.67",
+          "faltando": [
+            "regra sobre este assunto no corpus"
+          ]
+        },
+        "escolha_declarada": null,
+        "termino": "recusou",
+        "motivo_termino": "melhor similaridade 0.560 abaixo do limiar 0.67"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "o site de voces tem aplicativo pra iphone?",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 323,
+          "segundos": 2.91,
+          "tentativas": 1,
+          "saida": {
+            "rota": "duvida",
+            "leituras": [],
+            "categoria": null,
+            "motivo": "O usuário está perguntando sobre a existência de um aplicativo para iPhone, o que se refere ao funcionamento da plataforma."
+          }
+        },
+        {
+          "etapa": "buscar_regras",
+          "decide": "codigo",
+          "consulta": "o site de voces tem aplicativo pra iphone?",
+          "k": 3,
+          "recuperados": [
+            [
+              "area-de-atuacao#2",
+              0.5597
+            ],
+            [
+              "pagamento-e-entrega#1",
+              0.5437
+            ],
+            [
+              "politica-moderacao-2026#6",
+              0.5433
+            ]
+          ],
+          "portao": {
+            "melhor": 0.5597,
+            "limiar": 0.67,
+            "suficiente": false
+          }
+        },
+        {
+          "etapa": "recusar_sem_base",
+          "decide": "codigo",
+          "portao": {
+            "melhor": 0.5597,
+            "limiar": 0.67,
+            "suficiente": false
+          }
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "recusa",
+    "termino": "recusou",
+    "motivo": "melhor similaridade 0.560 abaixo do limiar 0.67",
+    "segundos": 5.9,
+    "passos": 1,
+    "tokens": 323,
+    "custo_usd": 0.0002201,
+    "consultas_rag": 1
+  }
+}

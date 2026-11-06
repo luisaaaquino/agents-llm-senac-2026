@@ -21,10 +21,14 @@ def comparar(a: dict, b: dict) -> str:
     o = ds["por_origem"]
     linhas = [f"DATASET v{ds['versao']}   {ds['n']} casos   "
               f"(producao {o['producao']} · desenvolvimento {o['desenvolvimento']} · sintetico {o['sintetico']})"]
-    v = b["juiz"].get("validacao")
+    # a validação do juiz pode ser posterior à rodada: vale a mais recente
+    atual = Path(__file__).resolve().parent / "juiz" / "validacao_resultado.json"
+    v = json.loads(atual.read_text(encoding="utf-8")) if atual.exists() else b["juiz"].get("validacao")
     if v:
-        linhas.append(f"JUIZ rubrica v{b['juiz']['rubrica']}   concordância {100 * v['concordancia']:.0f}%   "
-                      f"limiar {100 * v['limiar']:.0f}%   {'adotado' if v['adotado'] else 'NÃO adotado'}")
+        situacao = "adotado" if v["adotado"] else (
+            "NÃO adotado: rótulos ainda só sugeridos" if v.get("rotulos_so_sugeridos") else "NÃO adotado")
+        linhas.append(f"JUIZ rubrica v{v['rubrica']}   concordância {100 * v['concordancia']:.0f}%   "
+                      f"limiar {100 * v['limiar']:.0f}%   {situacao}")
     else:
         linhas.append(f"JUIZ rubrica v{b['juiz']['rubrica']}   sem validação: não conta na nota")
     linhas.append("")
@@ -39,7 +43,7 @@ def comparar(a: dict, b: dict) -> str:
     pa = {c["id"]: c["passou"] for c in a["casos"]}
     for c in b["casos"]:
         if c["id"] in pa and pa[c["id"]] != c["passou"]:
-            linhas.append(f"  {c['id']:<36} {'falhou' if pa[c['id']] else 'passou'} -> "
+            linhas.append(f"  {c['id']:<36} {'passou' if pa[c['id']] else 'falhou'} -> "
                           f"{'passou' if c['passou'] else 'falhou'}")
     linhas.append(f"\nA: {a['versao_sistema']} commit {a['commit']} ({a['data']})"
                   f"\nB: {b['versao_sistema']} commit {b['commit']} ({b['data']})")

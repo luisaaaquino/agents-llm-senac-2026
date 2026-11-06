@@ -1,0 +1,180 @@
+{
+  "caso": "08_incompleta",
+  "prova": "entrada incompleta: pega o sistema que busca às cegas em vez de perguntar o que falta",
+  "esperado": "{\"tipo\": \"sugestao\", \"termino\": \"respondeu\", \"primeiro_tipo\": \"pergunta\", \"compra\": {\"preco_max_item\": 150, \"categoria\": \"mesa\"}}",
+  "carimbo": {
+    "data": "2026-11-05T20:21:10",
+    "versao_sistema": "3.0.0",
+    "commit": "12329c9",
+    "codigo_com_alteracao_nao_commitada": false,
+    "modelo": "gemini-3.5-flash-lite",
+    "modelo_avaliador": "gemini-3.5-flash-lite",
+    "modelo_embedding": "gemini-embedding-001",
+    "temperatura": 0.0,
+    "prompts": {
+      "agente-anuncio-v9.md": "b8a09e89aa31",
+      "avaliador-anuncio-v4.md": "7ad9fa507669",
+      "compra-interpretar-v1.md": "61a2dc35b8d8",
+      "compra-sugestao-v1.md": "37a9f0485608",
+      "extracao-memoria-v1.md": "4491d8ef8d02",
+      "procedural.md": "7be63105f80c",
+      "triagem-v2.md": "6592cce609db"
+    },
+    "memoria": {
+      "semantica_fatos": 7,
+      "episodios": 5,
+      "episodios_hash": "97049c892f23",
+      "procedural_hash": "26a3a882e135"
+    },
+    "parametros": {
+      "recursion_limit": 60,
+      "rag_k": 3,
+      "rag_limiar": 0.67,
+      "b_max_passos": 12,
+      "laco_repeticoes": 3
+    }
+  },
+  "thread_id": "C-003:08_incompleta",
+  "turnos": [
+    {
+      "tipo": "fala",
+      "enviado": "oi, quero comprar umas coisas",
+      "saida": {
+        "thread_id": "C-003:08_incompleta",
+        "agente": "compra",
+        "tipo": "recusa",
+        "resultado": "Procurei outro ativos e não há nenhum anúncio assim agora. Itens usados somem rápido: vale aumentar o orçamento ou voltar em alguns dias.",
+        "dados": {
+          "pedido": {
+            "intencao": null,
+            "categorias": [
+              "outro"
+            ],
+            "orcamento_total": null,
+            "preco_max_item": null,
+            "bairro": null,
+            "faltando": [
+              "o_que_procura"
+            ],
+            "ambiguidade": null,
+            "escolha": null
+          }
+        },
+        "fontes": [],
+        "suficiencia": {
+          "base_suficiente": false,
+          "motivo": "nenhum item ativo nas categorias e faixa pedidas",
+          "faltando": [
+            "itens ativos de outro"
+          ]
+        },
+        "escolha_declarada": "você não disse o bairro; ordenei por preço, sem distância",
+        "termino": "recusou",
+        "motivo_termino": "nenhum item ativo nas categorias e faixa pedidas"
+      },
+      "trajetoria": [
+        {
+          "etapa": "entrada",
+          "decide": "codigo",
+          "texto": "oi, quero comprar umas coisas",
+          "conversa_aberta": null
+        },
+        {
+          "etapa": "triagem",
+          "decide": "modelo",
+          "prompt": "triagem-v2.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 313,
+          "segundos": 6.08,
+          "tentativas": 1,
+          "saida": {
+            "rota": "comprar",
+            "leituras": [
+              "comprar"
+            ],
+            "categoria": null,
+            "motivo": "O usuário expressa explicitamente o desejo de comprar produtos."
+          }
+        },
+        {
+          "etapa": "iniciar_a",
+          "decide": "codigo",
+          "refinando": false
+        },
+        {
+          "etapa": "interpretar_compra",
+          "decide": "modelo",
+          "prompt": "compra-interpretar-v1.md",
+          "modelo": "gemini-3.5-flash-lite",
+          "tokens": 378,
+          "segundos": 3.93,
+          "tentativas": 1,
+          "saida": {
+            "intencao": null,
+            "categorias": [
+              "outro"
+            ],
+            "orcamento_total": null,
+            "preco_max_item": null,
+            "bairro": null,
+            "faltando": [
+              "o_que_procura"
+            ],
+            "ambiguidade": null,
+            "escolha": null
+          }
+        },
+        {
+          "etapa": "completar_pedido",
+          "decide": "codigo",
+          "pedido": {
+            "intencao": null,
+            "categorias": [
+              "outro"
+            ],
+            "orcamento_total": null,
+            "preco_max_item": null,
+            "bairro": null,
+            "faltando": [
+              "o_que_procura"
+            ],
+            "ambiguidade": null,
+            "escolha": null
+          },
+          "escolhas": [
+            "você não disse o bairro; ordenei por preço, sem distância"
+          ]
+        },
+        {
+          "etapa": "buscar_categoria",
+          "decide": "codigo",
+          "argumentos": {
+            "categoria": "outro",
+            "preco_max": null,
+            "bairro": null,
+            "usuario_id": "C-003"
+          },
+          "n": 0,
+          "erro": "sem_itens_ativos"
+        },
+        {
+          "etapa": "montar_sugestao",
+          "decide": "codigo",
+          "sem_candidatos": [
+            "outro"
+          ]
+        }
+      ]
+    }
+  ],
+  "final": {
+    "tipo": "recusa",
+    "termino": "recusou",
+    "motivo": "nenhum item ativo nas categorias e faixa pedidas",
+    "segundos": 10.2,
+    "passos": 2,
+    "tokens": 691,
+    "custo_usd": 0.0004999000000000001,
+    "consultas_rag": 0
+  }
+}

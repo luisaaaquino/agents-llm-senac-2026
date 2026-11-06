@@ -61,9 +61,14 @@ def adotado() -> bool:
 def _amostras() -> list[dict]:
     """Os anúncios publicados nos logs das rodadas, com as falas do vendedor."""
     vistos, out = set(), []
-    for log_path in sorted(RESULTADOS_DIR.glob("*/logs/*.json")):
+    # as rodadas da avaliação primeiro; depois os logs da Parte 2 (logs/*.json
+    # e as repetições de estabilidade), para chegar às 20 saídas
+    caminhos = (sorted(RESULTADOS_DIR.glob("*/logs/*.json")) + sorted(config.LOGS_DIR.glob("[0-9]*.json"))
+                + sorted(config.LOGS_DIR.glob("medicoes/estabilidade*/*_r*.json")))
+    for log_path in caminhos:
         log = json.loads(log_path.read_text(encoding="utf-8"))
-        final = log["turnos"][-1]["saida"] if log["turnos"] else {}
+        turnos = [t for t in log.get("turnos", []) if t["tipo"] != "decisao_humana_repetida"]
+        final = turnos[-1]["saida"] if turnos else {}
         anuncio = (final.get("dados") or {}).get("anuncio")
         if final.get("tipo") != "anuncio_publicado" or not anuncio:
             continue
@@ -72,7 +77,8 @@ def _amostras() -> list[dict]:
         if chave in vistos:
             continue
         vistos.add(chave)
-        out.append({"origem": f"{log_path.parent.parent.name}/{log_path.stem}", "falas": falas, "anuncio": anuncio})
+        out.append({"origem": str(log_path.relative_to(config.ROOT)).replace("\\", "/"),
+                    "falas": falas, "anuncio": anuncio})
     return out
 
 
@@ -110,7 +116,10 @@ def validar() -> None:
     rotuladores = sorted({l["rotulado_por"] for l in rotuladas})
     resultado = {"rubrica": versao_rubrica(), "n_rotuladas": n, "limiar": LIMIAR_ADOCAO,
                  "concordancia": round(concordancia, 3), "matriz": m,
-                 "adotado": n >= 20 and concordancia >= LIMIAR_ADOCAO,
+                 # rótulo marcado como sugestão não conta como rótulo humano
+                 "rotulos_so_sugeridos": any("SUGEST" in r.upper() for r in rotuladores),
+                 "adotado": n >= 20 and concordancia >= LIMIAR_ADOCAO
+                            and not any("SUGEST" in r.upper() for r in rotuladores),
                  "rotulado_por": rotuladores, "desacordos": desacordos}
     RESULTADO.write_text(json.dumps(resultado, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(resultado, ensure_ascii=False, indent=2))

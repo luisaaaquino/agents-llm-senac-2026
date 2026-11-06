@@ -1,0 +1,166 @@
+{
+  "2.1.0": {
+    "execucoes": 65,
+    "conversas": 30,
+    "latencia_execucao_s": {
+      "p50": 11.4,
+      "p95": 34.9
+    },
+    "latencia_conversa_s": {
+      "p50": 28.0,
+      "p95": 61.3
+    },
+    "custo_usd": {
+      "por_execucao_media": 0.00094,
+      "por_execucao_p95": 0.00246,
+      "por_conversa_media": 0.00205,
+      "total": 0.0614
+    },
+    "chamadas_modelo": 138,
+    "chamadas_modelo_com_erro": 0,
+    "chamadas_modelo_com_nova_tentativa": 27,
+    "terminos_por_execucao": {
+      "aguardando_usuario": 22,
+      "respondeu": 17,
+      "aguardando_humano": 13,
+      "recusou": 7,
+      "erro_fatal": 2,
+      "expirou": 1,
+      "laco": 1,
+      "orcamento": 1,
+      "rejeitado": 1
+    },
+    "terminos_finais_por_conversa": {
+      "respondeu": 16,
+      "recusou": 7,
+      "erro_fatal": 2,
+      "aguardando_usuario": 1,
+      "expirou": 1,
+      "laco": 1,
+      "orcamento": 1,
+      "rejeitado": 1
+    },
+    "erro_por_ferramenta": {
+      "aplicar_moderacao": {
+        "chamadas": 3,
+        "erros": 0,
+        "taxa": 0.0
+      },
+      "buscar_catalogo": {
+        "chamadas": 7,
+        "erros": 0,
+        "taxa": 0.0
+      },
+      "consultar_preco": {
+        "chamadas": 11,
+        "erros": 3,
+        "taxa": 0.273
+      },
+      "consultar_regras": {
+        "chamadas": 10,
+        "erros": 0,
+        "taxa": 0.0
+      },
+      "publicar_anuncio": {
+        "chamadas": 11,
+        "erros": 0,
+        "taxa": 0.0
+      },
+      "registrar_indicio": {
+        "chamadas": 3,
+        "erros": 0,
+        "taxa": 0.0
+      }
+    },
+    "slo_qualidade": {
+      "sli": 0.938,
+      "alvo": 0.95,
+      "boas": 61,
+      "validas": 65,
+      "ruins": 4,
+      "orcamento_de_erro_execucoes": 3.3,
+      "orcamento_consumido": 1.23,
+      "cumprido": false
+    }
+  },
+  "3.0.0": {
+    "execucoes": 64,
+    "conversas": 30,
+    "latencia_execucao_s": {
+      "p50": 10.5,
+      "p95": 29.0
+    },
+    "latencia_conversa_s": {
+      "p50": 25.5,
+      "p95": 64.3
+    },
+    "custo_usd": {
+      "por_execucao_media": 0.00094,
+      "por_execucao_p95": 0.00273,
+      "por_conversa_media": 0.00201,
+      "total": 0.0602
+    },
+    "chamadas_modelo": 136,
+    "chamadas_modelo_com_erro": 0,
+    "chamadas_modelo_com_nova_tentativa": 14,
+    "terminos_por_execucao": {
+      "aguardando_usuario": 20,
+      "respondeu": 16,
+      "aguardando_humano": 14,
+      "recusou": 11,
+      "expirou": 1,
+      "orcamento": 1,
+      "rejeitado": 1
+    },
+    "terminos_finais_por_conversa": {
+      "respondeu": 15,
+      "recusou": 11,
+      "aguardando_usuario": 1,
+      "expirou": 1,
+      "orcamento": 1,
+      "rejeitado": 1
+    },
+    "erro_por_ferramenta": {
+      "aplicar_moderacao": {
+        "chamadas": 2,
+        "erros": 0,
+        "taxa": 0.0
+      },
+      "buscar_catalogo": {
+        "chamadas": 7,
+        "erros": 0,
+        "taxa": 0.0
+      },
+      "consultar_preco": {
+        "chamadas": 11,
+        "erros": 4,
+        "taxa": 0.364
+      },
+      "consultar_regras": {
+        "chamadas": 11,
+        "erros": 0,
+        "taxa": 0.0
+      },
+      "publicar_anuncio": {
+        "chamadas": 12,
+        "erros": 0,
+        "taxa": 0.0
+      },
+      "registrar_indicio": {
+        "chamadas": 3,
+        "erros": 0,
+        "taxa": 0.0
+      }
+    },
+    "slo_qualidade": {
+      "sli": 0.984,
+      "alvo": 0.95,
+      "boas": 63,
+      "validas": 64,
+      "ruins": 1,
+      "orcamento_de_erro_execucoes": 3.2,
+      "orcamento_consumido": 0.31,
+      "cumprido": true
+    }
+  }
+}
