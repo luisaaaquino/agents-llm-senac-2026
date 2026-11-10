@@ -368,11 +368,14 @@ início do arquivo).
   isso não existe formalizado em lugar nenhum — viveria num regulamento
   interno em Markdown/PDF que o Agente B consultaria antes de decidir se uma
   avaria exige declaração obrigatória ou é só recomendação.
-- [x] **MCP (Parte 2)** — a integração natural pra virar servidor MCP é a
-  camada `src/db.py` (§4.2 desta entrega): já é uma camada separada do
-  agente, já expõe 3 operações (`consultar_preco_comparaveis`,
+- [ ] **MCP (planejado, não implementado)** — a integração natural pra virar
+  servidor MCP é a camada `src/db.py` (§4.2 desta entrega): já é uma camada
+  separada do agente, já expõe 3 operações (`consultar_preco_comparaveis`,
   `publicar_anuncio`, `registrar_indicio_avaria`) que hoje são chamadas
-  Python diretas e virariam ferramentas MCP.
+  Python diretas e virariam ferramentas MCP. Não foi feito nas Partes 2 e 3:
+  as ferramentas continuam como chamadas diretas e a única integração
+  externa é a API do Gemini (ver `docs/model-card.md` §4 e
+  `docs/seguranca.md`, que já registram que não há servidor MCP).
 - [x] **LangChain (Parte 2)** — o laço `rodar_agente` (estado + orçamento +
   detector de laço, hoje escrito à mão em `src/agente_anuncio.py`) é o
   candidato: vira um `AgentExecutor`/grafo de estados, e o avaliador vira um
